@@ -19,7 +19,7 @@ const Navbar = () => {
 
   return (
     <nav className="flex items-center justify-between px-6 md:px-16 lg:px-24 xl:px-32 py-4 border-b border-gray-300 bg-white relative transition-all">
-      <NavLink to="/" className="text-lg font-semibold">
+      <NavLink to="/" className="text-lg font-semibold" onClick={() => setOpen(false)}>
         Botanical Cart
       </NavLink>
 
@@ -66,7 +66,7 @@ const Navbar = () => {
           </svg>
         </div>
 
-        <div className="relative cursor-pointer">
+        <div className="relative cursor-pointer" onClick={() => navigate?.("/cart")}>
           <svg
             width="18"
             height="18"
