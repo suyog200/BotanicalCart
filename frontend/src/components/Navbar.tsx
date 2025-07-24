@@ -95,7 +95,7 @@ const Navbar = () => {
         {!user ? (
           <button
             onClick={() => setShowUserLogin?.(true)}
-            className="cursor-pointer px-8 py-2 bg-(--color-primary) hover:bg-(--color-primary-dull) transition text-white rounded-full"
+            className="cursor-pointer px-8 py-2 bg-primary hover:bg-primary-dull transition text-white rounded-full"
           >
             Login
           </button>
@@ -178,7 +178,7 @@ const Navbar = () => {
           </NavLink>
           {!user ? (
             <button
-              className="cursor-pointer px-6 py-2 mt-2 bg-(--color-primary) hover:bg-(--color-primary-dull) transition text-white rounded-full text-sm"
+              className="cursor-pointer px-6 py-2 mt-2 bg-primary hover:bg-primary-dull transition text-white rounded-full text-sm"
               onClick={() => {
                 setOpen(false);
                 setShowUserLogin?.(true);
@@ -188,7 +188,7 @@ const Navbar = () => {
             </button>
           ) : (
             <button
-              className="cursor-pointer px-6 py-2 mt-2 bg-(--color-primary) hover:bg-(--color-primary-dull) transition text-white rounded-full text-sm"
+              className="cursor-pointer px-6 py-2 mt-2 bg-primary hover:bg-primary-dull transition text-white rounded-full text-sm"
               onClick={handleLogout}
             >
               Logout

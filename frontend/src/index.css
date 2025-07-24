@@ -11,6 +11,9 @@
   --color-hero-text-heading: #1b4332;
   --color-hero-text-subtitle: #2d6a4f;
   --color-hero-text-accent: #40916c;
+
+  --color-sage: #c3c9c6;
+  --color-test: #d10b0b;
 }
 
 @theme inline {
@@ -19,4 +22,6 @@
   --color-hero-text-heading: var(--color-hero-text-heading);
   --color-hero-text-subtitle: var(--color-hero-text-subtitle);
   --color-hero-text-accent: var(--color-hero-text-accent);
+  --color-sage: var(--color-sage);
+  --color-test: var(--color-test);
 }
