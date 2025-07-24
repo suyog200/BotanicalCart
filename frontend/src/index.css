@@ -5,7 +5,18 @@
   font-family: "Outfit", sans-serif;
 }
 
-@theme {
+:root {
   --color-primary: #1f9350;
   --color-primary-dull: #44ae7c;
+  --color-hero-text-heading: #1b4332;
+  --color-hero-text-subtitle: #2d6a4f;
+  --color-hero-text-accent: #40916c;
+}
+
+@theme inline {
+  --color-primary: var(--color-primary);
+  --color-primary-dull: var(--color-primary-dull);
+  --color-hero-text-heading: var(--color-hero-text-heading);
+  --color-hero-text-subtitle: var(--color-hero-text-subtitle);
+  --color-hero-text-accent: var(--color-hero-text-accent);
 }

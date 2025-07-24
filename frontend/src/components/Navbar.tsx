@@ -14,12 +14,15 @@ const Navbar = () => {
   const handleLogout = async () => {
     setUser?.(null);
     navigate?.("/");
-  }
-
+  };
 
   return (
-    <nav className="flex items-center justify-between px-6 md:px-16 lg:px-24 xl:px-32 py-4 border-b border-gray-300 bg-white relative transition-all">
-      <NavLink to="/" className="text-lg font-semibold" onClick={() => setOpen(false)}>
+    <nav className="z-50 flex items-center justify-between px-6 md:px-16 lg:px-24 xl:px-32 py-2 bg-white relative transition-all">
+      <NavLink
+        to="/"
+        className="text-lg font-semibold"
+        onClick={() => setOpen(false)}
+      >
         Botanical Cart
       </NavLink>
 
@@ -37,9 +40,9 @@ const Navbar = () => {
 
         <div className="hidden lg:flex items-center text-sm gap-2 border border-green-600 px-3 rounded-full">
           <input
-            className="py-1.5 w-full bg-transparent outline-none placeholder-gray-500"
             type="text"
             placeholder="Search products"
+            className="py-1.5 w-full bg-transparent border-none outline-none focus:outline-none focus:ring-0 focus:border-transparent placeholder-gray-500"
           />
           <svg
             width="16"
@@ -66,7 +69,10 @@ const Navbar = () => {
           </svg>
         </div>
 
-        <div className="relative cursor-pointer" onClick={() => navigate?.("/cart")}>
+        <div
+          className="relative cursor-pointer"
+          onClick={() => navigate?.("/cart")}
+        >
           <svg
             width="18"
             height="18"
@@ -81,23 +87,36 @@ const Navbar = () => {
               strokeLinejoin="round"
             />
           </svg>
-          <button className="absolute -top-2 -right-3 text-xs text-white bg-primary w-[18px] h-[18px] rounded-full">
+          <button className="absolute -top-2 -right-3 text-xs text-white bg-(--color-primary) w-[18px] h-[18px] rounded-full">
             3
           </button>
         </div>
 
         {!user ? (
-        <button onClick={() => setShowUserLogin?.(true)} className="cursor-pointer px-8 py-2 bg-primary hover:bg-primary-dull transition text-white rounded-full">
-          Login
-        </button>
+          <button
+            onClick={() => setShowUserLogin?.(true)}
+            className="cursor-pointer px-8 py-2 bg-(--color-primary) hover:bg-(--color-primary-dull) transition text-white rounded-full"
+          >
+            Login
+          </button>
         ) : (
-            <div className="relative group">
-             <img src={profile_icon} className="w-10" alt="" />
-             <ul className="hidden group-hover:block absolute top-10 right-0 bg-white shadow border border-gray-200 py-2.5 w-30 rounded-md text-sm z-40">
-                <li className="p-1.5 pl-3 hover:bg-primary/10 cursor-pointer" onClick={() => navigate?.("my-orders")}>My Orders</li>
-                <li className="p-1.5 pl-3 hover:bg-primary/10 cursor-pointer" onClick={handleLogout}>Logout</li>
-             </ul>
-            </div>
+          <div className="relative group">
+            <img src={profile_icon} className="w-10" alt="" />
+            <ul className="hidden group-hover:block absolute top-10 right-0 bg-white shadow border border-gray-200 py-2.5 w-30 rounded-md text-sm z-40">
+              <li
+                className="p-1.5 pl-3 hover:bg-primary/10 cursor-pointer"
+                onClick={() => navigate?.("my-orders")}
+              >
+                My Orders
+              </li>
+              <li
+                className="p-1.5 pl-3 hover:bg-primary/10 cursor-pointer"
+                onClick={handleLogout}
+              >
+                Logout
+              </li>
+            </ul>
+          </div>
         )}
       </div>
 
@@ -122,51 +141,60 @@ const Navbar = () => {
 
       {/* Mobile Menu */}
       {open && (
-      <div
-        className={`${
-          open ? "flex" : "hidden"
-        } absolute top-[60px] left-0 w-full bg-white shadow-md py-4 flex-col items-start gap-2 px-5 text-sm md:hidden`}
-      >
-        <NavLink
-          to="/"
-          className="block py-2 hover:text-primary-dull"
-          onClick={() => setOpen(false)}
+        <div
+          className={`${
+            open ? "flex" : "hidden"
+          } absolute top-[60px] left-0 w-full bg-white shadow-md py-4 flex-col items-start gap-2 px-5 text-sm md:hidden`}
         >
-          Home
-        </NavLink>
-        <NavLink
-          to="/about"
-          className="block py-2 hover:text-primary-dull"
-          onClick={() => setOpen(false)}
-        >
-          About
-        </NavLink>
-        {user && (
           <NavLink
-            to="/my-orders"
+            to="/"
             className="block py-2 hover:text-primary-dull"
             onClick={() => setOpen(false)}
           >
-            My Orders
+            Home
           </NavLink>
-        )}
-        <NavLink
-          to="/contact"
-          className="block py-2 hover:text-primary-dull"
-          onClick={() => setOpen(false)}
-        >
-          Contact
-        </NavLink>
-        {!user ? (
-          <button className="cursor-pointer px-6 py-2 mt-2 bg-primary hover:bg-primary-dull transition text-white rounded-full text-sm" onClick={() => {setOpen(false); setShowUserLogin?.(true);}}>
-            Login
-          </button>
-        ) : (
-          <button className="cursor-pointer px-6 py-2 mt-2 bg-primary hover:bg-primary-dull transition text-white rounded-full text-sm" onClick={handleLogout}>
-            Logout
-          </button>
-        )}
-      </div>
+          <NavLink
+            to="/about"
+            className="block py-2 hover:text-primary-dull"
+            onClick={() => setOpen(false)}
+          >
+            About
+          </NavLink>
+          {user && (
+            <NavLink
+              to="/my-orders"
+              className="block py-2 hover:text-primary-dull"
+              onClick={() => setOpen(false)}
+            >
+              My Orders
+            </NavLink>
+          )}
+          <NavLink
+            to="/contact"
+            className="block py-2 hover:text-primary-dull"
+            onClick={() => setOpen(false)}
+          >
+            Contact
+          </NavLink>
+          {!user ? (
+            <button
+              className="cursor-pointer px-6 py-2 mt-2 bg-(--color-primary) hover:bg-(--color-primary-dull) transition text-white rounded-full text-sm"
+              onClick={() => {
+                setOpen(false);
+                setShowUserLogin?.(true);
+              }}
+            >
+              Login
+            </button>
+          ) : (
+            <button
+              className="cursor-pointer px-6 py-2 mt-2 bg-(--color-primary) hover:bg-(--color-primary-dull) transition text-white rounded-full text-sm"
+              onClick={handleLogout}
+            >
+              Logout
+            </button>
+          )}
+        </div>
       )}
     </nav>
   );
