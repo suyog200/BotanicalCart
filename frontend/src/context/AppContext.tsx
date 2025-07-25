@@ -16,7 +16,7 @@ export const AppContext = createContext<AppContextType | undefined>(undefined);
 
 export const AppContextProvider = ({ children } : { children: React.ReactNode }) => {
     const navigate = useNavigate();
-    const [user, setUser] = useState(true);
+    const [user, setUser] = useState(null);
     const [seller, setIsSeller] = useState(false);
     const [showUserLogin, setShowUserLogin] = useState(false);
 
