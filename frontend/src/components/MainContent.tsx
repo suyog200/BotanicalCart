@@ -1,6 +1,8 @@
 import { useMemo, useState } from "react";
 import { plants, categories } from "@/data/plants"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'; 
+import { Leaf, Search } from 'lucide-react';
+import PlantCard from "./PlantCard";
 
 const PLANTS_PER_PAGE = 6;
 
@@ -58,6 +60,43 @@ const MainContent = () => {
             </TabsTrigger>
           ))}
         </TabsList>
+
+         {categories.map((category) => (
+            <TabsContent key={category.value} value={category.value} className="mt-0">
+              <div className="mb-6">
+                <h3 className="text-2xl font-semibold text-foreground mb-2">
+                  {category.label}
+                </h3>
+                <p className="text-muted-foreground">
+                  {filteredPlants.length} plant{filteredPlants.length !== 1 ? 's' : ''} found
+                </p>
+              </div>
+
+              {currentPlants.length === 0 ? (
+                <div className="flex flex-col items-center justify-center py-16 text-center">
+                  <Leaf className="h-16 w-16 text-muted-foreground/50 mb-4" />
+                  <h3 className="text-xl font-semibold text-foreground mb-2">No plants found</h3>
+                  <p className="text-muted-foreground">
+                    Try adjusting your search or browse other categories
+                  </p>
+                </div>
+              ) : (
+                <>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {currentPlants.map((plant) => (
+                      <PlantCard key={plant.id} plant={plant} />
+                    ))}
+                  </div>
+                  
+                  {/* <Pagination
+                    currentPage={currentPage}
+                    totalPages={totalPages}
+                    onPageChange={setCurrentPage}
+                  /> */}
+                </>
+              )}
+            </TabsContent>
+          ))}
       </Tabs>
     </main>
   )
