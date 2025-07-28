@@ -17,7 +17,7 @@ const Navbar = () => {
   };
 
   return (
-    <nav className="z-50 flex items-center justify-between px-6 md:px-16 lg:px-24 xl:px-32 py-2 bg-white relative transition-all">
+    <nav className="z-40 flex items-center justify-between px-6 md:px-16 lg:px-24 xl:px-32 py-2 bg-white/70 transition-all sticky top-0 backdrop-blur-sm">
       <NavLink
         to="/"
         className="text-lg font-semibold"
@@ -144,7 +144,7 @@ const Navbar = () => {
         <div
           className={`${
             open ? "flex" : "hidden"
-          } absolute top-[60px] left-0 w-full bg-white shadow-md py-4 flex-col items-start gap-2 px-5 text-sm md:hidden`}
+          } absolute top-[40px] left-0 w-full bg-white/70 shadow-md py-4 flex-col items-start gap-2 px-5 text-sm md:hidden backdrop-blur-sm transition-all`}
         >
           <NavLink
             to="/"

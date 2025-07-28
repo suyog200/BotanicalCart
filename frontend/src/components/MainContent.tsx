@@ -3,6 +3,7 @@ import { plants, categories } from "@/data/plants"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'; 
 import { Leaf, Search } from 'lucide-react';
 import PlantCard from "./PlantCard";
+import { Pagination } from "./Pagination";
 
 const PLANTS_PER_PAGE = 6;
 
@@ -87,12 +88,11 @@ const MainContent = () => {
                       <PlantCard key={plant.id} plant={plant} />
                     ))}
                   </div>
-                  
-                  {/* <Pagination
+                  <Pagination
                     currentPage={currentPage}
                     totalPages={totalPages}
                     onPageChange={setCurrentPage}
-                  /> */}
+                  />
                 </>
               )}
             </TabsContent>
