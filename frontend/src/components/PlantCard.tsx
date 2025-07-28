@@ -10,7 +10,9 @@ interface PlantCardProps {
 
 const PlantCard = ({ plant }: PlantCardProps) => {
   return (
-    <div className="group bg-white rounded-lg shadow-md transition-shadow duration-300 hover:shadow-lg">
+    <div className="group rounded-lg shadow-md transition-shadow duration-300 hover:shadow-lg"
+    style={{ backgroundColor: '##e9f5ec' }}
+    >
       <Link to={`/plants/${plant.id}`} className="group block">
         <div className="relative overflow-hidden">
           <div className="rounded-t-lg overflow-hidden">
