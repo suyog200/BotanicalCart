@@ -3,16 +3,7 @@ import lavenderImg from '@/assets/lavender.jpg';
 import snakePlantImg from '@/assets/snake-plant.jpg';
 import fiddleLeafImg from '@/assets/fiddle-leaf.jpg';
 import aloeVeraImg from '@/assets/aloe-vera.jpg';
-
-export interface Plant {
-  id: string;
-  name: string;
-  price: number;
-  category: 'medicinal' | 'home-decor' | 'outdoor' | 'indoor';
-  image: string;
-  description: string;
-  care: string;
-}
+import type { Plant } from '@/types/types';
 
 export const plants: Plant[] = [
   {

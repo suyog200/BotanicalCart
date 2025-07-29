@@ -5,15 +5,11 @@ import profile_icon from "../assets/profile_icon.png";
 
 const Navbar = () => {
   const [open, setOpen] = React.useState(false);
-  const appContext = useAppContext();
-  const user = appContext?.user;
-  const setUser = appContext?.setUser;
-  const setShowUserLogin = appContext?.setShowUserLogin;
-  const navigate = appContext?.navigate;
+  const { user, setUser, setShowUserLogin, navigate, itemCount } = useAppContext();
 
   const handleLogout = async () => {
-    setUser?.(null);
-    navigate?.("/");
+    setUser(null);
+    navigate("/");
   };
 
   return (
@@ -88,7 +84,7 @@ const Navbar = () => {
             />
           </svg>
           <button className="absolute -top-2 -right-3 text-xs text-white bg-(--color-primary) w-[18px] h-[18px] rounded-full">
-            3
+            {itemCount}
           </button>
         </div>
 

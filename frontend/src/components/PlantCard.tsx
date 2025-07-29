@@ -1,14 +1,18 @@
-import type { Plant } from "@/data/plants";
+import type { Plant } from "@/types/types";
 import { Link } from "react-router-dom";
 import { CardFooter } from "./ui/card";
-import { useState } from "react";
+import { useAppContext } from "@/context/AppContext";
 
 interface PlantCardProps {
   plant: Plant;
 }
 
 const PlantCard = ({ plant }: PlantCardProps) => {
-  const [count, setCount] = useState(0);
+  const { addToCart, updateQuantity, items } = useAppContext();
+
+  const cartItem = items.find((item) => item.id === plant.id);
+  const quantity = cartItem?.quantity ?? 0;
+
   return (
     <div
       className="group rounded-lg shadow-md transition-shadow duration-300 hover:shadow-lg"
@@ -25,14 +29,12 @@ const PlantCard = ({ plant }: PlantCardProps) => {
           </div>
         </div>
         <div className="px-5 pb-5">
-          <a href="#">
             <h5 className="text-xl font-semibold tracking-tight text-black">
               {plant.name}
             </h5>
             <p className="text-sm font-medium text-gray-500">
               {plant.description}
             </p>
-          </a>
           <div className="flex items-center mt-2.5 mb-5">
             <div className="flex items-center space-x-1 rtl:space-x-reverse">
               <svg
@@ -89,18 +91,11 @@ const PlantCard = ({ plant }: PlantCardProps) => {
       </Link>
       <CardFooter className="p-4 pt-0 flex items-center justify-between">
         <span className="text-2xl font-bold text-primary">${plant.price}</span>
-        {/* <Button 
-          onClick={() => console.log(`Added ${plant.name} to cart`)}
-          className="bg-gradient-hero hover:shadow-hover transition-all duration-300 cursor-pointer text-white"
-        >
-          <ShoppingCart className="h-4 w-4 mr-2"/>
-          Add to Cart
-        </Button> */}
         <div className="text-white">
-          {count === 0 ? (
+          {quantity === 0 ? (
             <button
               className="bg-gradient-hero hover:shadow-hover transition-all duration-300 cursor-pointer text-white flex items-center gap-2 px-3 py-1 rounded"
-              onClick={() => setCount(1)}
+              onClick={() => {addToCart(plant)}}
             >
               <svg
                 width="14"
@@ -121,14 +116,14 @@ const PlantCard = ({ plant }: PlantCardProps) => {
           ) : (
             <div className="flex items-center justify-center gap-2 md:w-20 w-16 h-[34px] bg-primary rounded select-none">
               <button
-                onClick={() => setCount((prev) => Math.max(prev - 1, 0))}
+                onClick={() => {updateQuantity(plant.id, quantity - 1)}}
                 className="cursor-pointer text-md px-2 h-full"
               >
                 -
               </button>
-              <span className="w-5 text-center">{count}</span>
+              <span className="w-5 text-center">{quantity}</span>
               <button
-                onClick={() => setCount((prev) => prev + 1)}
+                onClick={() => {updateQuantity(plant.id, quantity + 1)}}
                 className="cursor-pointer text-md px-2 h-full"
               >
                 +
