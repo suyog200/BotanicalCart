@@ -1,6 +1,7 @@
 import MainContent from '@/components/MainContent'
 import MainBanner from '../components/MainBanner'
 import { FeaturedProducts } from '@/components/FeaturedProducts'
+import Testimonials from '@/components/Testimonials'
 
 const Home = () => {
   return (
@@ -8,6 +9,7 @@ const Home = () => {
       <MainBanner/>
       <MainContent/>
       <FeaturedProducts/>
+      <Testimonials/>
     </div>
   )
 }
