@@ -2,10 +2,20 @@ import type { Plant } from "@/types/types";
 import { Link } from "react-router-dom";
 import { CardFooter } from "./ui/card";
 import { useAppContext } from "@/context/AppContext";
+import { Button } from "./ui/button";
+import { Heart } from "lucide-react";
+import { Badge } from '@/components/ui/badge';
 
 interface PlantCardProps {
   plant: Plant;
 }
+
+  const categoryColors = {
+    'medicinal': 'bg-green-100 text-green-800 hover:bg-green-200',
+    'home-decor': 'bg-terracotta/50 text-terracotta hover:bg-terracotta/30',
+    'indoor': 'bg-sage/50 text-moss hover:bg-sage/70',
+    'outdoor': 'bg-earth/50 text-moss hover:bg-earth/70'
+  };
 
 const PlantCard = ({ plant }: PlantCardProps) => {
   const { addToCart, updateQuantity, items } = useAppContext();
@@ -26,6 +36,17 @@ const PlantCard = ({ plant }: PlantCardProps) => {
               src={plant.image}
               alt={plant.name}
             />
+            <Button
+            variant="ghost"
+            size="icon"
+            className="absolute top-2 right-2 bg-white/80 hover:bg-white text-muted-foreground hover:text-accent transition-all duration-200"
+            onClick={(e) => e.preventDefault()}
+          >
+            <Heart className="h-4 w-4" />
+          </Button>
+          <Badge className={`absolute top-2 left-2 ${categoryColors[plant.category]}`}>
+            {plant.category.replace('-', ' ')}
+          </Badge>
           </div>
         </div>
         <div className="px-5 pb-5">

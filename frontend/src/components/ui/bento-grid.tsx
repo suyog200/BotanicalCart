@@ -51,7 +51,7 @@ export const BentoGridItem = ({
       />
 
       {/* Black Overlay on Hover */}
-      <div className="absolute inset-0  group-hover:bg-black/40 transition duration-300"></div>
+      <div className="absolute inset-0 bg-black/20 group-hover:bg-black/40 transition duration-300"></div>
 
       {/* Content */}
       <div className="relative z-10 flex flex-col justify-end h-full p-4 text-white">
