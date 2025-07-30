@@ -1,8 +1,13 @@
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
 @import "tailwindcss";
 
 * {
   font-family: "Outfit", sans-serif;
+}
+
+.newsletter {
+  font-family: "Poppins", sans-serif;
 }
 
 :root {
@@ -22,6 +27,7 @@
 
   --background: #f9f8f3; /* hsl(45 20% 97%) */
   --foreground: #2a3d2e; /* hsl(150 30% 15%) */
+  --newsletter-background: #bbf7d0;
 
   --color-card: #bbe1c8; /* hsl(0 0% 100%) */
   --card-foreground: #2a3d2e; /* hsl(150 30% 15%) */
@@ -33,7 +39,7 @@
   --shadow-hover: 0 4px 20px rgba(31, 147, 80, 0.3);
 }
 
-@theme inline {
+@theme {
   --color-primary: var(--color-primary);
   --color-primary-dull: var(--color-primary-dull);
   --color-hero-text-heading: var(--color-hero-text-heading);
@@ -53,6 +59,8 @@
   --shadow-plant: var(--shadow-plant);
   --gradient-hero: var(--gradient-hero);
   --gradient-hero-hover: var(--gradient-hero-hover);
+
+  --newsletter-background: var(--newsletter-background);
 }
 
 @layer utilities {

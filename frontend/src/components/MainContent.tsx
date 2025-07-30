@@ -13,7 +13,7 @@ const MainContent = () => {
   const [searchQuery, setSearchQuery] = useState("");
 
   const filteredPlants = useMemo(() => {
-    let filtered = plants;
+    let filtered = plants.filter((plant) => plant.inStock);
 
     if (activeCategory !== "all") {
       filtered = filtered.filter((plant) => plant.category === activeCategory);

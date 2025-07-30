@@ -2,6 +2,7 @@ import MainContent from '@/components/MainContent'
 import MainBanner from '../components/MainBanner'
 import { FeaturedProducts } from '@/components/FeaturedProducts'
 import Testimonials from '@/components/Testimonials'
+import Newsletter from '@/components/Newsletter'
 
 const Home = () => {
   return (
@@ -10,6 +11,7 @@ const Home = () => {
       <MainContent/>
       <FeaturedProducts/>
       <Testimonials/>
+      <Newsletter/>
     </div>
   )
 }

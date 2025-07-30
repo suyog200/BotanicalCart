@@ -6,4 +6,5 @@ export interface Plant {
   image: string;
   description: string;
   care: string;
+  inStock: boolean;
 }

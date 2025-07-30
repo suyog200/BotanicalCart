@@ -25,10 +25,10 @@ const PlantCard = ({ plant }: PlantCardProps) => {
 
   return (
     <div
-      className="group rounded-lg shadow-md transition-shadow duration-300 hover:shadow-lg"
-      style={{ backgroundColor: "##e9f5ec" }}
+      className="group rounded-lg shadow-md transition-shadow duration-300 hover:shadow-lg bg-white"
+      // style={{ backgroundColor: "#e9f5ec" }}
     >
-      <Link to={`/plants/${plant.id}`} className="group block">
+      <Link to={`/plants/details/${plant.id}`} className="group block">
         <div className="relative overflow-hidden">
           <div className="rounded-t-lg overflow-hidden">
             <img
@@ -112,7 +112,7 @@ const PlantCard = ({ plant }: PlantCardProps) => {
       </Link>
       <CardFooter className="p-4 pt-0 flex items-center justify-between">
         <span className="text-2xl font-bold text-primary">${plant.price}</span>
-        <div className="text-white">
+        <div className="text-white" onClick={(e) => e.stopPropagation()}>
           {quantity === 0 ? (
             <button
               className="bg-gradient-hero hover:shadow-hover transition-all duration-300 cursor-pointer text-white flex items-center gap-2 px-3 py-1 rounded"
