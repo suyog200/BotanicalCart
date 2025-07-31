@@ -1,8 +1,13 @@
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
 @import "tailwindcss";
 
 * {
   font-family: "Outfit", sans-serif;
+}
+
+.newsletter {
+  font-family: "Poppins", sans-serif;
 }
 
 :root {
@@ -15,10 +20,16 @@
   --color-sage: #c3c9c6;
   --color-test: #d10b0b;
 
+    /* Add your new category colors */
+  --color-terracotta: #cd5c5c;
+  --color-moss: #2d4a2b;
+  --color-earth: #8b6914;
+
   --background: #f9f8f3; /* hsl(45 20% 97%) */
   --foreground: #2a3d2e; /* hsl(150 30% 15%) */
+  --newsletter-background: #bbf7d0;
 
-  --card: #ffffff; /* hsl(0 0% 100%) */
+  --color-card: #bbe1c8; /* hsl(0 0% 100%) */
   --card-foreground: #2a3d2e; /* hsl(150 30% 15%) */
 
   --gradient-card: linear-gradient(180deg, #ffffff, #f5f8f3);
@@ -28,7 +39,7 @@
   --shadow-hover: 0 4px 20px rgba(31, 147, 80, 0.3);
 }
 
-@theme inline {
+@theme {
   --color-primary: var(--color-primary);
   --color-primary-dull: var(--color-primary-dull);
   --color-hero-text-heading: var(--color-hero-text-heading);
@@ -36,12 +47,20 @@
   --color-hero-text-accent: var(--color-hero-text-accent);
   --color-sage: var(--color-sage);
   --color-test: var(--color-test);
+
+    /* Add the new colors to theme */
+  --color-terracotta: var(--color-terracotta);
+  --color-moss: var(--color-moss);
+  --color-earth: var(--color-earth);
+  
   --background: var(--background);
-  --card: var(--card);
+  --color-card: var(--color-card);
   --gradient-card: var(--gradient-card);
   --shadow-plant: var(--shadow-plant);
   --gradient-hero: var(--gradient-hero);
   --gradient-hero-hover: var(--gradient-hero-hover);
+
+  --newsletter-background: var(--newsletter-background);
 }
 
 @layer utilities {

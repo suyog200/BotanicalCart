@@ -1,17 +1,34 @@
-import type { Plant } from "@/data/plants";
+import type { Plant } from "@/types/types";
 import { Link } from "react-router-dom";
 import { CardFooter } from "./ui/card";
+import { useAppContext } from "@/context/AppContext";
 import { Button } from "./ui/button";
-import { ShoppingCart } from 'lucide-react';
+import { Heart } from "lucide-react";
+import { Badge } from '@/components/ui/badge';
 
 interface PlantCardProps {
   plant: Plant;
 }
 
+  const categoryColors = {
+    'medicinal': 'bg-green-100 text-green-800 hover:bg-green-200',
+    'home-decor': 'bg-terracotta/50 text-terracotta hover:bg-terracotta/30',
+    'indoor': 'bg-sage/50 text-moss hover:bg-sage/70',
+    'outdoor': 'bg-earth/50 text-moss hover:bg-earth/70'
+  };
+
 const PlantCard = ({ plant }: PlantCardProps) => {
+  const { addToCart, updateQuantity, items } = useAppContext();
+
+  const cartItem = items.find((item) => item.id === plant.id);
+  const quantity = cartItem?.quantity ?? 0;
+
   return (
-    <div className="group bg-white rounded-lg shadow-md transition-shadow duration-300 hover:shadow-lg">
-      <Link to={`/plants/${plant.id}`} className="group block">
+    <div
+      className="group rounded-lg shadow-md transition-shadow duration-300 hover:shadow-lg bg-white"
+      // style={{ backgroundColor: "#e9f5ec" }}
+    >
+      <Link to={`/plants/details/${plant.id}`} className="group block">
         <div className="relative overflow-hidden">
           <div className="rounded-t-lg overflow-hidden">
             <img
@@ -19,15 +36,26 @@ const PlantCard = ({ plant }: PlantCardProps) => {
               src={plant.image}
               alt={plant.name}
             />
+            <Button
+            variant="ghost"
+            size="icon"
+            className="absolute top-2 right-2 bg-white/80 hover:bg-white text-muted-foreground hover:text-accent transition-all duration-200"
+            onClick={(e) => e.preventDefault()}
+          >
+            <Heart className="h-4 w-4" />
+          </Button>
+          <Badge className={`absolute top-2 left-2 ${categoryColors[plant.category]}`}>
+            {plant.category.replace('-', ' ')}
+          </Badge>
           </div>
         </div>
         <div className="px-5 pb-5">
-          <a href="#">
             <h5 className="text-xl font-semibold tracking-tight text-black">
               {plant.name}
             </h5>
-            <p className="text-sm font-medium text-gray-500">{plant.description}</p>
-          </a>
+            <p className="text-sm font-medium text-gray-500">
+              {plant.description}
+            </p>
           <div className="flex items-center mt-2.5 mb-5">
             <div className="flex items-center space-x-1 rtl:space-x-reverse">
               <svg
@@ -84,13 +112,46 @@ const PlantCard = ({ plant }: PlantCardProps) => {
       </Link>
       <CardFooter className="p-4 pt-0 flex items-center justify-between">
         <span className="text-2xl font-bold text-primary">${plant.price}</span>
-        <Button 
-          onClick={() => console.log(`Added ${plant.name} to cart`)}
-          className="bg-gradient-hero hover:shadow-hover transition-all duration-300 cursor-pointer text-white"
-        >
-          <ShoppingCart className="h-4 w-4 mr-2"/>
-          Add to Cart
-        </Button>
+        <div className="text-white" onClick={(e) => e.stopPropagation()}>
+          {quantity === 0 ? (
+            <button
+              className="bg-gradient-hero hover:shadow-hover transition-all duration-300 cursor-pointer text-white flex items-center gap-2 px-3 py-1 rounded"
+              onClick={() => {addToCart(plant)}}
+            >
+              <svg
+                width="14"
+                height="14"
+                viewBox="0 0 14 14"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M.583.583h2.333l1.564 7.81a1.17 1.17 0 0 0 1.166.94h5.67a1.17 1.17 0 0 0 1.167-.94l.933-4.893H3.5m2.333 8.75a.583.583 0 1 1-1.167 0 .583.583 0 0 1 1.167 0m6.417 0a.583.583 0 1 1-1.167 0 .583.583 0 0 1 1.167 0"
+                  stroke="#ffffff"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+              </svg>
+              Add
+            </button>
+          ) : (
+            <div className="flex items-center justify-center gap-2 md:w-20 w-16 h-[34px] bg-primary rounded select-none">
+              <button
+                onClick={() => {updateQuantity(plant.id, quantity - 1)}}
+                className="cursor-pointer text-md px-2 h-full"
+              >
+                -
+              </button>
+              <span className="w-5 text-center">{quantity}</span>
+              <button
+                onClick={() => {updateQuantity(plant.id, quantity + 1)}}
+                className="cursor-pointer text-md px-2 h-full"
+              >
+                +
+              </button>
+            </div>
+          )}
+        </div>
       </CardFooter>
     </div>
   );

@@ -5,19 +5,15 @@ import profile_icon from "../assets/profile_icon.png";
 
 const Navbar = () => {
   const [open, setOpen] = React.useState(false);
-  const appContext = useAppContext();
-  const user = appContext?.user;
-  const setUser = appContext?.setUser;
-  const setShowUserLogin = appContext?.setShowUserLogin;
-  const navigate = appContext?.navigate;
+  const { user, setUser, setShowUserLogin, navigate, itemCount } = useAppContext();
 
   const handleLogout = async () => {
-    setUser?.(null);
-    navigate?.("/");
+    setUser(null);
+    navigate("/");
   };
 
   return (
-    <nav className="z-50 flex items-center justify-between px-6 md:px-16 lg:px-24 xl:px-32 py-2 bg-white relative transition-all">
+    <nav className="z-40 flex items-center justify-between px-6 md:px-16 lg:px-24 xl:px-32 py-2 bg-white/70 transition-all sticky top-0 backdrop-blur-sm">
       <NavLink
         to="/"
         className="text-lg font-semibold"
@@ -88,13 +84,13 @@ const Navbar = () => {
             />
           </svg>
           <button className="absolute -top-2 -right-3 text-xs text-white bg-(--color-primary) w-[18px] h-[18px] rounded-full">
-            3
+            {itemCount}
           </button>
         </div>
 
         {!user ? (
           <button
-            onClick={() => setShowUserLogin?.(true)}
+            onClick={() => (setShowUserLogin?.(true), navigate?.("/login"))}
             className="cursor-pointer px-8 py-2 bg-primary hover:bg-primary-dull transition text-white rounded-full"
           >
             Login
@@ -144,7 +140,7 @@ const Navbar = () => {
         <div
           className={`${
             open ? "flex" : "hidden"
-          } absolute top-[60px] left-0 w-full bg-white shadow-md py-4 flex-col items-start gap-2 px-5 text-sm md:hidden`}
+          } absolute top-[40px] left-0 w-full bg-white/70 shadow-md py-4 flex-col items-start gap-2 px-5 text-sm md:hidden backdrop-blur-sm transition-all`}
         >
           <NavLink
             to="/"
@@ -182,6 +178,7 @@ const Navbar = () => {
               onClick={() => {
                 setOpen(false);
                 setShowUserLogin?.(true);
+                navigate?.("/login");
               }}
             >
               Login

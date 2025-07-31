@@ -3,16 +3,7 @@ import lavenderImg from '@/assets/lavender.jpg';
 import snakePlantImg from '@/assets/snake-plant.jpg';
 import fiddleLeafImg from '@/assets/fiddle-leaf.jpg';
 import aloeVeraImg from '@/assets/aloe-vera.jpg';
-
-export interface Plant {
-  id: string;
-  name: string;
-  price: number;
-  category: 'medicinal' | 'home-decor' | 'outdoor' | 'indoor';
-  image: string;
-  description: string;
-  care: string;
-}
+import type { Plant } from '@/types/types';
 
 export const plants: Plant[] = [
   {
@@ -22,7 +13,8 @@ export const plants: Plant[] = [
     category: 'home-decor',
     image: monsteraImg,
     description: 'Beautiful split-leaf plant perfect for modern homes',
-    care: 'Bright indirect light, water weekly'
+    care: 'Bright indirect light, water weekly',
+    inStock: true
   },
   {
     id: '2',
@@ -31,7 +23,8 @@ export const plants: Plant[] = [
     category: 'medicinal',
     image: lavenderImg,
     description: 'Aromatic herb with calming properties',
-    care: 'Full sun, water sparingly'
+    care: 'Full sun, water sparingly',
+    inStock: true
   },
   {
     id: '3',
@@ -40,7 +33,8 @@ export const plants: Plant[] = [
     category: 'indoor',
     image: snakePlantImg,
     description: 'Low-maintenance air purifying plant',
-    care: 'Low light tolerant, water monthly'
+    care: 'Low light tolerant, water monthly',
+    inStock: true
   },
   {
     id: '4',
@@ -49,7 +43,8 @@ export const plants: Plant[] = [
     category: 'home-decor',
     image: fiddleLeafImg,
     description: 'Statement plant with large glossy leaves',
-    care: 'Bright indirect light, water when top soil is dry'
+    care: 'Bright indirect light, water when top soil is dry',
+    inStock: true
   },
   {
     id: '5',
@@ -58,7 +53,8 @@ export const plants: Plant[] = [
     category: 'medicinal',
     image: aloeVeraImg,
     description: 'Healing succulent with soothing gel',
-    care: 'Bright light, water deeply but infrequently'
+    care: 'Bright light, water deeply but infrequently',
+    inStock: true
   },
   {
     id: '6',
@@ -67,7 +63,8 @@ export const plants: Plant[] = [
     category: 'indoor',
     image: monsteraImg,
     description: 'Swiss cheese plant with unique fenestrations',
-    care: 'Bright indirect light, regular watering'
+    care: 'Bright indirect light, regular watering',
+    inStock: true
   },
   {
     id: '7',
@@ -76,7 +73,8 @@ export const plants: Plant[] = [
     category: 'outdoor',
     image: lavenderImg,
     description: 'Hardy perennial with intense fragrance',
-    care: 'Full sun, well-draining soil'
+    care: 'Full sun, well-draining soil',
+    inStock: true
   },
   {
     id: '8',
@@ -85,7 +83,8 @@ export const plants: Plant[] = [
     category: 'indoor',
     image: snakePlantImg,
     description: 'Easy-care trailing vine',
-    care: 'Medium to low light, water weekly'
+    care: 'Medium to low light, water weekly',
+    inStock: true
   },
   {
     id: '9',
@@ -94,7 +93,8 @@ export const plants: Plant[] = [
     category: 'home-decor',
     image: fiddleLeafImg,
     description: 'Bold statement plant with dark green leaves',
-    care: 'Bright indirect light, water when dry'
+    care: 'Bright indirect light, water when dry',
+    inStock: true
   },
   {
     id: '10',
@@ -103,7 +103,8 @@ export const plants: Plant[] = [
     category: 'indoor',
     image: aloeVeraImg,
     description: 'Lucky succulent that\'s easy to grow',
-    care: 'Bright light, water sparingly'
+    care: 'Bright light, water sparingly',
+    inStock: true
   },
   {
     id: '11',
@@ -112,7 +113,8 @@ export const plants: Plant[] = [
     category: 'home-decor',
     image: monsteraImg,
     description: 'Tropical showstopper with dramatic leaves',
-    care: 'Bright direct light, consistent moisture'
+    care: 'Bright direct light, consistent moisture',
+    inStock: true
   },
   {
     id: '12',
@@ -121,7 +123,8 @@ export const plants: Plant[] = [
     category: 'medicinal',
     image: lavenderImg,
     description: 'Fragrant herb for cooking and aromatherapy',
-    care: 'Full sun, well-draining soil'
+    care: 'Full sun, well-draining soil',
+    inStock: true
   }
 ];
 
