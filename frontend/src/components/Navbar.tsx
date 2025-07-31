@@ -178,6 +178,7 @@ const Navbar = () => {
               onClick={() => {
                 setOpen(false);
                 setShowUserLogin?.(true);
+                navigate?.("/login");
               }}
             >
               Login

@@ -1,7 +1,24 @@
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { LoginSchema } from "../lib/validation";
 import { Link } from "react-router-dom";
 import loginImg from "@/assets/loginImg.png"
 
 export default function Login() {
+  const form = useForm<z.infer<typeof LoginSchema>>({
+    resolver: zodResolver(LoginSchema),
+    defaultValues: {
+      email: "",
+      password: "",
+    },
+  });
+
+  async function onSubmit(values: z.infer<typeof LoginSchema>) {
+    // Handle login logic here
+    console.log("Login values:", values);
+  }
+
   return (
     <div className="flex h-[700px] w-full mt-7 mb-14">
       <div className="w-full hidden md:inline-block">
@@ -13,7 +30,7 @@ export default function Login() {
       </div>
 
       <div className="w-full flex flex-col items-center justify-center">
-        <form className="md:w-96 w-80 flex flex-col items-center justify-center">
+        <form className="md:w-96 w-80 flex flex-col items-center justify-center" onSubmit={form.handleSubmit(onSubmit)}>
           <h2 className="text-4xl text-gray-900 font-medium">Sign in</h2>
           <p className="text-sm text-gray-500/90 mt-3">
             Welcome back! Please sign in to continue
@@ -53,12 +70,15 @@ export default function Login() {
               />
             </svg>
             <input
+              {...form.register("email")}
               type="email"
               placeholder="Email id"
               className="bg-transparent text-gray-500/80 placeholder-gray-500/80 outline-none focus:outline-none focus:ring-0 focus:shadow-none border-none text-sm w-full h-full"
-              required
             />
           </div>
+            {form.formState.errors.email && (
+            <p className="text-red-500 text-xs">{form.formState.errors.email.message}</p>
+            )}
 
           <div className="flex items-center mt-6 w-full bg-transparent border border-gray-300/60 h-12 rounded-full overflow-hidden pl-6 gap-2">
             <svg
@@ -74,12 +94,15 @@ export default function Login() {
               />
             </svg>
             <input
+              {...form.register("password")}
               type="password"
               placeholder="Password"
               className="bg-transparent text-gray-500/80 placeholder-gray-500/80 outline-none focus:outline-none focus:ring-0 focus:shadow-none border-none text-sm w-full h-full"
-              required
             />
           </div>
+            {form.formState.errors.password && (
+              <p className="text-red-500 text-xs">{form.formState.errors.password.message}</p>
+            )}
 
           <div className="w-full flex items-center justify-between mt-8 text-gray-500/80">
             <div className="flex items-center gap-2">

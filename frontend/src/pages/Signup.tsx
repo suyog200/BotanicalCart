@@ -1,7 +1,25 @@
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { SignupSchema } from "../lib/validation";
 import { Link } from "react-router-dom";
 import signupImg from '@/assets/signupImg.png'
 
 export default function Signup() {
+  const form = useForm<z.infer<typeof SignupSchema>>({
+    resolver: zodResolver(SignupSchema),
+    defaultValues: {
+      name: "",
+      email: "",
+      password: "",
+    },
+  });
+
+  async function onSubmit(values: z.infer<typeof SignupSchema>) {
+    // Handle signup logic here
+    console.log("Signup values:", values);
+  }
+
   return (
     <div className="flex h-[700px] w-full mt-7 mb-14">
       <div className="w-full hidden md:inline-block">
@@ -13,7 +31,7 @@ export default function Signup() {
       </div>
 
       <div className="w-full flex flex-col items-center justify-center">
-        <form className="md:w-96 w-80 flex flex-col items-center justify-center">
+        <form className="md:w-96 w-80 flex flex-col items-center justify-center" onSubmit={form.handleSubmit(onSubmit)}>
           <h2 className="text-4xl text-gray-900 font-medium">Sign up</h2>
           <p className="text-sm text-gray-500/90 mt-3">
             Welcome back! Please sign up to continue
@@ -50,12 +68,15 @@ export default function Signup() {
               ></path>
             </svg>
             <input
+              {...form.register("name")}
               type="text"
               placeholder="Your Name"
               className="bg-transparent text-gray-500/80 placeholder-gray-500/80 outline-none focus:outline-none focus:ring-0 focus:shadow-none border-none text-sm w-full h-full"
-              required
             />
           </div>
+          {form.formState.errors.name && (
+            <p className="text-red-500 text-xs">{form.formState.errors.name.message}</p>
+          )}
 
           <div className="flex items-center mt-6 w-full bg-transparent border border-gray-300/60 h-12 rounded-full overflow-hidden pl-6 gap-2">
             <svg
@@ -73,12 +94,15 @@ export default function Signup() {
               />
             </svg>
             <input
+              {...form.register("email")}
               type="email"
               placeholder="Email"
               className="bg-transparent text-gray-500/80 placeholder-gray-500/80 outline-none focus:outline-none focus:ring-0 focus:shadow-none border-none text-sm w-full h-full"
-              required
             />
           </div>
+          {form.formState.errors.email && (
+            <p className="text-red-500 text-xs">{form.formState.errors.email.message}</p>
+          )}
 
           <div className="flex items-center mt-6 w-full bg-transparent border border-gray-300/60 h-12 rounded-full overflow-hidden pl-6 gap-2">
             <svg
@@ -94,12 +118,15 @@ export default function Signup() {
               />
             </svg>
             <input
+              {...form.register("password")}
               type="password"
               placeholder="Password"
               className="bg-transparent text-gray-500/80 placeholder-gray-500/80 outline-none focus:outline-none focus:ring-0 focus:shadow-none border-none text-sm w-full h-full"
-              required
             />
           </div>
+          {form.formState.errors.password && (
+            <p className="text-red-500 text-xs">{form.formState.errors.password.message}</p>
+          )}
 
           <div className="flex items-center mt-6 w-full bg-transparent border border-gray-300/60 h-12 rounded-full overflow-hidden pl-6 gap-2">
             <svg
@@ -118,7 +145,6 @@ export default function Signup() {
               type="password"
               placeholder="Confirm Password"
               className="bg-transparent text-gray-500/80 placeholder-gray-500/80 outline-none focus:outline-none focus:ring-0 focus:shadow-none border-none text-sm w-full h-full"
-              required
             />
           </div>
 
