@@ -2,6 +2,9 @@ import Navbar from "./components/Navbar"
 import { Route, Routes, useLocation } from "react-router-dom";
 import Home from "./pages/Home";
 import { Toaster } from "react-hot-toast";
+import { Footer } from "./components/Footer";
+import Login from "./pages/Login";
+import Signup from "./pages/Signup";
 
 
 const App = () => {
@@ -16,8 +19,12 @@ const App = () => {
         {/* Main content area */}
         <Routes>
           <Route path="/" element={<Home />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/signup" element={<Signup />} />
         </Routes>
       </div>
+      {/* Footer */}
+      {!isSellerPath && <Footer />}
     </div>
   )
 }
