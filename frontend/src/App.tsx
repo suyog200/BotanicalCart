@@ -5,6 +5,7 @@ import { Toaster } from "react-hot-toast";
 import { Footer } from "./components/Footer";
 import SignupPage from "./pages/SignupPage";
 import SignInPage from "./pages/SignInPage";
+import Cart from "./pages/Cart";
 
 
 const App = () => {
@@ -21,6 +22,7 @@ const App = () => {
           <Route path="/" element={<Home />} />
           <Route path="/sign-in/*" element={<SignInPage />} />
           <Route path="/sign-up/*" element={<SignupPage />} />
+          <Route path="/cart" element={<Cart />} />
         </Routes>
       </div>
       {/* Footer */}

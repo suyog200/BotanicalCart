@@ -12,8 +12,6 @@ interface AppContextType {
   navigate: ReturnType<typeof useNavigate>;
   seller: boolean;
   setIsSeller: (seller: boolean) => void;
-  showUserLogin: boolean;
-  setShowUserLogin: (show: boolean) => void;
   items: CartItems[];
   total: number;
   itemCount: number;
@@ -32,7 +30,6 @@ export const AppContextProvider = ({
 }) => {
   const navigate = useNavigate();
   const [seller, setIsSeller] = useState(false);
-  const [showUserLogin, setShowUserLogin] = useState(false);
   const [items, setItems] = useState<CartItems[]>([]);
 
   // add items to cart
@@ -80,8 +77,6 @@ export const AppContextProvider = ({
     navigate,
     seller,
     setIsSeller,
-    showUserLogin,
-    setShowUserLogin,
     items,
     addToCart,
     removeFromCart,
