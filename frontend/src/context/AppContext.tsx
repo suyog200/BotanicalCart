@@ -10,8 +10,6 @@ interface CartItems extends Plant {
 }
 interface AppContextType {
   navigate: ReturnType<typeof useNavigate>;
-  user: any;
-  setUser: (user: any) => void;
   seller: boolean;
   setIsSeller: (seller: boolean) => void;
   showUserLogin: boolean;
@@ -33,7 +31,6 @@ export const AppContextProvider = ({
   children: React.ReactNode;
 }) => {
   const navigate = useNavigate();
-  const [user, setUser] = useState(null);
   const [seller, setIsSeller] = useState(false);
   const [showUserLogin, setShowUserLogin] = useState(false);
   const [items, setItems] = useState<CartItems[]>([]);
@@ -81,8 +78,6 @@ export const AppContextProvider = ({
 
   const value = {
     navigate,
-    user,
-    setUser,
     seller,
     setIsSeller,
     showUserLogin,
