@@ -6,6 +6,7 @@ import { Footer } from "./components/Footer";
 import SignupPage from "./pages/SignupPage";
 import SignInPage from "./pages/SignInPage";
 import Cart from "./pages/Cart";
+import ProductDetails from "./pages/ProductDetails";
 
 
 const App = () => {
@@ -23,6 +24,7 @@ const App = () => {
           <Route path="/sign-in/*" element={<SignInPage />} />
           <Route path="/sign-up/*" element={<SignupPage />} />
           <Route path="/cart" element={<Cart />} />
+          <Route path="/plantsDetails/:id" element={<ProductDetails />} />
         </Routes>
       </div>
       {/* Footer */}

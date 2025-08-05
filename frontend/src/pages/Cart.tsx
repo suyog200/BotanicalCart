@@ -45,7 +45,7 @@ const Cart = () => {
                     value={product.quantity}
                     onChange={(e) => updateQuantity(product.id, Number(e.target.value))}
                     >
-                      {Array(5)
+                      {Array(10)
                         .fill("")
                         .map((_, index) => (
                           <option key={index} value={index + 1}>
@@ -78,7 +78,6 @@ const Cart = () => {
           </div>
         ))}
 
-        <Link to="/">
         <button className="group cursor-pointer flex items-center mt-8 gap-2 text-green-700 font-medium">
           <svg
             width="15"
@@ -95,9 +94,10 @@ const Cart = () => {
               strokeLinejoin="round"
             />
           </svg>
+        <Link to="/">
           Continue Shopping
-        </button>
         </Link>
+        </button>
       </div>
 
       <div className="max-w-[360px] w-full bg-gray-100/40 p-5 max-md:mt-16 border border-gray-300/70">
