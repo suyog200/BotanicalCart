@@ -12,6 +12,7 @@ import { reviews } from "@/data/plantReviews";
 import { categoryColors } from "@/lib/colorCategories";
 import { useAppContext } from "@/context/AppContext";
 import Badges from "@/components/Badges";
+import SimilarPlants from "@/components/SimilarPlants";
 
 export default function ProductDetails() {
   const { id } = useParams();
@@ -229,16 +230,7 @@ export default function ProductDetails() {
         </Card> */}
 
         {/* Similar Products */}
-        {/* {similarPlants.length > 0 && (
-          <div>
-            <h2 className="text-2xl font-bold text-foreground mb-6">Similar Plants</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {similarPlants.map((similarPlant) => (
-                <PlantCard key={similarPlant.id} plant={similarPlant} />
-              ))}
-            </div>
-          </div>
-        )} */}
+        <SimilarPlants similarPlants={similarPlants} />
       </div>
     </div>
   );

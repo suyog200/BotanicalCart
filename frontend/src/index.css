@@ -72,3 +72,15 @@
     box-shadow: var(--shadow-hover);
   }
 }
+
+@media (max-width: 480px) {
+  .responsive-tab-stack {
+    display: flex !important;
+    flex-direction: column;
+  }
+
+  .responsive-tab-stack > * {
+    width: 100%;
+  }
+}
+
