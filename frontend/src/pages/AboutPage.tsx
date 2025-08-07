@@ -1,33 +1,10 @@
 import { ColorfulTextHeader } from "@/components/ColorfulTextHeader";
 import { Card, CardContent } from "@/components/ui/card";
-import { Heart, Leaf, Shield, Truck } from "lucide-react";
 import Img from "@/assets/signupImg.png"
+import { values } from "@/lib/coreValues"
 
 
-const values = [
-    {
-        icon: Leaf,
-        title: "Sustainability",
-        description: "We're committed to eco-friendly practices and sustainable sourcing",
-    },
-    {
-        icon: Heart,
-        title: "Care",
-        description: "Every plant is nurtured with love and expertise before reaching you",
-    },
-    {
-        icon: Shield,
-        title: "Quality",
-        description: "We guarantee the health and quality of every plant we deliver",
-    },
-    {
-        icon: Truck,
-        title: "Service",
-        description: "Fast, secure delivery with ongoing plant care support",
-    },
-]
 
-// AboutSection.tsx
 export default function AboutPage() {
   return (
     <div className="mt-10">
@@ -94,7 +71,7 @@ export default function AboutPage() {
                   </div>
                   <h3 className="text-lg font-semibold text-foreground mb-3">{value.title}</h3>
                 <p className="text-muted-foreground text-sm">
-                  We're committed to eco-friendly practices and sustainable sourcing
+                  {value.description}
                 </p>
               </CardContent>
             </Card>
