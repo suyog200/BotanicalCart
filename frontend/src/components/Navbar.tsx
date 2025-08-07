@@ -1,16 +1,15 @@
 import React from "react";
 import { NavLink } from "react-router-dom";
 import { useAppContext } from "../context/AppContext";
-import profile_icon from "../assets/profile_icon.png";
+import { useUser } from "@clerk/clerk-react";
+import { UserButton } from "@clerk/clerk-react";
+import  ShinyButton  from "./ui/shinyButton";
 
 const Navbar = () => {
+  const { user } = useUser();
   const [open, setOpen] = React.useState(false);
-  const { user, setUser, setShowUserLogin, navigate, itemCount } = useAppContext();
+  const { navigate, itemCount } = useAppContext();
 
-  const handleLogout = async () => {
-    setUser(null);
-    navigate("/");
-  };
 
   return (
     <nav className="z-40 flex items-center justify-between px-6 md:px-16 lg:px-24 xl:px-32 py-2 bg-white/70 transition-all sticky top-0 backdrop-blur-sm">
@@ -29,6 +28,9 @@ const Navbar = () => {
         </NavLink>
         <NavLink to="/about" className="hover:text-primary-dull">
           About
+        </NavLink>
+        <NavLink to="/orders" className="hover:text-primary-dull">
+          Orders
         </NavLink>
         <NavLink to="/contact" className="hover:text-primary-dull">
           Contact
@@ -89,29 +91,12 @@ const Navbar = () => {
         </div>
 
         {!user ? (
-          <button
-            onClick={() => (setShowUserLogin?.(true), navigate?.("/login"))}
-            className="cursor-pointer px-8 py-2 bg-primary hover:bg-primary-dull transition text-white rounded-full"
-          >
-            Login
-          </button>
+          <ShinyButton text="Login" onClick={() => {
+            navigate?.("/sign-in");
+          }} />
         ) : (
           <div className="relative group">
-            <img src={profile_icon} className="w-10" alt="" />
-            <ul className="hidden group-hover:block absolute top-10 right-0 bg-white shadow border border-gray-200 py-2.5 w-30 rounded-md text-sm z-40">
-              <li
-                className="p-1.5 pl-3 hover:bg-primary/10 cursor-pointer"
-                onClick={() => navigate?.("my-orders")}
-              >
-                My Orders
-              </li>
-              <li
-                className="p-1.5 pl-3 hover:bg-primary/10 cursor-pointer"
-                onClick={handleLogout}
-              >
-                Logout
-              </li>
-            </ul>
+            <UserButton />
           </div>
         )}
       </div>
@@ -177,19 +162,21 @@ const Navbar = () => {
               className="cursor-pointer px-6 py-2 mt-2 bg-primary hover:bg-primary-dull transition text-white rounded-full text-sm"
               onClick={() => {
                 setOpen(false);
-                setShowUserLogin?.(true);
-                navigate?.("/login");
+                navigate?.("/sign-in");
               }}
             >
               Login
             </button>
           ) : (
-            <button
-              className="cursor-pointer px-6 py-2 mt-2 bg-primary hover:bg-primary-dull transition text-white rounded-full text-sm"
-              onClick={handleLogout}
-            >
-              Logout
-            </button>
+            <div className="mt-2 px-1">
+              <UserButton
+                appearance={{
+                  elements: {
+                    userButtonBox: "ring-1 ring-gray-300 rounded-full",
+                  },
+                }}
+              />
+            </div>
           )}
         </div>
       )}

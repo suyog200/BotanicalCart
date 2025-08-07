@@ -3,8 +3,10 @@ import { Route, Routes, useLocation } from "react-router-dom";
 import Home from "./pages/Home";
 import { Toaster } from "react-hot-toast";
 import { Footer } from "./components/Footer";
-import Login from "./pages/Login";
-import Signup from "./pages/Signup";
+import SignupPage from "./pages/SignupPage";
+import SignInPage from "./pages/SignInPage";
+import Cart from "./pages/Cart";
+import ProductDetails from "./pages/ProductDetails";
 
 
 const App = () => {
@@ -19,8 +21,10 @@ const App = () => {
         {/* Main content area */}
         <Routes>
           <Route path="/" element={<Home />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/signup" element={<Signup />} />
+          <Route path="/sign-in/*" element={<SignInPage />} />
+          <Route path="/sign-up/*" element={<SignupPage />} />
+          <Route path="/cart" element={<Cart />} />
+          <Route path="/plantsDetails/:id" element={<ProductDetails />} />
         </Routes>
       </div>
       {/* Footer */}

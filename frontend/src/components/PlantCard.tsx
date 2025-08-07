@@ -5,17 +5,11 @@ import { useAppContext } from "@/context/AppContext";
 import { Button } from "./ui/button";
 import { Heart } from "lucide-react";
 import { Badge } from '@/components/ui/badge';
+import { categoryColors } from "@/lib/colorCategories";
 
 interface PlantCardProps {
   plant: Plant;
 }
-
-  const categoryColors = {
-    'medicinal': 'bg-green-100 text-green-800 hover:bg-green-200',
-    'home-decor': 'bg-terracotta/50 text-terracotta hover:bg-terracotta/30',
-    'indoor': 'bg-sage/50 text-moss hover:bg-sage/70',
-    'outdoor': 'bg-earth/50 text-moss hover:bg-earth/70'
-  };
 
 const PlantCard = ({ plant }: PlantCardProps) => {
   const { addToCart, updateQuantity, items } = useAppContext();
@@ -28,7 +22,7 @@ const PlantCard = ({ plant }: PlantCardProps) => {
       className="group rounded-lg shadow-md transition-shadow duration-300 hover:shadow-lg bg-white"
       // style={{ backgroundColor: "#e9f5ec" }}
     >
-      <Link to={`/plants/details/${plant.id}`} className="group block">
+      <Link to={`/plantsDetails/${plant.id}`} className="group block">
         <div className="relative overflow-hidden">
           <div className="rounded-t-lg overflow-hidden">
             <img
@@ -111,7 +105,7 @@ const PlantCard = ({ plant }: PlantCardProps) => {
         </div>
       </Link>
       <CardFooter className="p-4 pt-0 flex items-center justify-between">
-        <span className="text-2xl font-bold text-primary">${plant.price}</span>
+        <span className="text-2xl font-bold text-primary">₹{plant.price}</span>
         <div className="text-white" onClick={(e) => e.stopPropagation()}>
           {quantity === 0 ? (
             <button
@@ -128,8 +122,8 @@ const PlantCard = ({ plant }: PlantCardProps) => {
                 <path
                   d="M.583.583h2.333l1.564 7.81a1.17 1.17 0 0 0 1.166.94h5.67a1.17 1.17 0 0 0 1.167-.94l.933-4.893H3.5m2.333 8.75a.583.583 0 1 1-1.167 0 .583.583 0 0 1 1.167 0m6.417 0a.583.583 0 1 1-1.167 0 .583.583 0 0 1 1.167 0"
                   stroke="#ffffff"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
                 />
               </svg>
               Add
