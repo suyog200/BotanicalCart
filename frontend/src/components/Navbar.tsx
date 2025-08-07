@@ -29,12 +29,16 @@ const Navbar = () => {
         <NavLink to="/about" className="hover:text-primary-dull">
           About
         </NavLink>
+        {user && (
+          <> 
         <NavLink to="/orders" className="hover:text-primary-dull">
           Orders
         </NavLink>
-        <NavLink to="/contact" className="hover:text-primary-dull">
-          Contact
+        <NavLink to="/wishlist" className="hover:text-primary-dull">
+          Wishlist
         </NavLink>
+          </>
+        )}
 
         <div className="hidden lg:flex items-center text-sm gap-2 border border-green-600 px-3 rounded-full">
           <input

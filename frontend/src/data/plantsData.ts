@@ -4,6 +4,12 @@ import snakePlantImg from '@/assets/snake-plant.jpg';
 import fiddleLeafImg from '@/assets/fiddle-leaf.jpg';
 import aloeVeraImg from '@/assets/aloe-vera.jpg';
 import type { Plant } from '@/types/types';
+import homeImg from "@/assets/categoriesImages/home.png";
+import medicinalImg from "@/assets/categoriesImages/medicinal.png";
+import indoorImg from "@/assets/categoriesImages/indoor.png";
+import outdoorImg from "@/assets/categoriesImages/outdoor.png";
+import flowerImg from "@/assets/categoriesImages/flower-pot.png";
+import gardenToolsImg from "@/assets/categoriesImages/gardening-tools.png";
 
 export const plants: Plant[] = [
   {
@@ -129,9 +135,11 @@ export const plants: Plant[] = [
 ];
 
 export const categories = [
-  { value: 'all', label: 'All Plants' },
-  { value: 'medicinal', label: 'Medicinal' },
-  { value: 'home-decor', label: 'Home Decor' },
-  { value: 'indoor', label: 'Indoor' },
-  { value: 'outdoor', label: 'Outdoor' }
+  { value: 'all', label: 'All Plants', icon: homeImg },
+  { value: 'medicinal', label: 'Medicinal', icon: medicinalImg },
+  { value: 'home-decor', label: 'Home Decor', icon: homeImg },
+  { value: 'indoor', label: 'Indoor', icon: indoorImg },
+  { value: 'outdoor', label: 'Outdoor', icon: outdoorImg },
+  { value: 'flowers', label: 'Flowers', icon: flowerImg },
+  { value: 'tools', label: 'Garden Tools', icon: gardenToolsImg }
 ];
