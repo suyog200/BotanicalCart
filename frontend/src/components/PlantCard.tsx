@@ -43,7 +43,7 @@ const PlantCard = ({ plant }: PlantCardProps) => {
           </Badge>
           </div>
         </div>
-        <div className="px-5 pb-5">
+        <div className="px-5 pb-4 mt-2">
             <h5 className="text-xl font-semibold tracking-tight text-black">
               {plant.name}
             </h5>

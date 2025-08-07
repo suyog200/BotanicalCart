@@ -7,6 +7,7 @@ import SignupPage from "./pages/SignupPage";
 import SignInPage from "./pages/SignInPage";
 import Cart from "./pages/Cart";
 import ProductDetails from "./pages/ProductDetails";
+import AboutPage from "./pages/AboutPage";
 
 
 const App = () => {
@@ -25,6 +26,7 @@ const App = () => {
           <Route path="/sign-up/*" element={<SignupPage />} />
           <Route path="/cart" element={<Cart />} />
           <Route path="/plantsDetails/:id" element={<ProductDetails />} />
+          <Route path="/about" element={<AboutPage />} />
         </Routes>
       </div>
       {/* Footer */}
