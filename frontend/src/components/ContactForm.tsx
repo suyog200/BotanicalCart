@@ -4,20 +4,22 @@ import { useForm } from "react-hook-form";
 import { ContactFormSchema } from "@/lib/validation";
 
 const ContactForm = () => {
-
   const form = useForm<z.infer<typeof ContactFormSchema>>({
     resolver: zodResolver(ContactFormSchema),
     defaultValues: {
       email: "",
       subject: "",
       message: "",
-    }
+    },
   });
 
   async function handleSubmit(values: z.infer<typeof ContactFormSchema>) {
     // Handle form submission
     console.log(values);
   }
+
+  // Use isSubmitting from react-hook-form
+  const isSubmitting = form.formState.isSubmitting;
 
   return (
     <section className="rounded-2xl bg-[var(--newsletter-background)]">
@@ -40,16 +42,16 @@ const ContactForm = () => {
             <input
               type="email"
               id="email"
+              {...form.register("email")}
               className="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-green-500 focus:border-primary-500 block w-full p-2.5"
               placeholder="name@flowbite.com"
             />
           </div>
-          {
-            form.formState.errors.email && (
-              <p className="text-sm text-red-600">
-                {form.formState.errors.email.message}
-              </p>
-            )}
+          {form.formState.errors.email && (
+            <p className="text-sm text-red-600">
+              {form.formState.errors.email.message}
+            </p>
+          )}
           <div>
             <label
               htmlFor="subject"
@@ -60,16 +62,16 @@ const ContactForm = () => {
             <input
               type="text"
               id="subject"
+              {...form.register("subject")}
               className="block p-3 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 shadow-sm focus:ring-green-500 focus:border-primary-500"
               placeholder="Let us know how we can help you"
             />
-          </div>
-          {
-            form.formState.errors.subject && (
+            {form.formState.errors.subject && (
               <p className="text-sm text-red-600">
                 {form.formState.errors.subject.message}
               </p>
             )}
+          </div>
           <div className="sm:col-span-2">
             <label
               htmlFor="message"
@@ -80,22 +82,28 @@ const ContactForm = () => {
             <textarea
               id="message"
               rows={6}
+              {...form.register("message")}
               className="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg shadow-sm border border-gray-300 focus:ring-green-500 focus:border-primary-500"
               placeholder="Leave a comment..."
             ></textarea>
-          </div>
-          {
-            form.formState.errors.message && (
+            {form.formState.errors.message && (
               <p className="text-sm text-red-600">
                 {form.formState.errors.message.message}
               </p>
-            )
-          }
+            )}
+          </div>
           <button
             type="submit"
-            className="py-3 px-5 text-sm font-medium text-center text-white rounded-lg bg-primary sm:w-fit hover:bg-primary-800 focus:ring-4 focus:outline-none focus:ring-primary-300 cursor-pointer"
+            className={`py-3 px-5 text-sm font-medium text-center text-white rounded-lg sm:w-fit focus:ring-4 focus:outline-none focus:ring-primary-300 cursor-pointer transition-colors duration-200 ${
+              isSubmitting
+                ? "bg-gray-400 cursor-not-allowed"
+                : "bg-primary hover:bg-primary-800"
+            }`}
+            disabled={isSubmitting}
+            aria-busy={isSubmitting}
+            aria-disabled={isSubmitting}
           >
-            Send message
+            {isSubmitting ? <span>Sending…</span> : <span>Send message</span>}
           </button>
         </form>
       </div>

@@ -1,5 +1,5 @@
-import { useParams, Link } from "react-router-dom";
-import { useState } from "react";
+import { useParams, Link, } from "react-router-dom";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -18,7 +18,11 @@ export default function ProductDetails() {
   const { id } = useParams();
   const [isFavorite, setIsFavorite] = useState(false);
   const { addToCart, updateQuantity, items } = useAppContext();
-
+  
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  },[])
+  
   const plant = plants.find((p) => p.id === id);
   const cartItem = items.find((item) => item.id === plant?.id);
   const quantity = cartItem?.quantity ?? 0;
@@ -48,6 +52,7 @@ export default function ProductDetails() {
       </div>
     );
   }
+
 
   return (
     <div className="min-h-screen bg-background">

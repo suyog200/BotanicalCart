@@ -19,7 +19,7 @@ export default function AboutPage() {
         {/* Left Side: Image with floating community block */}
         <div className="relative shadow-2xl shadow-indigo-600/40 rounded-2xl overflow-hidden shrink-0">
           <img
-            className="max-w-md w-full object-cover rounded-2xl h-100"
+            className="max-w-md w-full object-cover rounded-2xl h-96"
             src={Img}
             alt="Plant Showcase"
           />

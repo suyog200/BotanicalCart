@@ -4,16 +4,15 @@ import { Link } from "react-router-dom";
 
 const Cart = () => {
   const [showAddress, setShowAddress] = useState(false);
-  const { items, updateQuantity, removeFromCart, itemCount, total } = useAppContext();
-  console.log("Cart items:", items);
-
-  const totalAmount = items.reduce((acc, item) => acc + item.price * item.quantity, 0);
+  const { items, updateQuantity, removeFromCart, itemCount, total } =
+    useAppContext();
 
   return (
     <div className="flex flex-col md:flex-row py-16 max-w-6xl w-full px-6 mx-auto">
       <div className="flex-1 max-w-4xl">
         <h1 className="text-3xl font-medium mb-6">
-          Shopping Cart <span className="text-sm text-green-700">{itemCount} Items</span>
+          Shopping Cart{" "}
+          <span className="text-sm text-green-700">{itemCount} Items</span>
         </h1>
 
         <div className="grid grid-cols-[2fr_1fr_1fr] text-gray-500 text-base font-medium pb-3">
@@ -40,10 +39,12 @@ const Cart = () => {
                 <div className="font-normal text-gray-500/70">
                   <div className="flex items-center">
                     <p>Qty:</p>
-                    <select 
-                    className="outline-none"
-                    value={product.quantity}
-                    onChange={(e) => updateQuantity(product.id, Number(e.target.value))}
+                    <select
+                      className="outline-none"
+                      value={product.quantity}
+                      onChange={(e) =>
+                        updateQuantity(product.id, Number(e.target.value))
+                      }
                     >
                       {Array(10)
                         .fill("")
@@ -57,8 +58,13 @@ const Cart = () => {
                 </div>
               </div>
             </div>
-            <p className="text-center">₹{(product.price * product.quantity).toFixed(2)}</p>
-            <button className="cursor-pointer mx-auto" onClick={() => removeFromCart(product.id)}>
+            <p className="text-center">
+              ₹{(product.price * product.quantity).toFixed(2)}
+            </p>
+            <button
+              className="cursor-pointer mx-auto"
+              onClick={() => removeFromCart(product.id)}
+            >
               <svg
                 width="20"
                 height="20"
@@ -94,9 +100,7 @@ const Cart = () => {
               strokeLinejoin="round"
             />
           </svg>
-        <Link to="/">
-          Continue Shopping
-        </Link>
+          <Link to="/">Continue Shopping</Link>
         </button>
       </div>
 
@@ -153,7 +157,7 @@ const Cart = () => {
           </p>
           <p className="flex justify-between text-lg font-medium mt-3">
             <span>Total Amount:</span>
-            <span>₹{totalAmount.toFixed(2)}</span>
+            <span>₹{total.toFixed(2)}</span>
           </p>
         </div>
 

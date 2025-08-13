@@ -16,8 +16,18 @@ export const SignupSchema = z.object({
   password: z.string().min(6, "Password must be at least 6 characters"),
 });
 
-export const ContactFormSchema = z.object({
-  email: emailSchema,
-  subject: z.string().min(2, "Subject must be at least 2 characters"),
-  message: z.string().min(10, "Message must be at least 10 characters"),
-});
+export const ContactFormSchema = z
+  .object({
+    email: emailSchema,
+    subject: z
+      .string()
+      .trim()
+      .min(2, "Subject must be at least 2 characters")
+      .max(120, "Subject must be at most 120 characters"),
+    message: z
+      .string()
+      .trim()
+      .min(10, "Message must be at least 10 characters")
+      .max(2000, "Message must be at most 2000 characters"),
+  })
+  .strict();
