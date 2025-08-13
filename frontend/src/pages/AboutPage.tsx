@@ -2,6 +2,8 @@ import { ColorfulTextHeader } from "@/components/ColorfulTextHeader";
 import { Card, CardContent } from "@/components/ui/card";
 import Img from "@/assets/signupImg.png"
 import { values } from "@/lib/coreValues"
+import FAQ from "@/components/FAQ";
+import ContactForm from "@/components/ContactForm";
 
 
 
@@ -78,6 +80,14 @@ export default function AboutPage() {
             ))}
           </div>
         </div>
+      {/* FAQ Section */}
+      <div className="mt-16">
+        <h2 className="text-3xl font-bold text-foreground text-center mb-12">Frequently Asked Questions</h2>
+        <FAQ />
+      </div>
+      <div className="mt-16 mb-10">
+        <ContactForm />
+      </div>
     </div>
   );
 }
