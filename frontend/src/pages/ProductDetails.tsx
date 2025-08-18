@@ -1,5 +1,5 @@
 import { useParams, Link, } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -13,19 +13,20 @@ import { categoryColors } from "@/lib/colorCategories";
 import { useAppContext } from "@/context/AppContext";
 import Badges from "@/components/Badges";
 import SimilarPlants from "@/components/SimilarPlants";
+import PlantReviews from "@/components/PlantReviews";
 
 export default function ProductDetails() {
   const { id } = useParams();
-  const [isFavorite, setIsFavorite] = useState(false);
-  const { addToCart, updateQuantity, items } = useAppContext();
+  const { addToCart, updateQuantity, items, toggleWishlist, isWishlisted } = useAppContext();
   
   useEffect(() => {
     window.scrollTo(0, 0);
-  },[])
+  }, [])
   
   const plant = plants.find((p) => p.id === id);
   const cartItem = items.find((item) => item.id === plant?.id);
   const quantity = cartItem?.quantity ?? 0;
+  const wished = plant ? isWishlisted(plant.id) : false;
 
   const plantReviews = reviews.filter((r) => r.plantId === id);
   const averageRating =
@@ -77,13 +78,17 @@ export default function ProductDetails() {
             <Button
               variant="ghost"
               size="icon"
-              className={`absolute top-4 right-4 bg-white/80 hover:bg-white transition-all duration-200 ${
-                isFavorite ? "text-red-500" : "text-muted-foreground"
-              }`}
-              onClick={() => setIsFavorite(!isFavorite)}
+              className="absolute top-2 right-2 bg-white/80 hover:bg-white text-muted-foreground hover:text-accent transition-all duration-200"
+              aria-pressed={wished}
+              aria-label={wished ? "Remove from wishlist" : "Add to wishlist"}
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                toggleWishlist(plant);
+              }}
             >
               <Heart
-                className={`h-5 w-5 ${isFavorite ? "fill-current" : ""}`}
+                className={`h-5 w-5 ${wished ? "fill-red-500 text-red-500" : "text-gray-700"}`}
               />
             </Button>
           </div>
@@ -193,46 +198,7 @@ export default function ProductDetails() {
         </div>
 
         {/* Reviews Section */}
-        {/* <Card className="mb-12">
-          <CardContent className="p-6">
-            <h2 className="text-2xl font-bold text-foreground mb-6">Customer Reviews</h2>
-            
-            {plantReviews.length === 0 ? (
-              <p className="text-muted-foreground">No reviews yet. Be the first to review this plant!</p>
-            ) : (
-              <div className="space-y-6">
-                {plantReviews.map((review) => (
-                  <div key={review.id} className="border-b border-border pb-6 last:border-b-0">
-                    <div className="flex items-center justify-between mb-2">
-                      <div className="flex items-center gap-2">
-                        <span className="font-semibold text-foreground">{review.username}</span>
-                        {review.verified && (
-                          <Badge variant="secondary" className="text-xs">
-                            Verified Purchase
-                          </Badge>
-                        )}
-                      </div>
-                      <span className="text-sm text-muted-foreground">{review.date}</span>
-                    </div>
-                    <div className="flex items-center mb-2">
-                      {[...Array(5)].map((_, i) => (
-                        <Star
-                          key={i}
-                          className={`h-4 w-4 ${
-                            i < review.rating
-                              ? 'text-yellow-400 fill-current'
-                              : 'text-gray-300'
-                          }`}
-                        />
-                      ))}
-                    </div>
-                    <p className="text-muted-foreground">{review.comment}</p>
-                  </div>
-                ))}
-              </div>
-            )}
-          </CardContent>
-        </Card> */}
+        <PlantReviews />
 
         {/* Similar Products */}
         <SimilarPlants similarPlants={similarPlants} />

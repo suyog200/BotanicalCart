@@ -12,10 +12,12 @@ interface PlantCardProps {
 }
 
 const PlantCard = ({ plant }: PlantCardProps) => {
-  const { addToCart, updateQuantity, items } = useAppContext();
+  const { addToCart, updateQuantity, items, toggleWishlist, isWishlisted } = useAppContext();
+  const wished = isWishlisted(plant.id);
 
   const cartItem = items.find((item) => item.id === plant.id);
   const quantity = cartItem?.quantity ?? 0;
+
 
   return (
     <div
@@ -30,13 +32,19 @@ const PlantCard = ({ plant }: PlantCardProps) => {
               src={plant.image}
               alt={plant.name}
             />
-            <Button
+          <Button
             variant="ghost"
             size="icon"
             className="absolute top-2 right-2 bg-white/80 hover:bg-white text-muted-foreground hover:text-accent transition-all duration-200"
-            onClick={(e) => e.preventDefault()}
+            aria-pressed={wished}
+            aria-label={wished ? "Remove from wishlist" : "Add to wishlist"}
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              toggleWishlist(plant);
+            }}
           >
-            <Heart className="h-4 w-4" />
+            <Heart className={`h-5 w-5 ${wished ? "fill-red-500 text-red-500" : "text-gray-700"}`} />
           </Button>
           <Badge className={`absolute top-2 left-2 ${categoryColors[plant.category]}`}>
             {plant.category.replace('-', ' ')}

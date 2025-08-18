@@ -1,4 +1,4 @@
-import Navbar from "./components/Navbar"
+import Navbar from "./components/Navbar";
 import { Route, Routes, useLocation } from "react-router-dom";
 import Home from "./pages/Home";
 import { Toaster } from "react-hot-toast";
@@ -8,7 +8,8 @@ import SignInPage from "./pages/SignInPage";
 import Cart from "./pages/Cart";
 import ProductDetails from "./pages/ProductDetails";
 import AboutPage from "./pages/AboutPage";
-
+import { lazy, Suspense } from "react";
+const WishlistPage = lazy(() => import("./pages/WishlistPage"));
 
 const App = () => {
   const isSellerPath = useLocation().pathname.includes("/seller");
@@ -27,12 +28,26 @@ const App = () => {
           <Route path="/cart" element={<Cart />} />
           <Route path="/plantsDetails/:id" element={<ProductDetails />} />
           <Route path="/about" element={<AboutPage />} />
+          <Route
+            path="/wishlist"
+            element={
+              <Suspense
+                fallback={
+                  <div className="flex justify-center items-center py-10">
+                    Loading...
+                  </div>
+                }
+              >
+                <WishlistPage />
+              </Suspense>
+            }
+          />
         </Routes>
       </div>
       {/* Footer */}
       {!isSellerPath && <Footer />}
     </div>
-  )
-}
+  );
+};
 
-export default App
+export default App;

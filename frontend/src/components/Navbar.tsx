@@ -180,19 +180,19 @@ const Navbar = () => {
           </NavLink>
           {user && (
             <NavLink
-              to="/my-orders"
+              to="/orders"
               className="block py-2 hover:text-primary-dull"
               onClick={() => setOpen(false)}
             >
-              My Orders
+             Orders
             </NavLink>
           )}
           <NavLink
-            to="/contact"
+            to="/wishlist"
             className="block py-2 hover:text-primary-dull"
             onClick={() => setOpen(false)}
           >
-            Contact
+            Wishlist
           </NavLink>
           {!user ? (
             <button
