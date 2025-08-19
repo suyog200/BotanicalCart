@@ -179,21 +179,23 @@ const Navbar = () => {
             About
           </NavLink>
           {user && (
-            <NavLink
-              to="/orders"
-              className="block py-2 hover:text-primary-dull"
-              onClick={() => setOpen(false)}
-            >
-             Orders
-            </NavLink>
+            <>
+              <NavLink
+                to="/orders"
+                className="block py-2 hover:text-primary-dull"
+                onClick={() => setOpen(false)}
+              >
+                Orders
+              </NavLink>
+              <NavLink
+                to="/wishlist"
+                className="block py-2 hover:text-primary-dull"
+                onClick={() => setOpen(false)}
+              >
+                Wishlist
+              </NavLink>
+            </>
           )}
-          <NavLink
-            to="/wishlist"
-            className="block py-2 hover:text-primary-dull"
-            onClick={() => setOpen(false)}
-          >
-            Wishlist
-          </NavLink>
           {!user ? (
             <button
               className="cursor-pointer px-6 py-2 mt-2 bg-primary hover:bg-primary-dull transition text-white rounded-full text-sm"

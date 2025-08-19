@@ -4,20 +4,31 @@ import { CardFooter } from "./ui/card";
 import { useAppContext } from "@/context/AppContext";
 import { Button } from "./ui/button";
 import { Heart } from "lucide-react";
-import { Badge } from '@/components/ui/badge';
+import { Badge } from "@/components/ui/badge";
 import { categoryColors } from "@/lib/colorCategories";
+import { useUser } from "@clerk/clerk-react";
+import toast from "react-hot-toast";
 
 interface PlantCardProps {
   plant: Plant;
 }
 
 const PlantCard = ({ plant }: PlantCardProps) => {
-  const { addToCart, updateQuantity, items, toggleWishlist, isWishlisted } = useAppContext();
+  const { addToCart, updateQuantity, items, toggleWishlist, isWishlisted } =
+    useAppContext();
   const wished = isWishlisted(plant.id);
+  const { user } = useUser();
 
   const cartItem = items.find((item) => item.id === plant.id);
   const quantity = cartItem?.quantity ?? 0;
 
+  function handleToggleWishlist(plant: Plant) {
+    if (user) {
+      toggleWishlist(plant);
+    } else {
+      toast("Please log in to add items to your wishlist.");
+    }
+  }
 
   return (
     <div
@@ -32,32 +43,45 @@ const PlantCard = ({ plant }: PlantCardProps) => {
               src={plant.image}
               alt={plant.name}
             />
-          <Button
-            variant="ghost"
-            size="icon"
-            className="absolute top-2 right-2 bg-white/80 hover:bg-white text-muted-foreground hover:text-accent transition-all duration-200"
-            aria-pressed={wished}
-            aria-label={wished ? "Remove from wishlist" : "Add to wishlist"}
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              toggleWishlist(plant);
-            }}
-          >
-            <Heart className={`h-5 w-5 ${wished ? "fill-red-500 text-red-500" : "text-gray-700"}`} />
-          </Button>
-          <Badge className={`absolute top-2 left-2 ${categoryColors[plant.category]}`}>
-            {plant.category.replace('-', ' ')}
-          </Badge>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="absolute top-2 right-2 bg-white/80 hover:bg-white text-muted-foreground hover:text-accent transition-all duration-200"
+              aria-pressed={wished}
+              aria-label={wished ? "Remove from wishlist" : "Add to wishlist"}
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                handleToggleWishlist(plant);
+              }}
+            >
+              <Heart
+                className={`h-5 w-5 ${
+                  wished ? "fill-red-500 text-red-500" : "text-gray-700"
+                }`}
+              />
+            </Button>
+            <Badge
+              className={`absolute top-2 left-2 ${
+                categoryColors[plant.category]
+              }`}
+            >
+              {plant.category.replace("-", " ")}
+            </Badge>
           </div>
         </div>
         <div className="px-5 pb-4 mt-2">
-            <h5 className="text-xl font-semibold tracking-tight text-black">
-              {plant.name}
-            </h5>
-            <p className="text-sm font-medium text-gray-500">
-              {plant.description}
-            </p>
+          <h5 className="text-xl font-semibold tracking-tight text-black">
+            {plant.name}
+          </h5>
+          <p
+            className="text-sm font-medium text-gray-500 truncate"
+            title={plant.description}
+          >
+            {plant.description.length > 15
+              ? plant.description.slice(0, 12) + "..."
+              : plant.description}
+          </p>
           <div className="flex items-center mt-2.5 mb-5">
             <div className="flex items-center space-x-1 rtl:space-x-reverse">
               <svg
@@ -118,7 +142,9 @@ const PlantCard = ({ plant }: PlantCardProps) => {
           {quantity === 0 ? (
             <button
               className="bg-gradient-hero hover:shadow-hover transition-all duration-300 cursor-pointer text-white flex items-center gap-2 px-3 py-1 rounded"
-              onClick={() => {addToCart(plant)}}
+              onClick={() => {
+                addToCart(plant);
+              }}
             >
               <svg
                 width="14"
@@ -139,14 +165,18 @@ const PlantCard = ({ plant }: PlantCardProps) => {
           ) : (
             <div className="flex items-center justify-center gap-2 md:w-20 w-16 h-[34px] bg-primary rounded select-none">
               <button
-                onClick={() => {updateQuantity(plant.id, quantity - 1)}}
+                onClick={() => {
+                  updateQuantity(plant.id, quantity - 1);
+                }}
                 className="cursor-pointer text-md px-2 h-full"
               >
                 -
               </button>
               <span className="w-5 text-center">{quantity}</span>
               <button
-                onClick={() => {updateQuantity(plant.id, quantity + 1)}}
+                onClick={() => {
+                  updateQuantity(plant.id, quantity + 1);
+                }}
                 className="cursor-pointer text-md px-2 h-full"
               >
                 +
