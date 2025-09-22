@@ -1,15 +1,16 @@
 import Navbar from "./components/Navbar";
 import { Route, Routes, useLocation } from "react-router-dom";
-import Home from "./pages/Home";
+import Home from "./pages/customer/Home";
 import { Toaster } from "react-hot-toast";
 import { Footer } from "./components/Footer";
-import SignupPage from "./pages/SignupPage";
-import SignInPage from "./pages/SignInPage";
-import Cart from "./pages/Cart";
-import ProductDetails from "./pages/ProductDetails";
-import AboutPage from "./pages/AboutPage";
+import SignupPage from "./pages/customer/SignupPage";
+import SignInPage from "./pages/customer/SignInPage";
+import Cart from "./pages/customer/Cart";
+import ProductDetails from "./pages/customer/ProductDetails";
+import AboutPage from "./pages/customer/AboutPage";
+import AdminDashboard from "./pages/AdminDashboard";
 import { lazy, Suspense } from "react";
-const WishlistPage = lazy(() => import("./pages/WishlistPage"));
+const WishlistPage = lazy(() => import("./pages/customer/WishlistPage"));
 
 const App = () => {
   const isSellerPath = useLocation().pathname.includes("/seller");
@@ -28,6 +29,7 @@ const App = () => {
           <Route path="/cart" element={<Cart />} />
           <Route path="/plantsDetails/:id" element={<ProductDetails />} />
           <Route path="/about" element={<AboutPage />} />
+          <Route path="/seller/admin-dashboard" element={<AdminDashboard />} />
           <Route
             path="/wishlist"
             element={
