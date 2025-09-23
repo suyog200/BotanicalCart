@@ -1,6 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Package, Clock, MessageSquare, TrendingUp } from "lucide-react";
+import { Clock, MessageSquare, Package, TrendingUp } from "lucide-react";
+import OverviewCards from "@/components/adminComponents/OverviewCards";
 
 const DashboardPage = () => {
   // Mock data - replace with real data from your API
@@ -10,6 +11,36 @@ const DashboardPage = () => {
     newEnquiries: 8,
     totalRevenue: 45670,
   };
+
+  // Define cards data with custom icons and colors
+  const overviewCards = [
+    {
+      title: "Total Products",
+      value: stats.totalProducts,
+      icon: Package,
+      iconClassName: "text-[var(--color-primary)]",
+    },
+    {
+      title: "Pending Orders",
+      value: stats.pendingOrders,
+      icon: Clock,
+      iconClassName: "text-yellow-500",
+    },
+    {
+      title: "New Enquiries",
+      value: stats.newEnquiries,
+      icon: MessageSquare,
+      iconClassName: "text-blue-500",
+    },
+    {
+      title: "Total Revenue",
+      value: stats.totalRevenue,
+      icon: TrendingUp,
+      iconClassName: "text-[var(--color-primary)]",
+      formatValue: (value: number | string) =>
+        `₹${Number(value).toLocaleString()}`,
+    },
+  ];
 
   const recentProducts = [
     {
@@ -97,80 +128,12 @@ const DashboardPage = () => {
       </div>
 
       {/* Stats Cards Container */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        {/* Total Products Card */}
-        <Card className="bg-gradient-to-br from-[var(--color-card)] to-[var(--background)] border-none">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-[var(--color-hero-text-subtitle)]">
-                  Total Products
-                </p>
-                <p className="text-3xl font-bold text-[var(--color-hero-text-heading)]">
-                  {stats.totalProducts}
-                </p>
-              </div>
-              <Package className="h-8 w-8 text-[var(--color-primary)]" />
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Pending Orders Card */}
-        <Card className="bg-gradient-to-br from-[var(--color-card)] to-[var(--background)] border-none">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-[var(--color-hero-text-subtitle)]">
-                  Pending Orders
-                </p>
-                <p className="text-3xl font-bold text-[var(--color-hero-text-heading)]">
-                  {stats.pendingOrders}
-                </p>
-              </div>
-              <Clock className="h-8 w-8 text-yellow-500" />
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* New Enquiries Card */}
-        <Card className="bg-gradient-to-br from-[var(--color-card)] to-[var(--background)] border-none">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-[var(--color-hero-text-subtitle)]">
-                  New Enquiries
-                </p>
-                <p className="text-3xl font-bold text-[var(--color-hero-text-heading)]">
-                  {stats.newEnquiries}
-                </p>
-              </div>
-              <MessageSquare className="h-8 w-8 text-blue-500" />
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Revenue Card */}
-        <Card className="bg-gradient-to-br from-[var(--color-card)] to-[var(--background)] border-none">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-[var(--color-hero-text-subtitle)]">
-                  Total Revenue
-                </p>
-                <p className="text-3xl font-bold text-[var(--color-hero-text-heading)]">
-                  ₹{stats.totalRevenue.toLocaleString()}
-                </p>
-              </div>
-              <TrendingUp className="h-8 w-8 text-[var(--color-primary)]" />
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+      <OverviewCards cards={overviewCards} />
 
       {/* Two Column Section */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Recent Products Section */}
-        <Card className="bg-gradient-to-br from-[var(--color-card)] to-[var(--background)] border-none">
+        <Card className="bg-white border-none">
           <CardHeader>
             <CardTitle className="text-[var(--color-hero-text-heading)] flex items-center gap-2">
               <Package className="h-5 w-5" />
@@ -216,7 +179,7 @@ const DashboardPage = () => {
         </Card>
 
         {/* Inquiries Section */}
-        <Card className="bg-gradient-to-br from-[var(--color-card)] to-[var(--background)] border-none">
+        <Card className="bg-white border-none">
           <CardHeader>
             <CardTitle className="text-[var(--color-hero-text-heading)] flex items-center gap-2">
               <MessageSquare className="h-5 w-5" />
