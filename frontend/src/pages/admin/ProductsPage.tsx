@@ -1,8 +1,11 @@
 import {  Package, MoveUp, MoveDown, SquarePen  } from "lucide-react";
 import OverviewCards from "@/components/adminComponents/OverviewCards";
 import ProductTable from "@/components/adminComponents/ProductTable";
+import { useState } from "react";
+import AddProductModal from "@/components/adminComponents/AddProductModal";
 
 const ProductsPage = () => {
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const stats = {
     totalProducts: 156,
     activeProducts: 23,
@@ -37,6 +40,10 @@ const ProductsPage = () => {
     },
   ];
 
+  function handleAddProduct() {
+    console.log("Add Product button clicked");
+  }
+
   return (
     <div className="min-h-screen bg-[var(--background)] p-6">
       <div className="mb-8 flex items-center justify-between">
@@ -49,9 +56,10 @@ const ProductsPage = () => {
           </p>
         </div>
         <div className="flex items-center gap-4">
-          <button className="bg-[var(--color-primary)] text-white py-2 px-4 rounded-md">
+          <button className="bg-[var(--color-primary)] text-white py-2 px-4 rounded-md" onClick={() => setIsModalOpen(true)}>
             + Add Product
           </button>
+          <AddProductModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} onSave={handleAddProduct} />
         </div>
       </div>
 
