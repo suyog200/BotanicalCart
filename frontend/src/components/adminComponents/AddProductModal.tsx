@@ -8,6 +8,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import Modal from "./Modal";
 import { productSchema } from "@/validateSchema/addProductSchema";
+import { useFieldArray } from "react-hook-form";
 
 type FormData = z.infer<typeof productSchema>;
 
@@ -44,6 +45,7 @@ const AddProductModal = ({ isOpen, onClose, onSave }: AddProductModalProps) => {
       category: [] as string[],
       description: "",
       stock: "",
+      careInstructions: [{ value: "" }],
     },
   });
 
@@ -56,7 +58,14 @@ const AddProductModal = ({ isOpen, onClose, onSave }: AddProductModalProps) => {
     watch,
   } = form;
 
-   watch("category");
+  watch("category");
+
+  const { fields, append, remove } = useFieldArray({
+    control,
+    name: "careInstructions",
+  });
+
+  //=============================================================================================
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -321,6 +330,51 @@ const AddProductModal = ({ isOpen, onClose, onSave }: AddProductModalProps) => {
         </div>
 
         {/* Care Instructions */}
+        <div>
+          <label className="block text-sm font-medium text-[var(--color-hero-text-heading)] mb-2">
+            Care Instructions
+          </label>
+
+          <div className="space-y-2">
+            {fields.map((field, index) => (
+              <div key={field.id} className="flex items-center gap-2">
+                <input
+                  {...register(`careInstructions.${index}.value`)}
+                  type="text"
+                  placeholder="Enter instruction"
+                  className={`flex-1 px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)] ${
+                    errors.careInstructions
+                      ? "border-red-500"
+                      : "border-gray-300"
+                  }`}
+                />
+                <Button
+                  type="button"
+                  variant="destructive"
+                  size="sm"
+                  onClick={() => remove(index)}
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              </div>
+            ))}
+          </div>
+
+          <Button
+            type="button"
+            variant="outline"
+            className="mt-2"
+            onClick={() => append({ value: "" })}
+          >
+            + Add Instruction
+          </Button>
+
+          {errors.careInstructions && (
+            <p className="text-red-500 text-sm mt-1">
+              {errors.careInstructions.message as string}
+            </p>
+          )}
+        </div>
 
         {/* Image Upload */}
         <div>

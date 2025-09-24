@@ -4,6 +4,7 @@ import ProductTable from "@/components/adminComponents/ProductTable";
 import { useState } from "react";
 import AddProductModal from "@/components/adminComponents/AddProductModal";
 
+
 const ProductsPage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const stats = {
@@ -40,8 +41,12 @@ const ProductsPage = () => {
     },
   ];
 
-  function handleAddProduct() {
-    console.log("Add Product button clicked");
+  function handleAddProduct(data: any) {
+      const transformed = {
+    ...data,
+    careInstructions: data.careInstructions.map((item: any) => item.value),
+  };
+  console.log("Transformed data:", transformed);
   }
 
   return (

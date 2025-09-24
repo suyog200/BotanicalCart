@@ -22,4 +22,7 @@ export const productSchema = z.object({
     .refine((val) => !isNaN(Number(val)) && Number(val) >= 0, {
       message: "Stock must be a valid number",
     }),
+    careInstructions: z
+      .array(z.object({ value: z.string().min(1, "Care instruction cannot be empty") }))
+      .min(1, "At least one care instruction is required"),
 });
