@@ -1,5 +1,6 @@
-import { Badge, Check, ChevronDown, X } from "lucide-react";
+import { Check, ChevronDown, X } from "lucide-react";
 import { useState } from "react";
+import { Badge } from "@/components/ui/badge";
 
 // components/form/MultiSelectDropdown.tsx
 interface MultiSelectDropdownProps<T> {
@@ -42,7 +43,7 @@ export function MultiSelectDropdown<T extends string>({
             {value.length > 0 ? (
               <div className="flex flex-wrap gap-1">
                 {value.map((item, index) => (
-                  <Badge key={index} fontVariant="secondary" className="bg-[var(--color-primary)] text-white text-xs">
+                  <Badge key={index} variant={"secondary"} className="bg-[var(--color-primary)] text-white text-xs">
                     {renderBadge(item)}
                     <button
                       type="button"
