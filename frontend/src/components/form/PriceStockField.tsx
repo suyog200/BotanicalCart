@@ -1,7 +1,7 @@
 // components/form/PriceStockFields.tsx
 interface PriceStockFieldsProps {
   register: any;
-  errors: { price?: string; stock?: string };
+  errors: { price?: string; units?: string };
 }
 
 export const PriceStockField = ({ register, errors }: PriceStockFieldsProps) => (
@@ -28,15 +28,15 @@ export const PriceStockField = ({ register, errors }: PriceStockFieldsProps) => 
         Stock Quantity <span className="text-red-500">*</span>
       </label>
       <input
-        {...register("stock")}
+        {...register("units")}
         type="number"
         className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)] ${
-          errors.stock ? "border-red-500" : "border-gray-300"
+          errors.units ? "border-red-500" : "border-gray-300"
         }`}
         placeholder="0"
         min="0"
       />
-      {errors.stock && <p className="text-red-500 text-sm mt-1">{errors.stock}</p>}
+      {errors.units && <p className="text-red-500 text-sm mt-1">{errors.units}</p>}
     </div>
   </div>
 );

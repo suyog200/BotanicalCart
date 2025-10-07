@@ -10,21 +10,38 @@ import { Controller, useFieldArray, useForm } from "react-hook-form";
 import { productSchema } from "@/validateSchema/addProductSchema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
+import CheckboxGroupField from "./CheckboxGroupField";
 import type { z } from "zod";
 
 type FormData = z.infer<typeof productSchema>;
 
-type ProductFormData = FormData & {
+type ProductFormData = Omit<FormData, "careInstructions"> & {
+  careInstructions: string[]; // flatten before sending
   image: File | null;
 };
+
 
 interface AddProductModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSave: (data: ProductFormData) => void;
+  isLoading: boolean;
 }
 
-const AddProductModal = ({ isOpen, onClose, onSave }: AddProductModalProps) => {
+  const checkboxOptions = [
+    {
+      name: "isFeatured",
+      label: "Featured Product",
+      description: "Mark this product as featured to highlight it on the homepage"
+    },
+    {
+      name: "inStock",
+      label: "In Stock",
+      description: "Check if this product is currently available for purchase"
+    }
+  ];
+
+const AddProductModal = ({ isOpen, onClose, onSave, isLoading }: AddProductModalProps) => {
   const {
     imageFile,
     imagePreview,
@@ -51,8 +68,10 @@ const AddProductModal = ({ isOpen, onClose, onSave }: AddProductModalProps) => {
       price: "",
       category: [] as string[],
       description: "",
-      stock: "",
+      units: "",
       careInstructions: [{ value: "" }],
+      isFeatured: false,
+      inStock: true,
     },
   });
 
@@ -75,10 +94,9 @@ const AddProductModal = ({ isOpen, onClose, onSave }: AddProductModalProps) => {
       return;
     }
 
-    // Filter out empty care instructions
-    const filteredCareInstructions = data.careInstructions.filter(
-      (instruction) => instruction.value.trim() !== ""
-    );
+      const filteredCareInstructions = data.careInstructions
+    .map((item) => item.value.trim()) // extract string
+    .filter((value) => value !== ""); // remove empty strings
 
     const productData: ProductFormData = {
       ...data,
@@ -115,7 +133,7 @@ const AddProductModal = ({ isOpen, onClose, onSave }: AddProductModalProps) => {
           register={register}
           errors={{
             price: errors.price?.message,
-            stock: errors.stock?.message,
+            units: errors.units?.message,
           }}
         />
 
@@ -156,13 +174,23 @@ const AddProductModal = ({ isOpen, onClose, onSave }: AddProductModalProps) => {
         <DynamicFieldArray
           fields={fields}
           register={register}
-          append={() => append({ value: "" })} // Fix: Append string, not object
+          append={() => append({ value: "" })} // Append object with value property
           remove={remove}
           name="careInstructions"
           label="Care Instructions"
           placeholder="Enter care instruction"
           error={errors.careInstructions?.message}
           showBulletPoints
+        />
+
+        <CheckboxGroupField
+          options={checkboxOptions}
+          register={register}
+          errors={{
+            isFeatured: errors.isFeatured?.message ?? "",
+            inStock: errors.inStock?.message ?? "",
+          }}
+          title="Product Settings"
         />
 
         <ImageUploadField
@@ -187,7 +215,7 @@ const AddProductModal = ({ isOpen, onClose, onSave }: AddProductModalProps) => {
             disabled={isSubmitting}
             className="bg-[var(--color-primary)] hover:bg-[var(--color-primary-dull)] text-white"
           >
-            {isSubmitting ? "Adding..." : "Add Product"}
+            {isLoading ? "Adding..." : "Add Product"}
           </Button>
         </div>
       </form>

@@ -1,12 +1,17 @@
-import {  Package, MoveUp, MoveDown, SquarePen  } from "lucide-react";
+import { Package, MoveUp, MoveDown, SquarePen } from "lucide-react";
 import OverviewCards from "@/components/adminComponents/OverviewCards";
 import ProductTable from "@/components/adminComponents/ProductTable";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import AddProductModal from "@/components/adminComponents/AddProductModal";
-
+import { api } from "@/api/api";
+import toast from "react-hot-toast";
 
 const ProductsPage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [products, setProducts] = useState([]);
+  const [isLoadingProducts, setIsLoadingProducts] = useState(false); 
+
   const stats = {
     totalProducts: 156,
     activeProducts: 23,
@@ -41,12 +46,70 @@ const ProductsPage = () => {
     },
   ];
 
-  function handleAddProduct(data: any) {
-      const transformed = {
-    ...data,
-    careInstructions: data.careInstructions.map((item: any) => item.value),
+    // Fetch products function
+  const fetchProducts = async () => {
+    setIsLoadingProducts(true);
+    try {
+      const response = await api.get("/api/v1/products");
+      if (response.status === 200) {
+        setProducts(response.data.data || response.data); // Adjust based on your API response structure
+      }
+    } catch (error) {
+      console.error("Error fetching products:", error);
+      toast.error("Failed to load products");
+    } finally {
+      setIsLoadingProducts(false);
+    }
   };
-  console.log("Transformed data:", transformed);
+
+  // Fetch products on component mount
+  useEffect(() => {
+    fetchProducts();
+  }, []);
+
+  async function handleAddProduct(data: any) {
+    setIsLoading(true);
+    try {
+      const formData = new FormData();
+
+      formData.append("name", data.name);
+      formData.append("price", data.price.toString());
+      formData.append("description", data.description);
+      formData.append("units", data.units?.toString() || "0");
+      formData.append("isFeatured", data.isFeatured?.toString() || "false");
+      formData.append("inStock", data.inStock?.toString() || "true");
+
+      if (Array.isArray(data.category)) {
+        formData.append("category", JSON.stringify(data.category));
+      }
+
+      if (Array.isArray(data.careInstructions)) {
+        formData.append(
+          "careInstructions",
+          JSON.stringify(data.careInstructions)
+        );
+      }
+
+      if (data.image && data.image instanceof File) {
+        formData.append("image", data.image);
+      }
+
+      const response = await api.post("/api/v1/products", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+
+      if (response.status === 200 || response.status === 201) {
+        console.log("Product added successfully:", response.data);
+        toast.success("Product added successfully!");
+      }
+    } catch (error) {
+      console.error("Error adding product:", error);
+      toast.error("Failed to add product. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
   }
 
   return (
@@ -61,10 +124,18 @@ const ProductsPage = () => {
           </p>
         </div>
         <div className="flex items-center gap-4">
-          <button className="bg-[var(--color-primary)] text-white py-2 px-4 rounded-md" onClick={() => setIsModalOpen(true)}>
-            + Add Product
+          <button
+            className="bg-[var(--color-primary)] text-white py-2 px-4 rounded-md"
+            onClick={() => setIsModalOpen(true)}
+          >
+            Add Product
           </button>
-          <AddProductModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} onSave={handleAddProduct} />
+          <AddProductModal
+            isOpen={isModalOpen}
+            onClose={() => setIsModalOpen(false)}
+            onSave={handleAddProduct}
+            isLoading={isLoading}
+          />
         </div>
       </div>
 
@@ -72,7 +143,11 @@ const ProductsPage = () => {
       <OverviewCards cards={overviewCards} />
 
       {/* Product Table */}
-      <ProductTable />
+      <ProductTable 
+        products={products} 
+        isLoading={isLoadingProducts}
+        onRefresh={fetchProducts}
+      />
     </div>
   );
 };

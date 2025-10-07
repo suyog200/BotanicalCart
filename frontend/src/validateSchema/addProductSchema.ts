@@ -16,7 +16,7 @@ export const productSchema = z.object({
     .string()
     .min(1, "Description is required")
     .min(10, "Description must be at least 10 characters"),
-  stock: z
+  units: z
     .string()
     .min(1, "Stock quantity is required")
     .refine((val) => !isNaN(Number(val)) && Number(val) >= 0, {
@@ -26,4 +26,6 @@ export const productSchema = z.object({
       .array(z.object({ value: z.string().min(1, "Care instruction cannot be empty") }))
       .min(1, "At least one care instruction is required"),
     image: z.instanceof(File, { message: "Product image is required" }).optional(),
+    isFeatured: z.boolean(),
+    inStock: z.boolean(),
 });
