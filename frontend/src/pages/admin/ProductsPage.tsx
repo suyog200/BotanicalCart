@@ -4,6 +4,7 @@ import ProductTable from "@/components/adminComponents/ProductTable";
 import { useEffect, useState } from "react";
 import AddProductModal from "@/components/adminComponents/AddProductModal";
 import { api } from "@/api/api";
+import { calculateProductStats } from "@/utils/ProductStatsCalu";
 import toast from "react-hot-toast";
 
 const ProductsPage = () => {
@@ -12,12 +13,7 @@ const ProductsPage = () => {
   const [products, setProducts] = useState([]);
   const [isLoadingProducts, setIsLoadingProducts] = useState(false); 
 
-  const stats = {
-    totalProducts: 156,
-    activeProducts: 23,
-    outOfStock: 8,
-    featured: 4,
-  };
+  const stats = calculateProductStats(products);
 
   const overviewCards = [
     {
@@ -52,7 +48,7 @@ const ProductsPage = () => {
     try {
       const response = await api.get("/api/v1/products");
       if (response.status === 200) {
-        setProducts(response.data.data || response.data); // Adjust based on your API response structure
+        setProducts(response.data.data || response.data); 
       }
     } catch (error) {
       console.error("Error fetching products:", error);
@@ -62,7 +58,6 @@ const ProductsPage = () => {
     }
   };
 
-  // Fetch products on component mount
   useEffect(() => {
     fetchProducts();
   }, []);
