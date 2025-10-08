@@ -1,34 +1,39 @@
-import { Edit, Trash2 } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Edit, Trash2, Loader } from "lucide-react";
 
 interface ProductTableActionProps {
-  onEdit?: () => void;
-  onDelete?: () => void;
+  onEdit: () => void;
+  onDelete: () => void;
+  isDeleting?: boolean;
 }
 
-const ProductTableAction = ({ onEdit, onDelete }: ProductTableActionProps) => {
+const ProductTableAction = ({
+  onEdit,
+  onDelete,
+  isDeleting = false,
+}: ProductTableActionProps) => {
   return (
     <div className="flex items-center gap-2">
-      {onEdit && (
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={onEdit}
-          className="h-8 w-8 p-0 hover:bg-blue-50 hover:text-blue-600 cursor-pointer"
-        >
-          <Edit className="h-4 w-4" />
-        </Button>
-      )}
-      {onDelete && (
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={onDelete}
-          className="h-8 w-8 p-0 hover:bg-red-50 hover:text-red-600 cursor-pointer"
-        >
+      <button
+        onClick={onEdit}
+        disabled={isDeleting}
+        className="p-2 text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+        title="Edit product"
+      >
+        <Edit className="h-4 w-4" />
+      </button>
+
+      <button
+        onClick={onDelete}
+        disabled={isDeleting}
+        className="p-2 text-red-600 hover:text-red-800 hover:bg-red-50 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+        title={isDeleting ? "Deleting..." : "Delete product"}
+      >
+        {isDeleting ? (
+          <Loader className="h-4 w-4 animate-spin" />
+        ) : (
           <Trash2 className="h-4 w-4" />
-        </Button>
-      )}
+        )}
+      </button>
     </div>
   );
 };
