@@ -12,7 +12,7 @@ import AdminDashboard from "./pages/admin/AdminDashboard";
 import ProductsPage from "./pages/admin/ProductsPage";
 import CategoryPage from "./pages/admin/CategoryPage";
 import DashboardPage from "./pages/admin/DashboardPage";
-import OrderAndEnquiries from "./pages/admin/OrderAndEnquries";
+import OrderAndEnquiries from "./pages/admin/OrderAndEnquiries";
 import Settings from "./pages/admin/Settings";
 import Analytics from "./pages/admin/Analytics";
 import { lazy, Suspense } from "react";

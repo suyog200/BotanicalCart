@@ -1,3 +1,4 @@
+import { useId } from "react";
 import { Upload, X } from "lucide-react";
 import { Button } from "../ui/button";
 import { Card, CardContent } from "../ui/card";
@@ -48,7 +49,7 @@ export const ImageUploadField = ({
           <div className="relative">
             <img
               src={imagePreview}
-              alt="Preview"
+              alt={`${label} preview`}
               className="w-full h-48 object-cover rounded-lg"
             />
             <Button
@@ -57,6 +58,7 @@ export const ImageUploadField = ({
               size="sm"
               onClick={onRemoveImage}
               className="absolute top-2 right-2 h-8 w-8 p-0"
+              aria-label={`Remove ${label.toLowerCase()}`}
             >
               <X className="h-4 w-4" />
             </Button>

@@ -1,6 +1,6 @@
 import ProductTableAction from "./ProductTableAction";
 import { formatCategories } from "@/utils/formatters";
-import { RotateCw } from 'lucide-react';
+import { RotateCw } from "lucide-react";
 import type { Product } from "@/types/types";
 import { api } from "@/api/api";
 import { useState } from "react";
@@ -9,7 +9,7 @@ import toast from "react-hot-toast";
 interface ProductTableProps {
   products: Product[];
   isLoading?: boolean;
-  onRefresh?: () => void;
+  onRefresh?: () => void | Promise<void>;
   onEdit?: (product: Product) => void;
 }
 
@@ -19,7 +19,9 @@ const ProductTable = ({
   onRefresh,
   onEdit,
 }: ProductTableProps) => {
-  const [deletingProducts, setDeletingProducts] = useState<Set<string>>(new Set());
+  const [deletingProducts, setDeletingProducts] = useState<Set<string>>(
+    new Set()
+  );
 
   const handleDelete = async (product: Product) => {
     if (!product?.id) {
@@ -29,11 +31,11 @@ const ProductTable = ({
 
     const confirmMessage = `Are you sure you want to delete "${product.name}"?\n\nThis action cannot be undone.`;
     const confirmed = window.confirm(confirmMessage);
-    
+
     if (!confirmed) return;
 
     // Add product to deleting state
-    setDeletingProducts(prev => new Set(prev).add(product.id));
+    setDeletingProducts((prev) => new Set(prev).add(product.id));
 
     try {
       // Make delete API call
@@ -41,7 +43,7 @@ const ProductTable = ({
 
       if (response.status === 200 || response.status === 204) {
         toast.success(`"${product.name}" deleted successfully`);
-        
+
         if (onRefresh) {
           await onRefresh();
         }
@@ -50,7 +52,7 @@ const ProductTable = ({
       }
     } catch (error: any) {
       console.error("Error deleting product:", error);
-      
+
       if (error.response?.status === 404) {
         toast.error("Product not found. It may have already been deleted.");
         onRefresh?.();
@@ -66,7 +68,7 @@ const ProductTable = ({
         toast.error("Failed to delete product. Please try again.");
       }
     } finally {
-      setDeletingProducts(prev => {
+      setDeletingProducts((prev) => {
         const newSet = new Set(prev);
         newSet.delete(product.id);
         return newSet;
@@ -97,7 +99,11 @@ const ProductTable = ({
             onClick={onRefresh}
             disabled={isLoading}
           >
-            <RotateCw className={`inline-block mr-1 h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
+            <RotateCw
+              className={`inline-block mr-1 h-4 w-4 ${
+                isLoading ? "animate-spin" : ""
+              }`}
+            />
             Refresh
           </button>
         </div>
@@ -107,7 +113,7 @@ const ProductTable = ({
               <tr>
                 <th className="px-4 py-3 font-semibold truncate">Product</th>
                 <th className="px-4 py-3 font-semibold truncate">Category</th>
-                <th className="px-4 py-3 font-semibold truncate hidden md:block">
+                <th className="px-4 py-3 font-semibold truncate max-sm:hidden">
                   Selling Price
                 </th>
                 <th className="px-4 py-3 font-semibold truncate">Units</th>
@@ -127,11 +133,13 @@ const ProductTable = ({
               )}
               {products.map((product, index) => {
                 const isDeleting = deletingProducts.has(product.id);
-                
+
                 return (
-                  <tr 
-                    key={product.id || index} 
-                    className={`border-t border-gray-500/20 ${isDeleting ? 'opacity-50 pointer-events-none' : ''}`}
+                  <tr
+                    key={product.id ?? `fallback-${index}`}
+                    className={`border-t border-gray-500/20 ${
+                      isDeleting ? "opacity-50 pointer-events-none" : ""
+                    }`}
                   >
                     <td className="md:px-4 pl-2 md:pl-4 py-3 flex items-center space-x-3 truncate">
                       <div className="border border-gray-300 rounded overflow-hidden">

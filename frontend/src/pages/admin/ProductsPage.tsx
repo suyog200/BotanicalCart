@@ -8,10 +8,22 @@ import { calculateProductStats } from "@/utils/ProductStatsCalu";
 import toast from "react-hot-toast";
 import type { Product } from "@/types/types";
 
+interface ProductData {
+  name: string;
+  price: number;
+  description: string;
+  units?: number;
+  isFeatured?: boolean;
+  inStock?: boolean;
+  category?: string[];
+  careInstructions?: string[];
+  image?: File;
+}
+
 const ProductsPage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [products, setProducts] = useState([]);
+  const [products, setProducts] = useState<Product[]>([]);
   const [isLoadingProducts, setIsLoadingProducts] = useState(false);
   const [modalMode, setModalMode] = useState<"add" | "edit">("add"); // Add modal mode
   const [editingProduct, setEditingProduct] = useState<Product | null>(null); // Product being edited
@@ -65,12 +77,8 @@ const ProductsPage = () => {
     fetchProducts();
   }, []);
 
-  // Handle adding a new product
-  async function handleAddProduct(data: any) {
-    setIsLoading(true);
-    try {
+  const buildProductFormData = (data: ProductData) : FormData => {
       const formData = new FormData();
-
       formData.append("name", data.name);
       formData.append("price", data.price.toString());
       formData.append("description", data.description);
@@ -92,7 +100,14 @@ const ProductsPage = () => {
       if (data.image && data.image instanceof File) {
         formData.append("image", data.image);
       }
+      return formData;
+  }
 
+  // Handle adding a new product
+  async function handleAddProduct(data: ProductData) {
+    setIsLoading(true);
+    try {
+      const formData = buildProductFormData(data);
       const response = await api.post("/api/v1/products", formData, {
         headers: {
           "Content-Type": "multipart/form-data",
@@ -120,29 +135,7 @@ const ProductsPage = () => {
 
     setIsLoading(true);
     try {
-      const formData = new FormData();
-
-      formData.append("name", data.name);
-      formData.append("price", data.price.toString());
-      formData.append("description", data.description);
-      formData.append("units", data.units?.toString() || "0");
-      formData.append("isFeatured", data.isFeatured?.toString() || "false");
-      formData.append("inStock", data.inStock?.toString() || "true");
-
-      if (Array.isArray(data.category)) {
-        formData.append("category", JSON.stringify(data.category));
-      }
-
-      if (Array.isArray(data.careInstructions)) {
-        formData.append(
-          "careInstructions",
-          JSON.stringify(data.careInstructions)
-        );
-      }
-
-      if (data.image && data.image instanceof File) {
-        formData.append("image", data.image);
-      }
+      const formData = buildProductFormData(data);
       const response = await api.put(
         `/api/v1/products/${editingProduct.id}`,
         formData,
@@ -189,17 +182,9 @@ const ProductsPage = () => {
 
   // Open edit modal
   const openEditModal = (product: Product) => {
-    console.log("Opening edit modal for product:", product);
-    // Make sure we have a clean slate
-    setEditingProduct(null);
-    setModalMode("add");
-
-    // Then set edit state
-    setTimeout(() => {
-      setModalMode("edit");
-      setEditingProduct(product);
-      setIsModalOpen(true);
-    }, 50);
+    setModalMode("edit");
+    setEditingProduct(product);
+    setIsModalOpen(true);
   };
 
   // Close modal
