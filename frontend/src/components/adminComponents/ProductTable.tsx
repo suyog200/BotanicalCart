@@ -36,7 +36,6 @@ const ProductTable = ({
     setTogglingProducts((prev) => new Set(prev).add(product.id));
 
     try {
-      // Optimistic toggle - immediately update the UI
       const newInStockStatus = !product.inStock;
 
       // Make API call to update inStock status
@@ -47,7 +46,7 @@ const ProductTable = ({
         }
       );
 
-      if (response.status === 200) {
+      if (response.status >= 200 && response.status < 300) {
         toast.success(
           `${product.name} is now ${
             newInStockStatus ? "in stock" : "out of stock"
