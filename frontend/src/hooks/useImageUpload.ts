@@ -49,6 +49,7 @@ export const useImageUpload = () => {
     setImageError,
     handleImageChange,
     removeImage,
-    resetImage
+    resetImage,
+    setImagePreview,
   };
 };

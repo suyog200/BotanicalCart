@@ -10,12 +10,14 @@ interface ProductTableProps {
   products: Product[];
   isLoading?: boolean;
   onRefresh?: () => void;
+  onEdit?: (product: Product) => void;
 }
 
 const ProductTable = ({
   products,
   isLoading,
   onRefresh,
+  onEdit,
 }: ProductTableProps) => {
   const [deletingProducts, setDeletingProducts] = useState<Set<string>>(new Set());
 
@@ -170,7 +172,7 @@ const ProductTable = ({
                     </td>
                     <td className="px-4 py-3">
                       <ProductTableAction
-                        onEdit={() => console.log("Edit", product.name)}
+                        onEdit={() => onEdit?.(product)}
                         onDelete={() => handleDelete(product)}
                         isDeleting={isDeleting}
                       />

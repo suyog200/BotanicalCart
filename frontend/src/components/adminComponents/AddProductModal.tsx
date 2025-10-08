@@ -1,47 +1,47 @@
 // components/adminComponents/AddProductModal.tsx
+import { useState, useEffect } from "react";
+import { useForm, Controller, useFieldArray } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
 import { GenericFormModal } from "../form/GenericFormModal";
 import { ProductNameField } from "../form/ProductNameField";
 import { PriceStockField } from "../form/PriceStockField";
 import { MultiSelectDropdown } from "../form/MultiSelectDropdown";
 import { DynamicFieldArray } from "../form/DynamicFieldArray";
 import { ImageUploadField } from "../form/ImageUploadField";
-import { useImageUpload } from "../../hooks/useImageUpload";
-import { Controller, useFieldArray, useForm } from "react-hook-form";
-import { productSchema } from "@/validateSchema/addProductSchema";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { Button } from "@/components/ui/button";
 import CheckboxGroupField from "./CheckboxGroupField";
-import type { z } from "zod";
+import { useImageUpload } from "../../hooks/useImageUpload";
+import { productSchema } from "@/validateSchema/addProductSchema";
+import { Button } from "@/components/ui/button";
+import type { Product } from "@/types/types";
 
 type FormData = z.infer<typeof productSchema>;
 
+// Fix: Make image optional for edit mode
 type ProductFormData = Omit<FormData, "careInstructions"> & {
   careInstructions: string[]; // flatten before sending
-  image: File | null;
+  image: File | null; // Allow null for edit mode when no new image is selected
 };
-
 
 interface AddProductModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSave: (data: ProductFormData) => void;
   isLoading: boolean;
+  mode?: "add" | "edit";
+  productData?: Product | null;
 }
 
-  const checkboxOptions = [
-    {
-      name: "isFeatured",
-      label: "Featured Product",
-      description: "Mark this product as featured to highlight it on the homepage"
-    },
-    {
-      name: "inStock",
-      label: "In Stock",
-      description: "Check if this product is currently available for purchase"
-    }
-  ];
+const AddProductModal = ({
+  isOpen,
+  onClose,
+  onSave,
+  isLoading,
+  mode = "add",
+  productData = null,
+}: AddProductModalProps) => {
+  const [isFormReady, setIsFormReady] = useState(false);
 
-const AddProductModal = ({ isOpen, onClose, onSave, isLoading }: AddProductModalProps) => {
   const {
     imageFile,
     imagePreview,
@@ -50,6 +50,7 @@ const AddProductModal = ({ isOpen, onClose, onSave, isLoading }: AddProductModal
     removeImage,
     resetImage,
     setImageError,
+    setImagePreview,
   } = useImageUpload();
 
   const categories = [
@@ -61,69 +62,140 @@ const AddProductModal = ({ isOpen, onClose, onSave, isLoading }: AddProductModal
     "Garden Tools",
   ];
 
+  const checkboxOptions = [
+    {
+      name: "isFeatured",
+      label: "Featured Product",
+      description:
+        "Mark this product as featured to highlight it on the homepage",
+    },
+    {
+      name: "inStock",
+      label: "In Stock",
+      description: "Check if this product is currently available for purchase",
+    },
+  ];
+
+  const defaultValues = {
+    name: "",
+    price: "",
+    category: [] as string[],
+    description: "",
+    units: "",
+    careInstructions: [{ value: "" }],
+    isFeatured: false,
+    inStock: true,
+  };
+
   const form = useForm<FormData>({
     resolver: zodResolver(productSchema),
-    defaultValues: {
-      name: "",
-      price: "",
-      category: [] as string[],
-      description: "",
-      units: "",
-      careInstructions: [{ value: "" }],
-      isFeatured: false,
-      inStock: true,
-    },
+    defaultValues,
   });
 
   const {
     register,
     handleSubmit,
-    formState: { errors, isSubmitting },
+    formState: { errors },
     reset,
     control,
   } = form;
+
   const { fields, append, remove } = useFieldArray({
     control,
     name: "careInstructions",
   });
 
+  // Handle form population when modal opens
+  useEffect(() => {
+    if (isOpen) {
+      setIsFormReady(false);
+
+      if (mode === "edit" && productData) {
+        console.log("Populating form with data:", productData);
+
+        // Reset with populated data
+        const editFormData = {
+          name: productData.name || "",
+          price: productData.price?.toString() || "",
+          category: productData.category || [],
+          description: productData.description || "",
+          units: productData.units?.toString() || "",
+          careInstructions:
+            productData.careInstructions?.length > 0
+              ? productData.careInstructions.map((instruction) => ({
+                  value: instruction,
+                }))
+              : [{ value: "" }],
+          isFeatured: productData.isFeatured || false,
+          inStock:
+            productData.inStock !== undefined ? productData.inStock : true,
+        };
+
+        reset(editFormData);
+
+        // Set image preview if exists
+        if (productData.imageUrl) {
+          setImagePreview(productData.imageUrl);
+        }
+      } else {
+        // Reset to default for add mode
+        reset(defaultValues);
+        resetImage();
+      }
+
+      // Mark form as ready after a short delay
+      setTimeout(() => {
+        setIsFormReady(true);
+      }, 100);
+    }
+  }, [isOpen, mode, productData, reset, resetImage, setImagePreview]);
+
   const onSubmit = (data: FormData) => {
     // Validate image
-    if (!imageFile) {
+    if (mode === "add" && !imageFile) {
       setImageError("Product image is required");
       return;
     }
 
-      const filteredCareInstructions = data.careInstructions
-    .map((item) => item.value.trim()) // extract string
-    .filter((value) => value !== ""); // remove empty strings
+    const filteredCareInstructions = data.careInstructions
+      .map((item) => item.value.trim())
+      .filter((value) => value !== "");
 
-    const productData: ProductFormData = {
+    const productFormData: ProductFormData = {
       ...data,
       careInstructions: filteredCareInstructions,
       image: imageFile,
     };
 
-    onSave(productData);
-    handleReset();
-    onClose();
+    onSave(productFormData);
   };
 
-  const handleReset = () => {
-    reset();
-    resetImage();
-  };
+  const modalTitle = mode === "edit" ? "Edit Product" : "Add New Product";
+  const submitButtonText = mode === "edit" ? "Update Product" : "Add Product";
+  const loadingText = mode === "edit" ? "Updating..." : "Adding...";
 
-  const handleClose = () => {
-    handleReset();
-    onClose();
-  };
+  // Don't render content until form is ready
+  if (!isOpen || !isFormReady) {
+    return isOpen ? (
+      <GenericFormModal
+        isOpen={isOpen}
+        onClose={onClose}
+        title={modalTitle}
+        size="lg"
+      >
+        <div className="p-6 flex items-center justify-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[var(--color-primary)]"></div>
+          <span className="ml-2">Loading...</span>
+        </div>
+      </GenericFormModal>
+    ) : null;
+  }
 
   return (
     <GenericFormModal
       isOpen={isOpen}
-      onClose={handleClose}
-      title="Add New Product"
+      onClose={onClose}
+      title={modalTitle}
       size="lg"
     >
       <form onSubmit={handleSubmit(onSubmit)} className="p-6 space-y-6">
@@ -198,6 +270,8 @@ const AddProductModal = ({ isOpen, onClose, onSave, isLoading }: AddProductModal
           onImageChange={handleImageChange}
           onRemoveImage={removeImage}
           error={imageError}
+          label="Product Image"
+          required={mode === "add"}
         />
 
         {/* Action Buttons */}
@@ -205,17 +279,17 @@ const AddProductModal = ({ isOpen, onClose, onSave, isLoading }: AddProductModal
           <Button
             type="button"
             variant="outline"
-            onClick={handleClose}
-            disabled={isSubmitting}
+            onClick={onClose}
+            disabled={isLoading}
           >
             Cancel
           </Button>
           <Button
             type="submit"
-            disabled={isSubmitting}
+            disabled={isLoading}
             className="bg-[var(--color-primary)] hover:bg-[var(--color-primary-dull)] text-white"
           >
-            {isLoading ? "Adding..." : "Add Product"}
+            {isLoading ? loadingText : submitButtonText}
           </Button>
         </div>
       </form>
