@@ -22,6 +22,73 @@ const ProductTable = ({
   const [deletingProducts, setDeletingProducts] = useState<Set<string>>(
     new Set()
   );
+  const [togglingProducts, setTogglingProducts] = useState<Set<string>>(
+    new Set()
+  );
+
+  const handleInStockToggle = async (product: Product) => {
+    if (!product?.id) {
+      toast.error("Invalid product ID");
+      return;
+    }
+
+    // Add product to toggling state
+    setTogglingProducts((prev) => new Set(prev).add(product.id));
+
+    try {
+      // Optimistic toggle - immediately update the UI
+      const newInStockStatus = !product.inStock;
+
+      // Make API call to update inStock status
+      const response = await api.patch(
+        `/api/v1/products/${product.id}/update-instock`,
+        {
+          inStock: newInStockStatus,
+        }
+      );
+
+      if (response.status === 200) {
+        toast.success(
+          `${product.name} is now ${
+            newInStockStatus ? "in stock" : "out of stock"
+          }`
+        );
+
+        // Refresh products to ensure UI is in sync with backend
+        if (onRefresh) {
+          await onRefresh();
+        }
+      } else {
+        throw new Error(`Unexpected response status: ${response.status}`);
+      }
+    } catch (error: any) {
+      console.error("Error toggling product stock status:", error);
+
+      if (error.response?.status === 404) {
+        toast.error("Product not found. It may have been deleted.");
+        onRefresh?.();
+      } else if (error.response?.status === 403) {
+        toast.error("You don't have permission to update this product");
+      } else if (error.response?.data?.message) {
+        toast.error(error.response.data.message);
+      } else if (error.message) {
+        toast.error(`Failed to update stock status: ${error.message}`);
+      } else {
+        toast.error("Failed to update stock status. Please try again.");
+      }
+
+      // Refresh to revert any optimistic updates
+      if (onRefresh) {
+        await onRefresh();
+      }
+    } finally {
+      setTogglingProducts((prev) => {
+        const newSet = new Set(prev);
+        newSet.delete(product.id);
+        return newSet;
+      });
+    }
+  };
 
   const handleDelete = async (product: Product) => {
     if (!product?.id) {
@@ -133,13 +200,14 @@ const ProductTable = ({
               )}
               {products.map((product, index) => {
                 const isDeleting = deletingProducts.has(product.id);
+                const isToggling = togglingProducts.has(product.id);
 
                 return (
                   <tr
                     key={product.id ?? `fallback-${index}`}
                     className={`border-t border-gray-500/20 ${
-                      isDeleting ? "opacity-50 pointer-events-none" : ""
-                    }`}
+                      isDeleting || isToggling ? "opacity-50" : ""
+                    } ${isDeleting ? "pointer-events-none" : ""}`}
                   >
                     <td className="md:px-4 pl-2 md:pl-4 py-3 flex items-center space-x-3 truncate">
                       <div className="border border-gray-300 rounded overflow-hidden">
@@ -168,14 +236,36 @@ const ProductTable = ({
                     </td>
                     <td className="px-4 py-3">{product.units}</td>
                     <td className="px-4 py-3">
-                      <label className="relative inline-flex items-center cursor-pointer text-gray-900 gap-3">
+                      <label
+                        className={`relative inline-flex items-center text-gray-900 gap-3 ${
+                          togglingProducts.has(product.id)
+                            ? "cursor-wait opacity-75"
+                            : "cursor-pointer"
+                        }`}
+                      >
                         <input
                           type="checkbox"
                           className="sr-only peer"
-                          defaultChecked={product.inStock ? true : false}
+                          checked={product.inStock}
+                          onChange={() => handleInStockToggle(product)}
+                          disabled={togglingProducts.has(product.id)}
                         />
-                        <div className="w-12 h-7 bg-slate-300 rounded-full peer peer-checked:bg-blue-600 transition-colors duration-200"></div>
-                        <span className="dot absolute left-1 top-1 w-5 h-5 bg-white rounded-full transition-transform duration-200 ease-in-out peer-checked:translate-x-5"></span>
+                        <div
+                          className={`w-12 h-7 rounded-full peer transition-colors duration-200 ${
+                            product.inStock ? "bg-blue-600" : "bg-slate-300"
+                          } ${
+                            togglingProducts.has(product.id)
+                              ? "animate-pulse"
+                              : ""
+                          }`}
+                        ></div>
+                        <span
+                          className={`dot absolute left-1 top-1 w-5 h-5 bg-white rounded-full transition-all duration-200 ease-in-out ${
+                            product.inStock ? "translate-x-5" : "translate-x-0"
+                          } ${
+                            togglingProducts.has(product.id) ? "shadow-md" : ""
+                          }`}
+                        ></span>
                       </label>
                     </td>
                     <td className="px-4 py-3">

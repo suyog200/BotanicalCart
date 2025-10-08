@@ -1,4 +1,3 @@
-// components/adminComponents/AddProductModal.tsx
 import { useState, useEffect } from "react";
 import { useForm, Controller, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -17,10 +16,10 @@ import type { Product } from "@/types/types";
 
 type FormData = z.infer<typeof productSchema>;
 
-// Fix: Make image optional for edit mode
+
 type ProductFormData = Omit<FormData, "careInstructions"> & {
   careInstructions: string[]; // flatten before sending
-  image: File | null; // Allow null for edit mode when no new image is selected
+  image: File | null; 
 };
 
 interface AddProductModalProps {
@@ -111,7 +110,6 @@ const AddProductModal = ({
       setIsFormReady(false);
 
       if (mode === "edit" && productData) {
-        console.log("Populating form with data:", productData);
 
         // Reset with populated data
         const editFormData = {
@@ -164,6 +162,7 @@ const AddProductModal = ({
     const productFormData: ProductFormData = {
       ...data,
       careInstructions: filteredCareInstructions,
+      // @ts-ignore
       image: imageFile,
     };
 

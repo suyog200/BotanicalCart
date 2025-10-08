@@ -115,7 +115,6 @@ const ProductsPage = () => {
       });
 
       if (response.status === 200 || response.status === 201) {
-        console.log("Product added successfully:", response.data);
         toast.success("Product added successfully!");
 
         await fetchProducts();
@@ -147,7 +146,6 @@ const ProductsPage = () => {
       );
 
       if (response.status === 200 || response.status === 201) {
-        console.log("Product updated successfully:", response.data);
         toast.success("Product updated successfully!");
 
         // Refresh products list
@@ -174,7 +172,6 @@ const ProductsPage = () => {
 
   // Open add modal
   const openAddModal = () => {
-    console.log("Opening add modal");
     setModalMode("add");
     setEditingProduct(null);
     setIsModalOpen(true);
@@ -189,7 +186,6 @@ const ProductsPage = () => {
 
   // Close modal
   const closeModal = () => {
-    console.log("Closing modal");
     setIsModalOpen(false);
     // Add a small delay before resetting other states to prevent conflicts
     setTimeout(() => {
@@ -198,7 +194,6 @@ const ProductsPage = () => {
     }, 100);
   };
 
-  console.log("Modal State:", { isModalOpen, modalMode, editingProduct });
 
   return (
     <div className="min-h-screen bg-[var(--background)] p-6">
