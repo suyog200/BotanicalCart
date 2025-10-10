@@ -31,7 +31,7 @@ const WishlistPage = () => {
           >
             <Link to={`/plantsDetails/${plant.id}`} className="flex-shrink-0">
               <img
-                src={plant.image}
+                src={plant.imageUrl}
                 alt={plant.name}
                 className="w-32 h-32 object-cover rounded-md"
               />

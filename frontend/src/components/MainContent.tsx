@@ -8,7 +8,6 @@ import { defaultCategories } from "@/data/plantsData";
 import {
   filterPlantsByCategory,
   extractCategoriesFromPlants,
-  getCategoryCount,
 } from "@/utils/categoryFilters";
 
 const PLANTS_PER_PAGE = 6;
