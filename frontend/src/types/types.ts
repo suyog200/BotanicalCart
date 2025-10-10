@@ -1,12 +1,14 @@
 export interface Plant {
   id: string;
   name: string;
-  price: number;
-  category: 'medicinal' | 'home-decor' | 'outdoor' | 'indoor';
-  image: string;
   description: string;
-  care: string;
+  price: number;
+  imageUrl: string;
+  category: string[]; 
   inStock: boolean;
+  isFeatured: boolean;
+  units: number;
+  careInstructions: string[];
 }
 
 export interface Product {

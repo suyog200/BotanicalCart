@@ -6,7 +6,7 @@ import { Footer } from "./components/Footer";
 import SignupPage from "./pages/customer/SignupPage";
 import SignInPage from "./pages/customer/SignInPage";
 import Cart from "./pages/customer/Cart";
-import ProductDetails from "./pages/customer/ProductDetails";
+// import ProductDetails from "./pages/customer/ProductDetails";
 import AboutPage from "./pages/customer/AboutPage";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import ProductsPage from "./pages/admin/ProductsPage";
@@ -33,7 +33,7 @@ const App = () => {
           <Route path="/sign-in/*" element={<SignInPage />} />
           <Route path="/sign-up/*" element={<SignupPage />} />
           <Route path="/cart" element={<Cart />} />
-          <Route path="/plantsDetails/:id" element={<ProductDetails />} />
+          {/* <Route path="/plants-details/:id" element={<ProductDetails />} /> */}
           <Route path="/about" element={<AboutPage />} />
           <Route
             path="/wishlist"
