@@ -8,7 +8,13 @@ import SignInPage from "./pages/customer/SignInPage";
 import Cart from "./pages/customer/Cart";
 import ProductDetails from "./pages/customer/ProductDetails";
 import AboutPage from "./pages/customer/AboutPage";
-import AdminDashboard from "./pages/AdminDashboard";
+import AdminDashboard from "./pages/admin/AdminDashboard";
+import ProductsPage from "./pages/admin/ProductsPage";
+import CategoryPage from "./pages/admin/CategoryPage";
+import DashboardPage from "./pages/admin/DashboardPage";
+import OrderAndEnquiries from "./pages/admin/OrderAndEnquiries";
+import Settings from "./pages/admin/Settings";
+import Analytics from "./pages/admin/Analytics";
 import { lazy, Suspense } from "react";
 const WishlistPage = lazy(() => import("./pages/customer/WishlistPage"));
 
@@ -27,9 +33,8 @@ const App = () => {
           <Route path="/sign-in/*" element={<SignInPage />} />
           <Route path="/sign-up/*" element={<SignupPage />} />
           <Route path="/cart" element={<Cart />} />
-          <Route path="/plantsDetails/:id" element={<ProductDetails />} />
+          <Route path="/plants-details/:id" element={<ProductDetails />} />
           <Route path="/about" element={<AboutPage />} />
-          <Route path="/seller/admin-dashboard" element={<AdminDashboard />} />
           <Route
             path="/wishlist"
             element={
@@ -44,6 +49,16 @@ const App = () => {
               </Suspense>
             }
           />
+          {/* admin routes (nested inside AdminDashboard) */}
+          <Route path="/seller/admin" element={<AdminDashboard />}>
+            <Route index element={<DashboardPage />} /> {/* default */}
+            <Route path="dashboard" element={<DashboardPage />} />
+            <Route path="products" element={<ProductsPage />} />
+            <Route path="category" element={<CategoryPage />} />
+            <Route path="orders-enquiries" element={<OrderAndEnquiries />} />
+            <Route path="settings" element={<Settings />} />
+            <Route path="analytics" element={<Analytics />} />
+          </Route>
         </Routes>
       </div>
       {/* Footer */}
