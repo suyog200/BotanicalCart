@@ -29,7 +29,7 @@ const WishlistPage = () => {
             key={plant.id}
             className="flex items-center w-full bg-white p-4 rounded-lg"
           >
-            <Link to={`/plantsDetails/${plant.id}`} className="flex-shrink-0">
+            <Link to={`/plants-details/${plant.id}`} className="flex-shrink-0">
               <img
                 src={plant.imageUrl}
                 alt={plant.name}
@@ -37,7 +37,7 @@ const WishlistPage = () => {
               />
             </Link>
             <div className="flex-1 px-6 min-w-0">
-              <Link to={`/plants/${plant.id}`}>
+              <Link to={`/plants-details/${plant.id}`}>
                 <h3 className="font-semibold text-lg truncate">{plant.name}</h3>
                 <p className="text-sm text-gray-500 mt-1 line-clamp-2">
                   {plant.description}
