@@ -1,19 +1,39 @@
-import { useAppContext } from "@/context/AppContext";
+// src/pages/WishlistPage.tsx
+import React from "react";
 import { Link } from "react-router-dom";
-import { Trash2, ShoppingCart } from "lucide-react";
+import { useAppContext } from "@/context/AppContext";
+import WishlistItemCard from "@/components/WishlistItemCard";
+import { useWishlist } from "@/hooks/useWishlist"; 
 
-const WishlistPage = () => {
-  const { wishlist, removeFromWishlist, addToCart } = useAppContext();
+const WishlistPage: React.FC = () => {
+  const { addToCart } = useAppContext(); 
+  const page = 1;
+  const limit = 20;
 
-  if (!wishlist.length) {
+  const { data: wishlistResponse, isLoading, isError, add, remove, toggle, isWishlisted } = useWishlist(page, limit);
+
+  const items = wishlistResponse?.data ?? [];
+  const total = wishlistResponse?.total ?? 0;
+
+  if (isLoading) {
+    return <div className="py-16 text-center">Loading wishlist…</div>;
+  }
+
+  if (isError) {
+    return (
+      <div className="py-16 text-center">
+        <h2 className="text-2xl font-semibold">Couldn’t load wishlist</h2>
+        <p className="text-gray-500 mt-2">Try again later.</p>
+      </div>
+    );
+  }
+
+  if (!items.length) {
     return (
       <div className="py-16 text-center">
         <h2 className="text-2xl font-semibold">Your wishlist is empty</h2>
         <p className="text-gray-500 mt-2">Start adding your favorite plants!</p>
-        <Link
-          to="/"
-          className="inline-block mt-6 bg-primary text-white px-6 py-2 rounded-full hover:bg-primary/80 transition"
-        >
+        <Link to="/" className="inline-block mt-6 bg-[var(--color-primary)] text-white px-6 py-2 rounded-full">
           Browse plants
         </Link>
       </div>
@@ -22,52 +42,27 @@ const WishlistPage = () => {
 
   return (
     <div className="py-8">
-      <h1 className="text-2xl font-semibold mb-6">Your Wishlist</h1>
+      <h1 className="text-2xl font-semibold mb-6">Your Wishlist ({total})</h1>
+
       <div className="flex flex-col gap-6">
-        {wishlist.map((plant) => (
-          <div
-            key={plant.id}
-            className="flex items-center w-full bg-white p-4 rounded-lg"
-          >
-            <Link to={`/plants-details/${plant.id}`} className="flex-shrink-0">
-              <img
-                src={plant.imageUrl}
-                alt={plant.name}
-                className="w-32 h-32 object-cover rounded-md"
-              />
-            </Link>
-            <div className="flex-1 px-6 min-w-0">
-              <Link to={`/plants-details/${plant.id}`}>
-                <h3 className="font-semibold text-lg truncate">{plant.name}</h3>
-                <p className="text-sm text-gray-500 mt-1 line-clamp-2">
-                  {plant.description}
-                </p>
-                <span className="text-lg font-bold block mt-2">
-                  ${plant.price}
-                </span>
-              </Link>
-            </div>
-            <div className="flex flex-row gap-2 items-end">
-              <button
-                className="flex items-center gap-2 text-sm px-4 py-2 text-gray-700 cursor-pointer"
-                onClick={() => removeFromWishlist(plant.id)}
-                title="Remove from wishlist"
-              >
-                <Trash2 size={18} />
-                <span className="hidden sm:inline">Remove</span>
-              </button>
-              <button
-                className="flex items-center gap-2 text-sm px-4 py-2 rounded-full bg-primary text-white hover:bg-primary/80 transition cursor-pointer"
-                onClick={() => addToCart(plant)}
-                title="Add to cart"
-              >
-                <ShoppingCart size={18} />
-                <span className="hidden sm:inline">Add to cart</span>
-              </button>
-            </div>
-          </div>
+        {items.map((item) => (
+          <WishlistItemCard
+            key={item.id}
+            item={item}
+            loading={false}
+            onRemove={(productId) => remove(productId)}
+            onAddToCart={(product) => addToCart(product)}
+          />
         ))}
       </div>
+
+      {/* Pagination placeholder (implement as needed) */}
+      {total > limit && (
+        <div className="mt-6 flex justify-center">
+          {/* wire pagination controls to useWishlist(page) or to update query args */}
+          <button className="px-4 py-2 border rounded">Load more</button>
+        </div>
+      )}
     </div>
   );
 };

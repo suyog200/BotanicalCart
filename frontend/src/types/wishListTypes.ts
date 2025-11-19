@@ -18,7 +18,17 @@ export interface WishlistItem {
   id: string;
   userId: string;
   productId: string;
-  product?: Product; // populated by server in list endpoint
+  product?: Product; // Make it optional since it might not always be populated
   createdAt: string;
   isActive: boolean;
+}
+
+// Add response type for API
+export interface WishlistResponse {
+  data: WishlistItem[];
+  total: number;
+  page?: number;
+  totalPages?: number;
+  success?: boolean;
+  message?: string;
 }

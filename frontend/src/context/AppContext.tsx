@@ -19,13 +19,6 @@ interface AppContextType {
   removeFromCart: (plantId: string) => void;
   updateQuantity: (plantId: string, quantity: number) => void;
   clearCart: () => void;
-
-  wishlist: Plant[];
-  wishlistCount: number;
-  addToWishlist: (plant: Plant) => void;
-  removeFromWishlist: (plantId: string) => void;
-  toggleWishlist: (plant: Plant) => void;
-  isWishlisted: (plantId: string) => boolean;
 }
 
 export const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -38,19 +31,6 @@ export const AppContextProvider = ({
   const navigate = useNavigate();
   const [seller, setIsSeller] = useState(false);
   const [items, setItems] = useState<CartItems[]>([]);
-  const wishlistKey = "wishlist";
-  const [wishlist, setWishlist] = useState<Plant[]>(() => {
-    try {
-      const raw = localStorage.getItem(wishlistKey);
-      return raw ? JSON.parse(raw) : [];
-    } catch {
-      return [];
-    }
-  });
-  
-  useEffect(() => {
-    localStorage.setItem(wishlistKey, JSON.stringify(wishlist));
-  }, [wishlist, wishlistKey]);
 
   // add items to cart
   const addToCart = (plant: Plant) => {
@@ -93,30 +73,6 @@ export const AppContextProvider = ({
   );
   const itemCount = items.reduce((sum, item) => sum + item.quantity, 0);
 
-  //////////WishList
-   const wishlistIdSet = useMemo(() => new Set(wishlist.map(p => p.id)), [wishlist]);
-
-  const addToWishlist = (plant: Plant) => {
-    setWishlist(prev => (prev.some(p => p.id === plant.id) ? prev : [...prev, plant]));
-    toast.success(`${plant.name} added to wishlist`);
-  };
-
-  const removeFromWishlist = (plantId: string) => {
-    setWishlist(prev => prev.filter(p => p.id !== plantId));
-    toast.success("Removed from wishlist");
-  };
-
-  const toggleWishlist = (plant: Plant) => {
-    setWishlist(prev =>
-      prev.some(p => p.id === plant.id)
-        ? prev.filter(p => p.id !== plant.id)
-        : [...prev, plant]
-    );
-  };
-
-  const isWishlisted = (plantId: string) => wishlistIdSet.has(plantId);
-  const wishlistCount = wishlist.length;
-
   const value = {
     navigate,
     seller,
@@ -128,12 +84,6 @@ export const AppContextProvider = ({
     clearCart,
     total,
     itemCount,
-    wishlist,
-    wishlistCount,
-    addToWishlist,
-    removeFromWishlist,
-    toggleWishlist,
-    isWishlisted,
   };
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;

@@ -10,8 +10,6 @@ const Navbar = () => {
   const [open, setOpen] = React.useState(false);
   const { navigate, itemCount } = useAppContext();
 
-  console.log("Navbar render - user:", user);
-
   return (
     <nav className="z-40 flex items-center justify-between px-6 md:px-16 lg:px-24 xl:px-32 py-2 bg-white/70 transition-all sticky top-0 backdrop-blur-sm">
       <NavLink
