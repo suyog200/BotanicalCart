@@ -1,10 +1,8 @@
 import { useParams, Link } from "react-router-dom";
 import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Star, Heart, ArrowLeft, Loader, AlertCircle } from "lucide-react";
+import { Heart, ArrowLeft, Loader, AlertCircle } from "lucide-react";
 import { reviews } from "@/data/plantReviews";
-import { getCategoryColor } from "@/lib/colorCategories";
 import { useAppContext } from "@/context/AppContext";
 import { useUser } from "@clerk/clerk-react";
 import Badges from "@/components/Badges";
@@ -14,6 +12,10 @@ import { useFetchSingleProduct } from "@/hooks/useFetchSingleProduct";
 import { useSimilarProducts } from "@/hooks/useFetchSimilarProduct";
 import { useWishlist } from "@/hooks/useWishlist";
 import toast from "react-hot-toast";
+import CareInstructions from "@/components/CareInstructions";
+import StockInfo from "@/components/StockInfo";
+import ProductHeader from "@/components/ProductHeader";
+import ProductActions from "@/components/ProductActions";
 
 export default function ProductDetails() {
   const { id } = useParams<{ id: string }>();
@@ -156,105 +158,29 @@ export default function ProductDetails() {
             >
               <Heart className={`h-5 w-5 ${wishlisted ? "fill-red-500 text-red-500" : "text-gray-700"}`} />
             </Button>
-
-            <Badge
-              className={`absolute bottom-2 right-2 ${
-                plant.inStock ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"
-              }`}
-            >
-              {plant.inStock ? "In Stock" : "Out of Stock"}
-            </Badge>
           </div>
 
           <div className="space-y-6">
-            <div>
-              <div className="flex flex-wrap gap-2 mb-2">
-                {plant.category.map((cat, index) => (
-                  <Badge key={index} className={getCategoryColor(cat)}>
-                    {cat.replace("-", " ")}
-                  </Badge>
-                ))}
-                {plant.isFeatured && <Badge className="bg-yellow-100 text-yellow-800">Featured</Badge>}
-              </div>
-
-              <h1 className="text-3xl font-bold text-foreground mt-2">{plant.name}</h1>
-
-              {/* Rating */}
-              <div className="flex items-center gap-2 mt-2">
-                <div className="flex items-center">
-                  {[...Array(5)].map((_, i) => (
-                    <Star
-                      key={i}
-                      className={`h-4 w-4 ${i < Math.floor(averageRating) ? "text-yellow-400 fill-current" : "text-gray-300"}`}
-                    />
-                  ))}
-                </div>
-                <span className="text-sm text-muted-foreground">({plantReviews.length} reviews)</span>
-              </div>
-            </div>
-
+            <ProductHeader
+              plant={plant}
+              averageRating={averageRating}
+              reviewCount={plantReviews.length}
+            />
             <p className="text-lg text-muted-foreground">{plant.description}</p>
-
             {/* Care Instructions */}
             {plant.careInstructions && plant.careInstructions.length > 0 && (
-              <div className="bg-sage/20 p-4 rounded-lg">
-                <h3 className="font-semibold text-foreground mb-2">Care Instructions</h3>
-                <ul className="text-muted-foreground space-y-1">
-                  {plant.careInstructions.map((instruction, index) => (
-                    <li key={index} className="flex items-start">
-                      <span className="text-primary mr-2">•</span>
-                      {instruction}
-                    </li>
-                  ))}
-                </ul>
-              </div>
+              <CareInstructions instructions={plant.careInstructions} />
             )}
 
             {/* Stock Information */}
-            <div className="bg-gray-50 p-4 rounded-lg">
-              <div className="flex items-center text-sm gap-1">
-                <span className="text-muted-foreground">Available Units:</span>
-                <span className="font-medium">{plant.units} left</span>
-              </div>
-            </div>
+            <StockInfo units={plant.units} inStock={plant.inStock} />
 
-            <div className="flex items-center justify-between">
-              <span className="text-3xl font-bold text-primary">₹{plant.price}</span>
-              <div className="text-white flex items-center justify-between gap-2" onClick={(e) => e.stopPropagation()}>
-                {quantity === 0 ? (
-                  <button
-                    className={`${
-                      plant.inStock
-                        ? "bg-white cursor-pointer text-black border-black-300 hover:bg-gray-100"
-                        : "bg-gray-400 cursor-not-allowed text-gray-600"
-                    } flex items-center gap-2 px-3 py-1 rounded border transition-colors duration-200`}
-                    onClick={handleAddToCart}
-                    disabled={!plant.inStock}
-                  >
-                    <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <path
-                        d="M.583.583h2.333l1.564 7.81a1.17 1.17 0 0 0 1.166.94h5.67a1.17 1.17 0 0 0 1.167-.94l.933-4.893H3.5m2.333 8.75a.583.583 0 1 1-1.167 0 .583.583 0 0 1 1.167 0m6.417 0a.583.583 0 1 1-1.167 0 .583.583 0 0 1 1.167 0"
-                        stroke="currentColor"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      />
-                    </svg>
-                    {plant.inStock ? "Add to Cart" : "Out of Stock"}
-                  </button>
-                ) : (
-                  <div className="flex items-center justify-center gap-2 md:w-20 w-16 h-[34px] bg-white rounded select-none text-black border border-black-300">
-                    <button onClick={() => updateQuantity(plant.id, quantity - 1)} className="cursor-pointer text-md px-2 h-full hover:bg-gray-100 transition-colors">-</button>
-                    <span className="w-5 text-center">{quantity}</span>
-                    <button onClick={() => updateQuantity(plant.id, quantity + 1)} className="cursor-pointer text-md px-2 h-full hover:bg-gray-100 transition-colors" disabled={quantity >= plant.units}>+</button>
-                  </div>
-                )}
-                <div>
-                  <button className={`${plant.inStock && quantity > 0 ? "bg-primary hover:bg-primary/80 cursor-pointer" : "bg-gray-400 cursor-not-allowed"} text-white font-medium text-sm px-6 py-2 rounded-md active:scale-95 transition-all duration-200`} disabled={!plant.inStock || quantity === 0}>
-                    Buy Now
-                  </button>
-                </div>
-              </div>
-            </div>
+            <ProductActions
+              plant={plant}
+              quantity={quantity}
+              onAddToCart={handleAddToCart}
+              onUpdateQuantity={updateQuantity}
+            />
 
             {/* Trust Badges */}
             <Badges />
