@@ -1,22 +1,26 @@
 import React from "react";
 import { NavLink } from "react-router-dom";
+import { Search, X } from "lucide-react";
 import { useAppContext } from "../context/AppContext";
 import { useUser } from "@clerk/clerk-react";
 import { UserButton } from "@clerk/clerk-react";
 import ShinyButton from "./ui/shinyButton";
+import SearchBar from "./SearchBar";
 
 const Navbar = () => {
   const { user } = useUser();
   const [open, setOpen] = React.useState(false);
+  const [searchOpen, setSearchOpen] = React.useState(false);
   const { navigate, itemCount } = useAppContext();
+
+  const closeAll = () => {
+    setOpen(false);
+    setSearchOpen(false);
+  };
 
   return (
     <nav className="z-40 flex items-center justify-between px-6 md:px-16 lg:px-24 xl:px-32 py-2 bg-white/70 transition-all sticky top-0 backdrop-blur-sm">
-      <NavLink
-        to="/"
-        className="text-lg font-semibold"
-        onClick={() => setOpen(false)}
-      >
+      <NavLink to="/" className="text-lg font-semibold" onClick={closeAll}>
         Botanical Cart
       </NavLink>
 
@@ -38,38 +42,7 @@ const Navbar = () => {
             </NavLink>
           </>
         )}
-
-        <div className="hidden lg:flex items-center text-sm gap-2 border border-green-600 px-3 rounded-full">
-          <input
-            type="text"
-            placeholder="Search products"
-            className="py-1.5 w-full bg-transparent border-none outline-none focus:outline-none focus:ring-0 focus:border-transparent placeholder-gray-500"
-          />
-          <svg
-            width="16"
-            height="16"
-            viewBox="0 0 16 16"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              d="M10.836 10.615 15 14.695"
-              stroke="#7A7B7D"
-              strokeWidth="1.2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-            <path
-              clipRule="evenodd"
-              d="M9.141 11.738c2.729-1.136 4.001-4.224 2.841-6.898S7.67.921 4.942 2.057C2.211 3.193.94 6.281 2.1 8.955s4.312 3.92 7.041 2.783"
-              stroke="#7A7B7D"
-              strokeWidth="1.2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
-        </div>
-
+        <SearchBar />
         <div
           className="relative cursor-pointer"
           onClick={() => navigate?.("/cart")}
@@ -90,7 +63,7 @@ const Navbar = () => {
           </svg>
           <button className="absolute -top-2 -right-3 text-xs text-white bg-[var(--color-primary)] w-[18px] h-[18px] rounded-full">
             {itemCount}
-          </button>{" "}
+          </button>
         </div>
 
         {!user ? (
@@ -107,7 +80,22 @@ const Navbar = () => {
         )}
       </div>
 
-      <div className="flex items-center gap-6 sm:hidden">
+      {/* Mobile Actions */}
+      <div className="flex items-center gap-4 sm:hidden">
+        {/* Search Button */}
+        <button
+          onClick={() => setSearchOpen(!searchOpen)}
+          aria-label="Search"
+          className="p-1"
+        >
+          {searchOpen ? (
+            <X size={20} className="text-gray-600" />
+          ) : (
+            <Search size={20} className="text-gray-600" />
+          )}
+        </button>
+
+        {/* Cart */}
         <div
           className="relative cursor-pointer"
           onClick={() => navigate?.("/cart")}
@@ -126,16 +114,13 @@ const Navbar = () => {
               strokeLinejoin="round"
             />
           </svg>
-          <button className="absolute -top-2 -right-3 text-xs text-white bg-(--color-primary) w-[18px] h-[18px] rounded-full">
+          <button className="absolute -top-2 -right-3 text-xs text-white bg-[var(--color-primary)] w-[18px] h-[18px] rounded-full">
             {itemCount}
           </button>
         </div>
-        <button
-          onClick={() => (open ? setOpen(false) : setOpen(true))}
-          aria-label="Menu"
-          className="sm:hidden"
-        >
-          {/* Menu Icon SVG */}
+
+        {/* Menu Button */}
+        <button onClick={() => setOpen(!open)} aria-label="Menu">
           <svg
             width="21"
             height="15"
@@ -157,24 +142,31 @@ const Navbar = () => {
         </button>
       </div>
 
+      {/* Mobile Search Bar - Expandable */}
+      {searchOpen && (
+        <div className="absolute top-full left-0 w-full bg-white/95 backdrop-blur-sm shadow-md p-4 sm:hidden z-50 border-t">
+          <SearchBar />
+        </div>
+      )}
+
       {/* Mobile Menu */}
       {open && (
         <div
           className={`${
             open ? "flex" : "hidden"
-          } absolute top-[40px] left-0 w-full bg-white/70 shadow-md py-4 flex-col items-start gap-2 px-5 text-sm md:hidden backdrop-blur-sm transition-all`}
+          } absolute top-full left-0 w-full bg-white/95 shadow-md py-4 flex-col items-start gap-2 px-5 text-sm sm:hidden backdrop-blur-sm transition-all border-t z-40`}
         >
           <NavLink
             to="/"
-            className="block py-2 hover:text-primary-dull"
-            onClick={() => setOpen(false)}
+            className="block py-2 hover:text-primary-dull w-full"
+            onClick={closeAll}
           >
             Home
           </NavLink>
           <NavLink
             to="/about"
-            className="block py-2 hover:text-primary-dull"
-            onClick={() => setOpen(false)}
+            className="block py-2 hover:text-primary-dull w-full"
+            onClick={closeAll}
           >
             About
           </NavLink>
@@ -182,32 +174,36 @@ const Navbar = () => {
             <>
               <NavLink
                 to="/orders"
-                className="block py-2 hover:text-primary-dull"
-                onClick={() => setOpen(false)}
+                className="block py-2 hover:text-primary-dull w-full"
+                onClick={closeAll}
               >
                 Orders
               </NavLink>
               <NavLink
                 to="/wishlist"
-                className="block py-2 hover:text-primary-dull"
-                onClick={() => setOpen(false)}
+                className="block py-2 hover:text-primary-dull w-full"
+                onClick={closeAll}
               >
                 Wishlist
               </NavLink>
             </>
           )}
+
+          {/* Divider */}
+          <div className="w-full h-px bg-gray-200 my-2"></div>
+
           {!user ? (
             <button
-              className="cursor-pointer px-6 py-2 mt-2 bg-primary hover:bg-primary-dull transition text-white rounded-full text-sm"
+              className="cursor-pointer px-6 py-2 bg-primary hover:bg-primary-dull transition text-white rounded-full text-sm"
               onClick={() => {
-                setOpen(false);
+                closeAll();
                 navigate?.("/sign-in");
               }}
             >
               Login
             </button>
           ) : (
-            <div className="mt-2 px-1">
+            <div className="py-2">
               <UserButton
                 appearance={{
                   elements: {

@@ -1,4 +1,3 @@
-import React from "react";
 import { Badge } from "@/components/ui/badge";
 
 interface StockInfoProps {
@@ -6,7 +5,7 @@ interface StockInfoProps {
   inStock: boolean;
 }
 
-const StockInfo: React.FC<StockInfoProps> = ({ units, inStock }) => {
+const StockInfo = ({ units, inStock }: StockInfoProps) => {
   return (
     <div className="bg-gray-50 p-4 rounded-lg">
       <div className="flex items-center justify-between">

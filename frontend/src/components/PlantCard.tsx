@@ -15,13 +15,10 @@ interface PlantCardProps {
 }
 
 const PlantCard = ({ plant }: PlantCardProps) => {
-  const { addToCart, updateQuantity, items } = useAppContext();
+  const { addToCart } = useAppContext();
 
   const wishlist = useWishlist(1, 20);
   const wishlisted = wishlist.isWishlisted(plant.id);
-
-  const cartItem = items.find((item) => item.id === plant.id);
-  const quantity = cartItem?.quantity ?? 0;
 
   // Primary category for badge
   const primaryCategory = plant.category?.[0] || "Unknown";
@@ -129,7 +126,6 @@ const PlantCard = ({ plant }: PlantCardProps) => {
 
         {/* Add to Cart / Quantity Controls */}
         <div className="text-white" onClick={(e) => e.stopPropagation()}>
-          {quantity === 0 ? (
             <button
               className={`${
                 plant.inStock ? "bg-gradient-hero hover:shadow-hover cursor-pointer" : "bg-gray-400 cursor-not-allowed"
@@ -153,28 +149,6 @@ const PlantCard = ({ plant }: PlantCardProps) => {
               </svg>
               {plant.inStock ? "Add" : "Out of Stock"}
             </button>
-          ) : (
-            <div className="flex items-center justify-center gap-2 md:w-20 w-16 h-[34px] bg-primary rounded select-none">
-              <button
-                onClick={() => {
-                  updateQuantity(plant.id, quantity - 1);
-                }}
-                className="cursor-pointer text-md px-2 h-full hover:bg-primary/80 transition-colors"
-              >
-                -
-              </button>
-              <span className="w-5 text-center">{quantity}</span>
-              <button
-                onClick={() => {
-                  updateQuantity(plant.id, quantity + 1);
-                }}
-                className="cursor-pointer text-md px-2 h-full hover:bg-primary/80 transition-colors"
-                disabled={quantity >= plant.units}
-              >
-                +
-              </button>
-            </div>
-          )}
         </div>
       </CardFooter>
     </div>
