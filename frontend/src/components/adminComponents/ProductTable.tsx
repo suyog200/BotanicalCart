@@ -3,20 +3,26 @@ import { formatCategories } from "@/utils/formatters";
 import { RotateCw } from "lucide-react";
 import type { Product } from "@/types/types";
 import { api } from "@/api/api";
-import { useState } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import toast from "react-hot-toast";
 
 interface ProductTableProps {
   products: Product[];
   isLoading?: boolean;
+  isLoadingMore?: boolean;
+  hasNextPage?: boolean;
   onRefresh?: () => void | Promise<void>;
+  onLoadMore?: () => void | Promise<void>;
   onEdit?: (product: Product) => void;
 }
 
 const ProductTable = ({
   products,
   isLoading,
+  isLoadingMore,
+  hasNextPage,
   onRefresh,
+  onLoadMore,
   onEdit,
 }: ProductTableProps) => {
   const [deletingProducts, setDeletingProducts] = useState<Set<string>>(
@@ -25,6 +31,40 @@ const ProductTable = ({
   const [togglingProducts, setTogglingProducts] = useState<Set<string>>(
     new Set()
   );
+
+  // Intersection Observer setup for infinite scroll
+  const lastProductRef = useRef<HTMLTableRowElement>(null);
+  const observerRef = useRef<IntersectionObserver | null>(null);
+
+  const lastProductElementRef = useCallback(
+    (node: HTMLTableRowElement) => {
+      if (isLoadingMore) return;
+      if (observerRef.current) observerRef.current.disconnect();
+
+      observerRef.current = new IntersectionObserver(
+        (entries) => {
+          if (entries[0].isIntersecting && hasNextPage && onLoadMore) {
+            onLoadMore();
+          }
+        },
+        {
+          threshold: 1.0,
+          rootMargin: "100px",
+        }
+      );
+
+      if (node) observerRef.current.observe(node);
+    },
+    [isLoadingMore, hasNextPage, onLoadMore]
+  );
+
+  useEffect(() => {
+    return () => {
+      if (observerRef.current) {
+        observerRef.current.disconnect();
+      }
+    };
+  }, []);
 
   const handleInStockToggle = async (product: Product) => {
     if (!product?.id) {
@@ -189,21 +229,21 @@ const ProductTable = ({
             </thead>
             <tbody className="text-sm text-gray-500">
               {products.length === 0 && (
-                <>
-                  <tr>
-                    <td colSpan={6} className="text-center py-10 text-gray-400">
-                      No products available.
-                    </td>
-                  </tr>
-                </>
+                <tr>
+                  <td colSpan={6} className="text-center py-10 text-gray-400">
+                    No products available.
+                  </td>
+                </tr>
               )}
               {products.map((product, index) => {
                 const isDeleting = deletingProducts.has(product.id);
                 const isToggling = togglingProducts.has(product.id);
+                const isLastProduct = index === products.length - 1;
 
                 return (
                   <tr
                     key={product.id ?? `fallback-${index}`}
+                    ref={isLastProduct ? lastProductElementRef : null}
                     className={`border-t border-gray-500/20 ${
                       isDeleting || isToggling ? "opacity-50" : ""
                     } ${isDeleting ? "pointer-events-none" : ""}`}
@@ -279,6 +319,25 @@ const ProductTable = ({
               })}
             </tbody>
           </table>
+
+          {/* Loading indicator for more products */}
+          {isLoadingMore && (
+            <div className="w-full py-4 flex justify-center items-center border-t border-gray-500/20">
+              <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-[var(--color-primary)]"></div>
+              <span className="ml-2 text-sm text-gray-500">
+                Loading more products...
+              </span>
+            </div>
+          )}
+
+          {/* End of list indicator */}
+          {!hasNextPage && products.length > 0 && !isLoadingMore && (
+            <div className="w-full py-4 text-center border-t border-gray-500/20">
+              <span className="text-sm text-gray-400">
+                You've reached the end of the list
+              </span>
+            </div>
+          )}
         </div>
       </div>
     </div>
