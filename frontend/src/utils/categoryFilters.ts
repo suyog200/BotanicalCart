@@ -1,5 +1,19 @@
-// utils/categoryFilters.ts
-import type { Plant } from '@/hooks/usePlants';
+
+interface Plant {
+  id: string;
+  name: string;
+  description: string;
+  price: number;
+  category: string[];
+  careInstructions: string[];
+  imageUrl: string;
+  imagePublicId: string;
+  isFeatured: boolean;
+  units: string;
+  inStock: boolean;
+  createdAt: string; // ISO timestamp
+  updatedAt: string; // ISO timestamp
+}
 
 export const filterPlantsByCategory = (
   plants: Plant[], 

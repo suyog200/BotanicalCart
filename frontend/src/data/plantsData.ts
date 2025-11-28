@@ -24,10 +24,10 @@ export const plants: Plant[] = [
 
 export const defaultCategories = [
   { value: 'all', label: 'All Plants', icon: homeImg },
-  { value: 'medicinal', label: 'Medicinal', icon: medicinalImg },
-  { value: 'home decor', label: 'Home Decor', icon: homeImg },
-  { value: 'indoor', label: 'Indoor', icon: indoorImg },
-  { value: 'outdoor', label: 'Outdoor', icon: outdoorImg },
-  { value: 'flowers', label: 'Flowers', icon: flowerImg },
-  { value: 'garden tools', label: 'Garden Tools', icon: gardenToolsImg }
+  { value: 'Medicinal', label: 'Medicinal', icon: medicinalImg },
+  { value: 'Home Decor', label: 'Home Decor', icon: homeImg },
+  { value: 'Indoor', label: 'Indoor', icon: indoorImg },
+  { value: 'Outdoor', label: 'Outdoor', icon: outdoorImg },
+  { value: 'Flowers', label: 'Flowers', icon: flowerImg },
+  { value: 'Garden Tools', label: 'Garden Tools', icon: gardenToolsImg }
 ];

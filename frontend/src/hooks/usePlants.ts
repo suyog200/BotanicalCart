@@ -1,59 +1,82 @@
-// hooks/usePlants.ts
-import { useState, useEffect } from 'react';
-import { api } from '@/api/api';
-import toast from 'react-hot-toast';
+// src/hooks/usePlants.ts
+import { useInfiniteQuery } from "@tanstack/react-query";
+import { api } from "@/api/api"; 
+import type { Product } from "@/types/types"; 
 
-export interface Plant {
-  id: string;
-  name: string;
-  description: string;
-  price: number;
-  imageUrl: string;
-  imagePublicId: string;
-  category: string[]; // Array of categories
-  inStock: boolean;
-  isFeatured: boolean;
-  units: number;
-  careInstructions: string[];
-  createdAt: string;
-  updatedAt: string;
-}
+const PLANTS_PER_PAGE = 12; 
 
-export const usePlants = () => {
-  const [plants, setPlants] = useState<Plant[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+type ServerPagination = {
+  page: number;
+  limit: number;
+  total: number | null;
+  totalPages: number | null;
+  hasNextPage: boolean;
+  hasPreviousPage: boolean;
+};
 
-  const fetchPlants = async () => {
-    setIsLoading(true);
-    setError(null);
-    
-    try {
-      const response = await api.get('/api/v1/products');
-      
-      if (response.status === 200) {
-        const plantsData = response.data.data || response.data;
-        setPlants(plantsData);
-      }
-    } catch (error: any) {
-      console.error('Error fetching plants:', error);
-      const errorMessage = error.response?.data?.message || 'Failed to load plants';
-      setError(errorMessage);
-      toast.error(errorMessage);
-    } finally {
-      setIsLoading(false);
-    }
+type ServerResponsePage = {
+  items: Product[];
+  pagination: ServerPagination;
+};
+
+async function fetchPlantsPage({ pageParam = 1, category, q,signal,}: { pageParam?: number; category?: string; q?: string; signal?: AbortSignal; }): Promise<ServerResponsePage> {
+  const params = new URLSearchParams();
+  params.set("page", String(pageParam));
+  params.set("limit", String(PLANTS_PER_PAGE));
+  if (category && category !== "all") params.set("category", category);
+  if (q) params.set("q", q);
+
+  const url = `/api/v1/products?${params.toString()}`;
+
+  const res = await api.get(url, { signal });
+
+  const items: Product[] = res.data?.data ?? [];
+  const pagination: ServerPagination = res.data?.pagination ?? {
+    page: pageParam,
+    limit: PLANTS_PER_PAGE,
+    total: null,
+    totalPages: null,
+    hasNextPage: items.length === PLANTS_PER_PAGE,
+    hasPreviousPage: pageParam > 1,
   };
-
-  // Fetch plants on mount
-  useEffect(() => {
-    fetchPlants();
-  }, []);
 
   return {
-    plants,
-    isLoading,
-    error,
-    refetch: fetchPlants,
+    items,
+    pagination,
   };
-};
+}
+
+export function usePlants({
+  category = "all",
+  q = "",
+}: {
+  category?: string;
+  q?: string;
+}) {
+  const queryKey = ["plants", category ?? "all", q ?? ""];
+
+  const infiniteQuery = useInfiniteQuery({
+    queryKey,
+    queryFn: ({ pageParam = 1, signal }) =>
+      fetchPlantsPage({ pageParam, category, q, signal }),
+    enabled: true,
+    getNextPageParam: (lastPage) => {
+      const hasNext = lastPage.pagination?.hasNextPage;
+      return hasNext ? (lastPage.pagination.page ?? 1) + 1 : undefined;
+    },
+    staleTime: 1000 * 60, // 1 minute
+    gcTime: 1000 * 60 * 5, 
+    initialPageParam: 1, 
+  });
+
+  const pages = infiniteQuery.data?.pages ?? [];
+  const products = pages.flatMap((p) => p.items) as Product[];
+  const total = pages[0]?.pagination?.total ?? null;
+
+  return {
+    ...infiniteQuery,
+    products,
+    total,
+    perPage: PLANTS_PER_PAGE,
+  };
+}
