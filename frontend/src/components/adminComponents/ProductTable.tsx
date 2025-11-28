@@ -1,10 +1,10 @@
-import ProductTableAction from "./ProductTableAction";
 import { formatCategories } from "@/utils/formatters";
-import { RotateCw } from "lucide-react";
+import { Edit, Trash2 } from "lucide-react";
 import type { Product } from "@/types/types";
 import { api } from "@/api/api";
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState } from "react";
 import toast from "react-hot-toast";
+import DataTable from "./DataTable";
 
 interface ProductTableProps {
   products: Product[];
@@ -32,53 +32,21 @@ const ProductTable = ({
     new Set()
   );
 
-  // Intersection Observer setup for infinite scroll
-  const lastProductRef = useRef<HTMLTableRowElement>(null);
-  const observerRef = useRef<IntersectionObserver | null>(null);
-
-  const lastProductElementRef = useCallback(
-    (node: HTMLTableRowElement) => {
-      if (isLoadingMore) return;
-      if (observerRef.current) observerRef.current.disconnect();
-
-      observerRef.current = new IntersectionObserver(
-        (entries) => {
-          if (entries[0].isIntersecting && hasNextPage && onLoadMore) {
-            onLoadMore();
-          }
-        },
-        {
-          threshold: 1.0,
-          rootMargin: "100px",
-        }
-      );
-
-      if (node) observerRef.current.observe(node);
-    },
-    [isLoadingMore, hasNextPage, onLoadMore]
-  );
-
-  useEffect(() => {
-    return () => {
-      if (observerRef.current) {
-        observerRef.current.disconnect();
-      }
-    };
-  }, []);
+    // Create loading states map
+  const loadingStates = new Map<string, boolean>();
+  [...deletingProducts, ...togglingProducts].forEach(id => {
+    loadingStates.set(id, true);
+  });
 
   const handleInStockToggle = async (product: Product) => {
     if (!product?.id) {
       toast.error("Invalid product ID");
       return;
     }
-
-    // Add product to toggling state
     setTogglingProducts((prev) => new Set(prev).add(product.id));
 
     try {
       const newInStockStatus = !product.inStock;
-
-      // Make API call to update inStock status
       const response = await api.patch(
         `/api/v1/products/${product.id}/update-instock`,
         {
@@ -93,7 +61,6 @@ const ProductTable = ({
           }`
         );
 
-        // Refresh products to ensure UI is in sync with backend
         if (onRefresh) {
           await onRefresh();
         }
@@ -182,166 +149,107 @@ const ProductTable = ({
     }
   };
 
-  if (isLoading) {
-    return (
-      <div className="flex-1 py-5 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[var(--color-primary)] mx-auto mb-4"></div>
-          <p className="text-[var(--color-hero-text-subtitle)]">
-            Loading products...
-          </p>
+   const columns = [
+    {
+      key: 'product',
+      header: 'Product',
+      render: (product: Product, index: number) => (
+        <div className="md:px-4 pl-2 md:pl-4 py-3 flex items-center space-x-3 truncate">
+          <div className="border border-gray-300 rounded overflow-hidden">
+            <img src={product.imageUrl} alt="Product" className="w-16" />
+          </div>
+          <span className="truncate max-sm:hidden w-full">{product.name}</span>
+          <span className="truncate max-md:hidden w-full">
+            {product.isFeatured && (
+              <span className="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded">
+                Featured
+              </span>
+            )}
+          </span>
         </div>
-      </div>
-    );
-  }
+      ),
+      className: "px-0",
+    },
+    {
+      key: 'category',
+      header: 'Category',
+      render: (product: Product) => formatCategories(product.category),
+    },
+    {
+      key: 'price',
+      header: 'Selling Price',
+      render: (product: Product) => `Rs ${product.price.toFixed(2)}`,
+      hideOnMobile: true,
+    },
+    {
+      key: 'units',
+      header: 'Units',
+    },
+    {
+      key: 'inStock',
+      header: 'In Stock',
+      render: (product: Product) => (
+        <label
+          className={`relative inline-flex items-center text-gray-900 gap-3 ${
+            togglingProducts.has(product.id) ? "cursor-wait opacity-75" : "cursor-pointer"
+          }`}
+        >
+          <input
+            type="checkbox"
+            className="sr-only peer"
+            checked={product.inStock}
+            onChange={() => handleInStockToggle(product)}
+            disabled={togglingProducts.has(product.id)}
+          />
+          <div
+            className={`w-12 h-7 rounded-full peer transition-colors duration-200 ${
+              product.inStock ? "bg-blue-600" : "bg-slate-300"
+            } ${togglingProducts.has(product.id) ? "animate-pulse" : ""}`}
+          ></div>
+          <span
+            className={`dot absolute left-1 top-1 w-5 h-5 bg-white rounded-full transition-all duration-200 ease-in-out ${
+              product.inStock ? "translate-x-5" : "translate-x-0"
+            } ${togglingProducts.has(product.id) ? "shadow-md" : ""}`}
+          ></span>
+        </label>
+      ),
+    },
+  ];
+
+    // Define actions
+  const actions = [
+    {
+      label: 'Edit',
+      onClick: (product: Product) => onEdit?.(product),
+      icon: <Edit className="h-4 w-4" />,
+      variant: 'secondary' as const,
+    },
+    {
+      label: 'Delete',
+      onClick: handleDelete,
+      icon: <Trash2 className="h-4 w-4" />,
+      variant: 'danger' as const,
+      isLoading: (product: Product) => deletingProducts.has(product.id),
+    },
+  ];
+
 
   return (
-    <div className="flex-1 py-5 flex flex-col justify-between">
-      <div className="w-full">
-        <div className="flex justify-between items-center mb-1">
-          <h2 className="pb-4 text-lg font-medium">All Products</h2>
-          <button
-            className="text-sm text-[var(--color-primary)] cursor-pointer flex items-center hover:text-[var(--color-primary-dull)] transition-colors"
-            onClick={onRefresh}
-            disabled={isLoading}
-          >
-            <RotateCw
-              className={`inline-block mr-1 h-4 w-4 ${
-                isLoading ? "animate-spin" : ""
-              }`}
-            />
-            Refresh
-          </button>
-        </div>
-        <div className="flex flex-col items-center w-full overflow-hidden rounded-md bg-white border border-gray-500/20">
-          <table className="md:table-auto table-fixed w-full overflow-hidden">
-            <thead className="text-gray-900 text-sm text-left">
-              <tr>
-                <th className="px-4 py-3 font-semibold truncate">Product</th>
-                <th className="px-4 py-3 font-semibold truncate">Category</th>
-                <th className="px-4 py-3 font-semibold truncate max-sm:hidden">
-                  Selling Price
-                </th>
-                <th className="px-4 py-3 font-semibold truncate">Units</th>
-                <th className="px-4 py-3 font-semibold truncate">In Stock</th>
-                <th className="px-4 py-3 font-semibold truncate">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="text-sm text-gray-500">
-              {products.length === 0 && (
-                <tr>
-                  <td colSpan={6} className="text-center py-10 text-gray-400">
-                    No products available.
-                  </td>
-                </tr>
-              )}
-              {products.map((product, index) => {
-                const isDeleting = deletingProducts.has(product.id);
-                const isToggling = togglingProducts.has(product.id);
-                const isLastProduct = index === products.length - 1;
-
-                return (
-                  <tr
-                    key={product.id ?? `fallback-${index}`}
-                    ref={isLastProduct ? lastProductElementRef : null}
-                    className={`border-t border-gray-500/20 ${
-                      isDeleting || isToggling ? "opacity-50" : ""
-                    } ${isDeleting ? "pointer-events-none" : ""}`}
-                  >
-                    <td className="md:px-4 pl-2 md:pl-4 py-3 flex items-center space-x-3 truncate">
-                      <div className="border border-gray-300 rounded overflow-hidden">
-                        <img
-                          src={product.imageUrl}
-                          alt="Product"
-                          className="w-16"
-                        />
-                      </div>
-                      <span className="truncate max-sm:hidden w-full">
-                        {product.name}
-                      </span>
-                      <span className="truncate max-md:hidden w-full">
-                        {product.isFeatured && (
-                          <span className="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded">
-                            Featured
-                          </span>
-                        )}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3">
-                      {formatCategories(product.category)}
-                    </td>
-                    <td className="px-4 py-3 max-sm:hidden">
-                      Rs {product.price.toFixed(2)}
-                    </td>
-                    <td className="px-4 py-3">{product.units}</td>
-                    <td className="px-4 py-3">
-                      <label
-                        className={`relative inline-flex items-center text-gray-900 gap-3 ${
-                          togglingProducts.has(product.id)
-                            ? "cursor-wait opacity-75"
-                            : "cursor-pointer"
-                        }`}
-                      >
-                        <input
-                          type="checkbox"
-                          className="sr-only peer"
-                          checked={product.inStock}
-                          onChange={() => handleInStockToggle(product)}
-                          disabled={togglingProducts.has(product.id)}
-                        />
-                        <div
-                          className={`w-12 h-7 rounded-full peer transition-colors duration-200 ${
-                            product.inStock ? "bg-blue-600" : "bg-slate-300"
-                          } ${
-                            togglingProducts.has(product.id)
-                              ? "animate-pulse"
-                              : ""
-                          }`}
-                        ></div>
-                        <span
-                          className={`dot absolute left-1 top-1 w-5 h-5 bg-white rounded-full transition-all duration-200 ease-in-out ${
-                            product.inStock ? "translate-x-5" : "translate-x-0"
-                          } ${
-                            togglingProducts.has(product.id) ? "shadow-md" : ""
-                          }`}
-                        ></span>
-                      </label>
-                    </td>
-                    <td className="px-4 py-3">
-                      <ProductTableAction
-                        onEdit={() => onEdit?.(product)}
-                        onDelete={() => handleDelete(product)}
-                        isDeleting={isDeleting}
-                      />
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-
-          {/* Loading indicator for more products */}
-          {isLoadingMore && (
-            <div className="w-full py-4 flex justify-center items-center border-t border-gray-500/20">
-              <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-[var(--color-primary)]"></div>
-              <span className="ml-2 text-sm text-gray-500">
-                Loading more products...
-              </span>
-            </div>
-          )}
-
-          {/* End of list indicator */}
-          {!hasNextPage && products.length > 0 && !isLoadingMore && (
-            <div className="w-full py-4 text-center border-t border-gray-500/20">
-              <span className="text-sm text-gray-400">
-                You've reached the end of the list
-              </span>
-            </div>
-          )}
-        </div>
-      </div>
-    </div>
-  );
-};
+    <DataTable
+      data={products}
+      columns={columns}
+      actions={actions}
+      isLoading={isLoading}
+      isLoadingMore={isLoadingMore}
+      hasNextPage={hasNextPage}
+      onRefresh={onRefresh}
+      onLoadMore={onLoadMore}
+      title="All Products"
+      emptyMessage="No products available."
+      getItemId={(product) => product.id}
+      loadingStates={loadingStates}
+    />
+  )
+}
 
 export default ProductTable;
