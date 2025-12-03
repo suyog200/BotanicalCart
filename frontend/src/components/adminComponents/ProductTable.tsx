@@ -173,7 +173,7 @@ const ProductTable = ({
     {
       key: 'category',
       header: 'Category',
-      render: (product: Product) => formatCategories(product.category),
+      render: (product: Product) => formatCategories(product.categories ?? product.categories ?? [])
     },
     {
       key: 'price',

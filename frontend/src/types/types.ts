@@ -16,7 +16,7 @@ export interface Product {
   name: string;
   description: string;
   price: number;
-  category: string[];
+  categories: Category[];
   careInstructions: string[];
   imageUrl: string;
   imagePublicId: string;
@@ -26,3 +26,10 @@ export interface Product {
   createdAt: string; // ISO timestamp
   updatedAt: string; // ISO timestamp
 }
+
+export type Category = {
+  id: string;
+  name: string;
+  slug?: string;
+  imageUrl?: string | null;
+};

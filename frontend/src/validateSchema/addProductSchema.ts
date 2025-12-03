@@ -11,7 +11,7 @@ export const productSchema = z.object({
     .refine((val) => !isNaN(Number(val)) && Number(val) > 0, {
       message: "Price must be a valid positive number",
     }),
-  category: z.array(z.string()).min(1, "At least one category is required"),
+  categoryIds: z.array(z.string()).min(1, "At least one category is required"),
   description: z
     .string()
     .min(1, "Description is required")

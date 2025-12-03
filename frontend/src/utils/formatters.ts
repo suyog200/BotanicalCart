@@ -1,12 +1,17 @@
-// utils/formatters.ts
-export const formatCategories = (categories: string | string[]): string => {
-  if (Array.isArray(categories)) {
-    return categories
-      .filter((cat) => cat.trim().length > 0)
-      .map((cat) => cat.charAt(0).toUpperCase() + cat.slice(1))
+export function formatCategories(input?: string[] | { name: string }[]) {
+  if (!input || input.length === 0) return "—";
+
+  const capitalizeFirstLetter = (str: string) => {
+    return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+  };
+
+  if (typeof input[0] === "object") {
+    return (input as { name: string }[])
+      .map((c) => capitalizeFirstLetter(c.name))
       .join(", ");
   }
-  return typeof categories === "string"
-    ? categories.charAt(0).toUpperCase() + categories.slice(1)
-    : "";
-};
+
+  return (input as string[])
+    .map((name) => capitalizeFirstLetter(name))
+    .join(", ");
+}

@@ -5,7 +5,6 @@ import { z } from "zod";
 import { GenericFormModal } from "../form/GenericFormModal";
 import { ProductNameField } from "../form/ProductNameField";
 import { PriceStockField } from "../form/PriceStockField";
-import { MultiSelectDropdown } from "../form/MultiSelectDropdown";
 import { DynamicFieldArray } from "../form/DynamicFieldArray";
 import { ImageUploadField } from "../form/ImageUploadField";
 import CheckboxGroupField from "./CheckboxGroupField";
@@ -13,13 +12,13 @@ import { useImageUpload } from "../../hooks/useImageUpload";
 import { productSchema } from "@/validateSchema/addProductSchema";
 import { Button } from "@/components/ui/button";
 import type { Product } from "@/types/types";
+import { api } from "@/api/api";
 
 type FormData = z.infer<typeof productSchema>;
 
-
 type ProductFormData = Omit<FormData, "careInstructions"> & {
-  careInstructions: string[]; // flatten before sending
-  image: File | null; 
+  careInstructions: string[]; // flattened before sending
+  image: File | null;
 };
 
 interface AddProductModalProps {
@@ -40,6 +39,11 @@ const AddProductModal = ({
   productData = null,
 }: AddProductModalProps) => {
   const [isFormReady, setIsFormReady] = useState(false);
+  const [categories, setCategories] = useState<{ id: string; name: string }[]>(
+    []
+  );
+  const [categoriesLoading, setCategoriesLoading] = useState(false);
+  const [categoriesError, setCategoriesError] = useState<string | null>(null);
 
   const {
     imageFile,
@@ -51,15 +55,6 @@ const AddProductModal = ({
     setImageError,
     setImagePreview,
   } = useImageUpload();
-
-  const categories = [
-    "Home decor",
-    "Indoor",
-    "Outdoor",
-    "Medicinal",
-    "Flowers",
-    "Garden Tools",
-  ];
 
   const checkboxOptions = [
     {
@@ -78,7 +73,7 @@ const AddProductModal = ({
   const defaultValues = {
     name: "",
     price: "",
-    category: [] as string[],
+    categoryIds: [] as string[], // will contain category IDs
     description: "",
     units: "",
     careInstructions: [{ value: "" }],
@@ -104,18 +99,42 @@ const AddProductModal = ({
     name: "careInstructions",
   });
 
-  // Handle form population when modal opens
+  // fetch categories for dropdown (active only)
+  useEffect(() => {
+    let mounted = true;
+    const fetchCategories = async () => {
+      setCategoriesLoading(true);
+      try {
+        const res = await api.get(
+          "/api/v1/categories?activeOnly=true&limit=200"
+        );
+        const data = res.data?.data ?? [];
+        if (!mounted) return;
+        setCategories(data.map((c: any) => ({ id: c.id, name: c.name })));
+      } catch (err) {
+        console.error("Failed to fetch categories", err);
+        setCategoriesError("Failed to load categories");
+      } finally {
+        setCategoriesLoading(false);
+      }
+    };
+    fetchCategories();
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
+  // populate form when modal opens (edit mode)
   useEffect(() => {
     if (isOpen) {
       setIsFormReady(false);
 
       if (mode === "edit" && productData) {
-
-        // Reset with populated data
         const editFormData = {
           name: productData.name || "",
           price: productData.price?.toString() || "",
-          category: productData.category || [],
+          // prefill category with IDs (productData.categories expected from backend)
+          category: productData.categories?.map((c) => c.id) || [],
           description: productData.description || "",
           units: productData.units?.toString() || "",
           careInstructions:
@@ -131,33 +150,30 @@ const AddProductModal = ({
 
         reset(editFormData);
 
-        // Set image preview if exists
+        // set image preview if product has imageUrl
         if (productData.imageUrl) {
           setImagePreview(productData.imageUrl);
         }
       } else {
-        // Reset to default for add mode
+        // add mode: reset
         reset(defaultValues);
         resetImage();
       }
 
-      // Mark form as ready after a short delay
-      setTimeout(() => {
-        setIsFormReady(true);
-      }, 100);
+      setTimeout(() => setIsFormReady(true), 100);
     }
   }, [isOpen, mode, productData, reset, resetImage, setImagePreview]);
 
   const onSubmit = (data: FormData) => {
-    // Validate image
+    // validate image for add mode
     if (mode === "add" && !imageFile) {
       setImageError("Product image is required");
       return;
     }
 
     const filteredCareInstructions = data.careInstructions
-      .map((item) => item.value.trim())
-      .filter((value) => value !== "");
+      .map((item: any) => item.value.trim())
+      .filter((v: string) => v !== "");
 
     const productFormData: ProductFormData = {
       ...data,
@@ -165,7 +181,6 @@ const AddProductModal = ({
       // @ts-ignore
       image: imageFile,
     };
-
     onSave(productFormData);
   };
 
@@ -173,7 +188,6 @@ const AddProductModal = ({
   const submitButtonText = mode === "edit" ? "Update Product" : "Add Product";
   const loadingText = mode === "edit" ? "Updating..." : "Adding...";
 
-  // Don't render content until form is ready
   if (!isOpen || !isFormReady) {
     return isOpen ? (
       <GenericFormModal
@@ -208,20 +222,83 @@ const AddProductModal = ({
           }}
         />
 
-        <Controller
-          name="category"
-          control={control}
-          render={({ field }) => (
-            <MultiSelectDropdown
-              value={field.value}
-              onChange={field.onChange}
-              options={categories}
-              placeholder="Select categories"
-              label="Categories"
-              error={errors.category?.message}
-            />
-          )}
-        />
+        {/* --- Category multi select (IDs) --- */}
+        <div>
+          <label className="block text-sm font-medium text-[var(--color-hero-text-heading)] mb-2">
+            Categories <span className="text-red-500">*</span>
+          </label>
+          <Controller
+            name="categoryIds"
+            control={control}
+            render={({ field }) => {
+              // field.value should be an array of selected IDs
+              const selectedIds: string[] = Array.isArray(field.value)
+                ? field.value
+                : [];
+
+              const toggle = (id: string) => {
+                if (selectedIds.includes(id)) {
+                  field.onChange(selectedIds.filter((x) => x !== id));
+                } else {
+                  field.onChange([...selectedIds, id]);
+                }
+              };
+
+              return (
+                <div>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                    {categoriesLoading && (
+                      <div className="text-sm text-gray-500">
+                        Loading categories...
+                      </div>
+                    )}
+                    {categoriesError && (
+                      <div className="text-sm text-red-500">
+                        {categoriesError}
+                      </div>
+                    )}
+                    {!categoriesLoading && categories.length === 0 && (
+                      <div className="text-sm text-gray-500">No categories</div>
+                    )}
+                    {categories.map((c) => {
+                      const checked = selectedIds.includes(c.id);
+                      return (
+                        <label
+                          key={c.id}
+                          className={`flex items-center gap-2 px-3 py-2 cursor-pointer select-none ${
+                            checked
+                              ? "bg-[var(--color-primary)] text-white border-[var(--color-primary)]"
+                              : "bg-white"
+                          }`}
+                          onClick={(e) => {
+                            // Prevent label click from focusing other inputs weirdly
+                            e.preventDefault();
+                            toggle(c.id);
+                          }}
+                        >
+                          <input
+                            type="checkbox"
+                            checked={checked}
+                            onChange={() => toggle(c.id)}
+                            className="w-4 h-4"
+                            aria-label={`Category ${c.name}`}
+                          />
+                          <span className="text-sm">{c.name}</span>
+                        </label>
+                      );
+                    })}
+                  </div>
+
+                  {errors.categoryIds && (
+                    <p className="text-red-500 text-sm mt-2">
+                      {errors.categoryIds.message as string}
+                    </p>
+                  )}
+                </div>
+              );
+            }}
+          />
+        </div>
 
         <div>
           <label className="block text-sm font-medium text-[var(--color-hero-text-heading)] mb-2">
@@ -245,12 +322,12 @@ const AddProductModal = ({
         <DynamicFieldArray
           fields={fields}
           register={register}
-          append={() => append({ value: "" })} // Append object with value property
+          append={() => append({ value: "" })}
           remove={remove}
           name="careInstructions"
           label="Care Instructions"
           placeholder="Enter care instruction"
-          error={errors.careInstructions?.message}
+          error={errors.careInstructions?.message as string}
           showBulletPoints
         />
 
