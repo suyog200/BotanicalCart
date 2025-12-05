@@ -1,5 +1,5 @@
 // src/components/PlantCard.tsx
-import type { Plant } from "@/hooks/usePlants";
+import type { Plant } from "@/types/types"; // Import from types instead of usePlants
 import { Link } from "react-router-dom";
 import { CardFooter } from "./ui/card";
 import { useAppContext } from "@/context/AppContext";
@@ -21,7 +21,7 @@ const PlantCard = ({ plant }: PlantCardProps) => {
   const wishlisted = wishlist.isWishlisted(plant.id);
 
   // Primary category for badge
-  const primaryCategory = plant.category?.[0] || "Unknown";
+  const primaryCategory = plant.categories?.[0]?.name || "Unknown";
 
   const handleToggle = async (e: React.MouseEvent) => {
     // prevent card click (navigation) when toggling wishlist
@@ -29,7 +29,11 @@ const PlantCard = ({ plant }: PlantCardProps) => {
     e.stopPropagation();
     try {
       await wishlist.toggle({ id: plant.id });
-      toast.success(wishlist.isWishlisted(plant.id) ? "Added to wishlist" : "Removed from wishlist");
+      toast.success(
+        wishlist.isWishlisted(plant.id)
+          ? "Added to wishlist"
+          : "Removed from wishlist"
+      );
     } catch (err) {
       console.error("Wishlist toggle error:", err);
       toast.error("Could not update wishlist. Try again.");
@@ -52,25 +56,30 @@ const PlantCard = ({ plant }: PlantCardProps) => {
               variant="ghost"
               size="icon"
               className="absolute top-2 right-2 bg-white/80 hover:bg-white text-muted-foreground hover:text-accent transition-all duration-200"
-              onClick={(e) => {
-                // keep the click inside button only — call handleToggle
-                handleToggle(e);
-              }}
+              onClick={handleToggle}
             >
               <Heart
-                className={`h-5 w-5 ${wishlisted ? "fill-red-500 text-red-500" : "text-gray-700"}`}
+                className={`h-5 w-5 ${
+                  wishlisted ? "fill-red-500 text-red-500" : "text-gray-700"
+                }`}
               />
             </Button>
 
             {/* Primary Category Badge */}
-            <Badge className={`absolute top-2 left-2 ${getCategoryColor(primaryCategory)}`}>
+            <Badge
+              className={`absolute top-2 left-2 ${getCategoryColor(
+                primaryCategory
+              )}`}
+            >
               {primaryCategory.replace("-", " ")}
             </Badge>
 
             {/* Stock Status Badge */}
             <Badge
               className={`absolute bottom-2 right-2 ${
-                plant.inStock ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"
+                plant.inStock
+                  ? "bg-green-100 text-green-800"
+                  : "bg-red-100 text-red-800"
               }`}
             >
               {plant.inStock ? "In Stock" : "Out of Stock"}
@@ -79,20 +88,28 @@ const PlantCard = ({ plant }: PlantCardProps) => {
         </div>
 
         <div className="px-5 pb-4 mt-2">
-          <h5 className="text-xl font-semibold tracking-tight text-black">{plant.name}</h5>
+          <h5 className="text-xl font-semibold tracking-tight text-black">
+            {plant.name}
+          </h5>
           <p
             className="text-sm font-medium text-gray-500 truncate"
             title={plant.description}
           >
-            {plant.description?.length > 50 ? plant.description.slice(0, 47) + "..." : plant.description}
+            {plant.description?.length > 50
+              ? plant.description.slice(0, 47) + "..."
+              : plant.description}
           </p>
 
           {/* Multiple Categories Display */}
-          {plant.category && plant.category.length > 1 && (
+          {plant.categories && plant.categories.length > 1 && (
             <div className="flex flex-wrap gap-1 mt-2 mb-2">
-              {plant.category.slice(1).map((cat, index) => (
-                <Badge key={index} variant="outline" className={`text-xs ${getCategoryColor(cat)}`}>
-                  {cat.replace("-", " ")}
+              {plant.categories.slice(1).map((category, index) => (
+                <Badge
+                  key={index}
+                  variant="outline"
+                  className={`text-xs ${getCategoryColor(category.name)}`}
+                >
+                  {category.name.replace("-", " ")}
                 </Badge>
               ))}
             </div>
@@ -104,7 +121,11 @@ const PlantCard = ({ plant }: PlantCardProps) => {
               {[...Array(5)].map((_, index) => (
                 <svg
                   key={index}
-                  className={`w-4 h-4 ${index < 4 ? "text-yellow-300" : "text-gray-200 dark:text-gray-600"}`}
+                  className={`w-4 h-4 ${
+                    index < 4
+                      ? "text-yellow-300"
+                      : "text-gray-200 dark:text-gray-600"
+                  }`}
                   aria-hidden="true"
                   xmlns="http://www.w3.org/2000/svg"
                   fill="currentColor"
@@ -126,29 +147,37 @@ const PlantCard = ({ plant }: PlantCardProps) => {
 
         {/* Add to Cart / Quantity Controls */}
         <div className="text-white" onClick={(e) => e.stopPropagation()}>
-            <button
-              className={`${
-                plant.inStock ? "bg-gradient-hero hover:shadow-hover cursor-pointer" : "bg-gray-400 cursor-not-allowed"
-              } transition-all duration-300 text-white flex items-center gap-2 px-3 py-1 rounded`}
-              onClick={() => {
-                if (plant.inStock) {
-                  addToCart(plant);
-                } else {
-                  toast.error("This plant is currently out of stock");
-                }
-              }}
-              disabled={!plant.inStock}
+          <button
+            className={`${
+              plant.inStock
+                ? "bg-gradient-hero hover:shadow-hover cursor-pointer"
+                : "bg-gray-400 cursor-not-allowed"
+            } transition-all duration-300 text-white flex items-center gap-2 px-3 py-1 rounded`}
+            onClick={() => {
+              if (plant.inStock) {
+                addToCart(plant);
+              } else {
+                toast.error("This plant is currently out of stock");
+              }
+            }}
+            disabled={!plant.inStock}
+          >
+            <svg
+              width="14"
+              height="14"
+              viewBox="0 0 14 14"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
             >
-              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path
-                  d="M.583.583h2.333l1.564 7.81a1.17 1.17 0 0 0 1.166.94h5.67a1.17 1.17 0 0 0 1.167-.94l.933-4.893H3.5m2.333 8.75a.583.583 0 1 1-1.167 0 .583.583 0 0 1 1.167 0m6.417 0a.583.583 0 1 1-1.167 0 .583.583 0 0 1 1.167 0"
-                  stroke="#ffffff"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
-              {plant.inStock ? "Add" : "Out of Stock"}
-            </button>
+              <path
+                d="M.583.583h2.333l1.564 7.81a1.17 1.17 0 0 0 1.166.94h5.67a1.17 1.17 0 0 0 1.167-.94l.933-4.893H3.5m2.333 8.75a.583.583 0 1 1-1.167 0 .583.583 0 0 1 1.167 0m6.417 0a.583.583 0 1 1-1.167 0 .583.583 0 0 1 1.167 0"
+                stroke="#ffffff"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+            {plant.inStock ? "Add" : "Out of Stock"}
+          </button>
         </div>
       </CardFooter>
     </div>

@@ -4,11 +4,14 @@ export interface Plant {
   description: string;
   price: number;
   imageUrl: string;
-  category: string[]; 
+  categories: Category[]; // Change from category: string[] to categories: Category[]
   inStock: boolean;
   isFeatured: boolean;
   units: number;
   careInstructions: string[];
+  imagePublicId: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface Product {

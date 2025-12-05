@@ -6,6 +6,7 @@ import CategoryTableActions from "../../components/adminComponents/CategoryTable
 import { Button } from "../../components/ui/button";
 import { api } from "../../api/api";
 import type { Category, CategorySubmitData } from "@/types/categoryTypes";
+import toast from "react-hot-toast";
 
 interface Column<T> {
   key: string;
@@ -68,7 +69,8 @@ const CategoryPage = () => {
     setLoadingStates((prev) => new Map(prev).set(category.id, true));
 
     try {
-      await api.delete(`/api/categories/${category.id}`);
+      await api.delete(`/api/v1/categories/${category.id}`);
+      toast.success(`Category "${category.name}" deleted successfully.`);
       await fetchCategories(); // Refresh the list
     } catch (error) {
       console.error("Failed to delete category:", error);
@@ -130,6 +132,7 @@ const CategoryPage = () => {
       }
 
       setIsModalOpen(false);
+      toast.success(`Category "${modalMode === "edit" ? selectedCategory?.name : formData.name}" saved successfully.`);
       await fetchCategories(); // Refresh the list
     } catch (error) {
       console.error("Failed to save category:", error);

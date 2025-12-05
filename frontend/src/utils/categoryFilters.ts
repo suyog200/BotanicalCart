@@ -3,15 +3,15 @@ interface Plant {
   name: string;
   description: string;
   price: number;
-  category: string[];
+  categories: { id: string; name: string; slug?: string }[]; // Updated to match new structure
   careInstructions: string[];
   imageUrl: string;
   imagePublicId: string;
   isFeatured: boolean;
   units: string;
   inStock: boolean;
-  createdAt: string; // ISO timestamp
-  updatedAt: string; // ISO timestamp
+  createdAt: string;
+  updatedAt: string;
 }
 
 export const filterPlantsByCategory = (
@@ -26,8 +26,10 @@ export const filterPlantsByCategory = (
   return plants.filter(
     (plant) =>
       plant.inStock &&
-      plant.category?.some(
-        (cat) => cat.toLowerCase() === selectedCategory.toLowerCase()
+      plant.categories?.some(
+        (cat) =>
+          cat.slug?.toLowerCase() === selectedCategory.toLowerCase() ||
+          cat.name?.toLowerCase() === selectedCategory.toLowerCase()
       )
   );
 };
@@ -46,7 +48,11 @@ export const filterPlantsBySearch = (
     (plant) =>
       plant.name.toLowerCase().includes(query) ||
       plant.description.toLowerCase().includes(query) ||
-      plant.category?.some((cat) => cat.toLowerCase().includes(query)) ||
+      plant.categories?.some(
+        (cat) =>
+          cat.name?.toLowerCase().includes(query) ||
+          cat.slug?.toLowerCase().includes(query)
+      ) ||
       plant.careInstructions?.some((instruction) =>
         instruction.toLowerCase().includes(query)
       )
@@ -58,11 +64,11 @@ export const extractCategoriesFromPlants = (plants: Plant[]): string[] => {
   const categoriesSet = new Set<string>();
 
   plants.forEach((plant) => {
-    // Add safety check for undefined/null category
-    if (plant.category && Array.isArray(plant.category)) {
-      plant.category.forEach((cat) => {
-        if (cat && typeof cat === "string") {
-          categoriesSet.add(cat);
+    // Add safety check for undefined/null categories
+    if (plant.categories && Array.isArray(plant.categories)) {
+      plant.categories.forEach((cat) => {
+        if (cat && cat.name && typeof cat.name === "string") {
+          categoriesSet.add(cat.name);
         }
       });
     }
@@ -80,8 +86,10 @@ export const getCategoryCount = (plants: Plant[], category: string): number => {
   return plants.filter(
     (plant) =>
       plant.inStock &&
-      plant.category?.some(
-        (cat) => cat.toLowerCase() === category.toLowerCase()
+      plant.categories?.some(
+        (cat) =>
+          cat.slug?.toLowerCase() === category.toLowerCase() ||
+          cat.name?.toLowerCase() === category.toLowerCase()
       )
   ).length;
 };
