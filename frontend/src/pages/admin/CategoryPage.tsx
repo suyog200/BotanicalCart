@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Plus } from "lucide-react";
 import DataTable from "../../components/adminComponents/DataTable";
 import AddCategoryModal from "../../components/adminComponents/AddCategoryModal";
-// import CategoryTableActions from "../../components/adminComponents/CategoryTableActions";
+import CategoryTableActions from "../../components/adminComponents/CategoryTableActions";
 import { Button } from "../../components/ui/button";
 import { api } from "../../api/api";
 import type { Category, CategorySubmitData } from "@/types/categoryTypes";
@@ -116,7 +116,7 @@ const CategoryPage = () => {
       }
 
       if (modalMode === "edit" && selectedCategory) {
-        await api.put(`/api/v1/categories/${selectedCategory.id}`, submitData, {
+        await api.patch(`/api/v1/categories/${selectedCategory.id}`, submitData, {
           headers: {
             "Content-Type": "multipart/form-data",
           },
@@ -197,19 +197,19 @@ const CategoryPage = () => {
         );
       },
     },
-    // {
-    //   key: "actions",
-    //   header: "Actions",
-    //   className: "w-16",
-    //   render: (category) => (
-    //     <CategoryTableActions
-    //       category={category}
-    //       onEdit={handleEditCategory}
-    //       onDelete={handleDeleteCategory}
-    //       isLoading={loadingStates.get(category.id)}
-    //     />
-    //   ),
-    // },
+    {
+      key: "actions",
+      header: "Actions",
+      className: "w-16",
+      render: (category) => (
+        <CategoryTableActions
+          category={category}
+          onEdit={handleEditCategory}
+          onDelete={handleDeleteCategory}
+          isDeleting={loadingStates.get(category.id)}
+        />
+      ),
+    },
   ];
 
   return (
