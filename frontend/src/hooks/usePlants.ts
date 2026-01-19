@@ -1,9 +1,8 @@
-// src/hooks/usePlants.ts
 import { useInfiniteQuery } from "@tanstack/react-query";
-import { api } from "@/api/api"; 
-import type { Product } from "@/types/types"; 
+import { api } from "@/api/api";
+import type { Product, Plant } from "@/types/types";
 
-const PLANTS_PER_PAGE = 12; 
+const PLANTS_PER_PAGE = 12;
 
 type ServerPagination = {
   page: number;
@@ -15,11 +14,21 @@ type ServerPagination = {
 };
 
 type ServerResponsePage = {
-  items: Product[];
+  items: Plant[];
   pagination: ServerPagination;
 };
 
-async function fetchPlantsPage({ pageParam = 1, category, q,signal,}: { pageParam?: number; category?: string; q?: string; signal?: AbortSignal; }): Promise<ServerResponsePage> {
+async function fetchPlantsPage({
+  pageParam = 1,
+  category,
+  q,
+  signal,
+}: {
+  pageParam?: number;
+  category?: string;
+  q?: string;
+  signal?: AbortSignal;
+}): Promise<ServerResponsePage> {
   const params = new URLSearchParams();
   params.set("page", String(pageParam));
   params.set("limit", String(PLANTS_PER_PAGE));
@@ -30,7 +39,12 @@ async function fetchPlantsPage({ pageParam = 1, category, q,signal,}: { pagePara
 
   const res = await api.get(url, { signal });
 
-  const items: Product[] = res.data?.data ?? [];
+  // Transform Product[] to Plant[] to ensure compatibility
+  const items: Plant[] = (res.data?.data ?? []).map((product: Product) => ({
+    ...product,
+    units: Number(product.units) || 0, // Convert string to number for Plant type
+  }));
+
   const pagination: ServerPagination = res.data?.pagination ?? {
     page: pageParam,
     limit: PLANTS_PER_PAGE,
@@ -65,12 +79,12 @@ export function usePlants({
       return hasNext ? (lastPage.pagination.page ?? 1) + 1 : undefined;
     },
     staleTime: 1000 * 60, // 1 minute
-    gcTime: 1000 * 60 * 5, 
-    initialPageParam: 1, 
+    gcTime: 1000 * 60 * 5,
+    initialPageParam: 1,
   });
 
   const pages = infiniteQuery.data?.pages ?? [];
-  const products = pages.flatMap((p) => p.items) as Product[];
+  const products = pages.flatMap((p) => p.items) as Plant[];
   const total = pages[0]?.pagination?.total ?? null;
 
   return {
@@ -80,3 +94,5 @@ export function usePlants({
     perPage: PLANTS_PER_PAGE,
   };
 }
+
+export type { Plant };

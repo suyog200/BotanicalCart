@@ -15,7 +15,7 @@ interface ProductData {
   units?: number;
   isFeatured?: boolean;
   inStock?: boolean;
-  category?: string[];
+  categoryIds?: string[];
   careInstructions?: string[];
   image?: File;
 }
@@ -114,6 +114,7 @@ const ProductsPage = () => {
   }, []);
 
   const buildProductFormData = (data: ProductData): FormData => {
+    console.log("Building FormData with data:", data);
     const formData = new FormData();
     formData.append("name", data.name);
     formData.append("price", data.price.toString());
@@ -122,9 +123,11 @@ const ProductsPage = () => {
     formData.append("isFeatured", data.isFeatured?.toString() || "false");
     formData.append("inStock", data.inStock?.toString() || "true");
 
-    if (Array.isArray(data.category)) {
-      formData.append("category", JSON.stringify(data.category));
-    }
+    if (Array.isArray(data.categoryIds) && data.categoryIds.length) {
+    data.categoryIds.forEach((id) => {
+      if (id) formData.append("categoryIds", id);
+    });
+  }
 
     if (Array.isArray(data.careInstructions)) {
       formData.append(
@@ -195,6 +198,7 @@ const ProductsPage = () => {
 
   // Handle modal save (determines add or edit)
   const handleModalSave = (data: any) => {
+    console.log("Modal submitted payload:", data);
     if (modalMode === "edit") {
       handleEditProduct(data);
     } else {
@@ -212,7 +216,12 @@ const ProductsPage = () => {
   // Open edit modal
   const openEditModal = (product: Product) => {
     setModalMode("edit");
-    setEditingProduct(product);
+    const productForEdit = {
+      ...product,
+      // if backend returns product.categories as array of objects:
+      categoryIds: product.categories?.map((c: any) => c.id) ?? [],
+    } as unknown as Product;
+    setEditingProduct(productForEdit);
     setIsModalOpen(true);
   };
 
