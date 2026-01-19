@@ -6,6 +6,7 @@ import { useUser } from "@clerk/clerk-react";
 import { UserButton } from "@clerk/clerk-react";
 import ShinyButton from "./ui/shinyButton";
 import SearchBar from "./SearchBar";
+import { ColorfulTextHeader } from "./ColorfulTextHeader";
 
 const Navbar = () => {
   const { user } = useUser();
@@ -21,7 +22,12 @@ const Navbar = () => {
   return (
     <nav className="z-40 flex items-center justify-between px-6 md:px-16 lg:px-24 xl:px-32 py-2 bg-white/70 transition-all sticky top-0 backdrop-blur-sm">
       <NavLink to="/" className="text-lg font-semibold" onClick={closeAll}>
-        Botanical Cart
+        <ColorfulTextHeader
+          text1=""
+          featuredText="Botanical Cart"
+          text2=""
+          className="text-2xl md:text-xl lg:text-2xl font-bold text-center text-black relative z-2 font-sans"
+        />
       </NavLink>
 
       {/* Desktop Menu */}

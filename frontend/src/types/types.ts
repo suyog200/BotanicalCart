@@ -14,12 +14,14 @@ export interface Plant {
   updatedAt: string;
 }
 
+// Product interface representing the structure of a product object getting from the backend
 export interface Product {
   id: string;
   name: string;
   description: string;
   price: number;
   categories: Category[];
+  categoryIds: string[]; // Added to hold category IDs
   careInstructions: string[];
   imageUrl: string;
   imagePublicId: string;

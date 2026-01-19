@@ -40,7 +40,7 @@ const AddProductModal = ({
 }: AddProductModalProps) => {
   const [isFormReady, setIsFormReady] = useState(false);
   const [categories, setCategories] = useState<{ id: string; name: string }[]>(
-    []
+    [],
   );
   const [categoriesLoading, setCategoriesLoading] = useState(false);
   const [categoriesError, setCategoriesError] = useState<string | null>(null);
@@ -106,7 +106,7 @@ const AddProductModal = ({
       setCategoriesLoading(true);
       try {
         const res = await api.get(
-          "/api/v1/categories?activeOnly=true&limit=200"
+          "/api/v1/categories?activeOnly=true&limit=200",
         );
         const data = res.data?.data ?? [];
         if (!mounted) return;
@@ -133,8 +133,7 @@ const AddProductModal = ({
         const editFormData = {
           name: productData.name || "",
           price: productData.price?.toString() || "",
-          // prefill category with IDs (productData.categories expected from backend)
-          category: productData.categories?.map((c) => c.id) || [],
+          categoryIds: productData.categoryIds || [],
           description: productData.description || "",
           units: productData.units?.toString() || "",
           careInstructions:
