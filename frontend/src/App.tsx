@@ -23,11 +23,13 @@ const App = () => {
   const isSellerPath = useLocation().pathname.includes("/seller");
 
   return (
-    <div className="bg-(--background)">
+    <div className="bg-(--background) flex flex-col min-h-screen">
       {isSellerPath ? null : <Navbar />}
       <Toaster position="top-center" reverseOrder={false} />
       {/* Main content area */}
-      <div className={`${isSellerPath ? "" : "px-2 md:px-6 lg:px-8 xl:px-10"}`}>
+      <div
+        className={`flex-1 ${isSellerPath ? "" : "px-2 md:px-6 lg:px-8 xl:px-10"}`}
+      >
         {/* Main content area */}
         <Routes>
           <Route path="/" element={<Home />} />
