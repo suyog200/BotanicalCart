@@ -2,11 +2,12 @@ import React from "react";
 import { Badge } from "@/components/ui/badge";
 import { Star } from "lucide-react";
 import { getCategoryColor } from "@/lib/colorCategories";
+import type { Category } from "@/types/types";
 
 interface ProductHeaderProps {
   plant: {
     name: string;
-    category: string[];
+    categories: Category[];
     isFeatured?: boolean;
   };
   averageRating: number;
@@ -21,9 +22,12 @@ const ProductHeader: React.FC<ProductHeaderProps> = ({
   return (
     <div>
       <div className="flex flex-wrap gap-2 mb-2">
-        {plant.category.map((cat, index) => (
-          <Badge key={index} className={getCategoryColor(cat)}>
-            {cat.replace("-", " ")}
+        {plant.categories?.map((cat, index) => (
+          <Badge
+            key={cat.id || index}
+            className={getCategoryColor(cat.name || cat.slug || "")}
+          >
+            {cat.name}
           </Badge>
         ))}
         {plant.isFeatured && (
@@ -45,8 +49,8 @@ const ProductHeader: React.FC<ProductHeaderProps> = ({
           ))}
         </div>
         <span className="text-sm text-muted-foreground">
-          {averageRating > 0 ? averageRating.toFixed(1) : "No rating"} 
-          ({reviewCount} review{reviewCount !== 1 ? 's' : ''})
+          {averageRating > 0 ? averageRating.toFixed(1) : "No rating"}(
+          {reviewCount} review{reviewCount !== 1 ? "s" : ""})
         </span>
       </div>
     </div>

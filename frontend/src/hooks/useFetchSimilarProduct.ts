@@ -1,7 +1,7 @@
 // hooks/useSimilarProducts.ts
-import { useState, useEffect } from 'react';
-import { api } from '@/api/api';
-import type { Plant } from './usePlants';
+import { useState, useEffect } from "react";
+import { api } from "@/api/api";
+import type { Plant } from "./usePlants";
 
 export const useSimilarProducts = (currentProduct: Plant | null) => {
   const [similarProducts, setSimilarProducts] = useState<Plant[]>([]);
@@ -12,26 +12,31 @@ export const useSimilarProducts = (currentProduct: Plant | null) => {
 
     const fetchSimilarProducts = async () => {
       setIsLoading(true);
-      
+
       try {
-        const response = await api.get('/api/v1/products');
-        
+        const response = await api.get("/api/v1/products");
+
         if (response.status === 200) {
           const allProducts = response.data.data || response.data;
-          
+
           // Filter products that share at least one category with current product
-          const similar = allProducts.filter((product: Plant) => 
-            product.id !== currentProduct.id &&
-            product.inStock &&
-            product.category.some((cat: string) => 
-              currentProduct.category.includes(cat)
+          const similar = allProducts
+            .filter(
+              (product: Plant) =>
+                product.id !== currentProduct.id &&
+                product.inStock &&
+                product.categories?.some((cat) =>
+                  currentProduct.categories?.some(
+                    (currentCat) => currentCat.id === cat.id,
+                  ),
+                ),
             )
-          ).slice(0, 4); // Limit to 4 similar products
-          
+            .slice(0, 4); // Limit to 4 similar products
+
           setSimilarProducts(similar);
         }
       } catch (error) {
-        console.error('Error fetching similar products:', error);
+        console.error("Error fetching similar products:", error);
         setSimilarProducts([]);
       } finally {
         setIsLoading(false);
