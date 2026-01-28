@@ -1,5 +1,5 @@
 import React from "react";
-import { NavLink } from "react-router-dom";
+import { NavLink, Link } from "react-router-dom";
 import { Search, X } from "lucide-react";
 import { useAppContext } from "../context/AppContext";
 import { useUser } from "@clerk/clerk-react";
@@ -9,10 +9,15 @@ import SearchBar from "./SearchBar";
 import { ColorfulTextHeader } from "./ColorfulTextHeader";
 
 const Navbar = () => {
-  const { user } = useUser();
+  const { user, isSignedIn } = useUser();
   const [open, setOpen] = React.useState(false);
   const [searchOpen, setSearchOpen] = React.useState(false);
   const { navigate, itemCount } = useAppContext();
+
+  const role = user?.publicMetadata.role;
+
+  const isAdmin = role === "admin";
+  const isSeller = role === "seller" || role === "admin";
 
   const closeAll = () => {
     setOpen(false);
@@ -38,15 +43,16 @@ const Navbar = () => {
         <NavLink to="/about" className="hover:text-primary-dull">
           About
         </NavLink>
-        {user && (
-          <>
-            <NavLink to="/orders" className="hover:text-primary-dull">
-              Orders
-            </NavLink>
-            <NavLink to="/wishlist" className="hover:text-primary-dull">
-              Wishlist
-            </NavLink>
-          </>
+        <NavLink to="/orders" className="hover:text-primary-dull">
+          Orders
+        </NavLink>
+        <NavLink to="/wishlist" className="hover:text-primary-dull">
+          Wishlist
+        </NavLink>
+        {isAdmin && isSignedIn && (
+          <Link to="/admin/dashboard" className="hover:text-primary-dull" target="_blank">
+            Admin Dashboard
+          </Link>
         )}
         <SearchBar />
         <div

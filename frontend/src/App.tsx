@@ -22,7 +22,7 @@ import { lazy, Suspense } from "react";
 const WishlistPage = lazy(() => import("./pages/customer/WishlistPage"));
 
 const App = () => {
-  const isSellerPath = useLocation().pathname.includes("/seller");
+  const isSellerPath = useLocation().pathname.includes("/admin");
 
   return (
     <div className="bg-(--background) flex flex-col min-h-screen">
@@ -58,7 +58,7 @@ const App = () => {
             }
           />
           {/* admin routes (nested inside AdminDashboard) */}
-          <Route path="/seller/admin" element={<AdminDashboard />}>
+          <Route path="/admin" element={<AdminDashboard />}>
             <Route index element={<DashboardPage />} /> {/* default */}
             <Route path="dashboard" element={<DashboardPage />} />
             <Route path="products" element={<ProductsPage />} />
