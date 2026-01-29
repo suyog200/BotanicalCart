@@ -51,7 +51,7 @@ const Navbar = () => {
         </NavLink>
         {isAdmin && isSignedIn && (
           <Link to="/admin/dashboard" className="hover:text-primary-dull" target="_blank">
-            Admin Dashboard
+            Dashboard
           </Link>
         )}
         <SearchBar />

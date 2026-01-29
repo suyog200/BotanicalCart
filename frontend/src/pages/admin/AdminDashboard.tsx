@@ -27,7 +27,7 @@ const AdminDashboard = () => {
     },
     {
       name: "Orders & Enquiries",
-      path: "/admin/orders-enquiries",
+      path: "/admin/orders",
       icon: <Calendar size={20} />,
     },
     {
