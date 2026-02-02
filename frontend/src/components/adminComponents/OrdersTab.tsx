@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useState, useRef, useEffect } from "react";
+import { useInfiniteQuery } from "@tanstack/react-query";
 import { getAllAdminOrders } from "@/api/adminOrders";
 import OrderDetails from "./OrderDetails";
 
@@ -35,14 +35,54 @@ const getPaymentColor = (status: string) => {
 
 export const OrdersTab = () => {
   const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
+  const loadMoreRef = useRef<HTMLDivElement>(null);
 
-  const { data: orders = [], isLoading: loading } = useQuery({
+  const {
+    data,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    isLoading: loading,
+  } = useInfiniteQuery({
     queryKey: ["adminOrders"],
-    queryFn: async () => {
-      const res = await getAllAdminOrders();
-      return res.data;
+    queryFn: async ({ pageParam }) => {
+      const res = await getAllAdminOrders(pageParam);
+      return res;
     },
+    getNextPageParam: (lastPage) => {
+      return lastPage.pagination?.hasMore
+        ? lastPage.pagination.nextCursor
+        : undefined;
+    },
+    initialPageParam: undefined,
   });
+
+  // Flatten all pages into a single array of orders
+  const orders =
+    data?.pages.flatMap((page) => page.data || []).filter(Boolean) || [];
+  const totalOrders = data?.pages[0]?.pagination?.totalCount || 0;
+
+  // Intersection Observer for infinite scroll
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && hasNextPage && !isFetchingNextPage) {
+          fetchNextPage();
+        }
+      },
+      { threshold: 0.1 },
+    );
+
+    if (loadMoreRef.current) {
+      observer.observe(loadMoreRef.current);
+    }
+
+    return () => {
+      if (loadMoreRef.current) {
+        observer.unobserve(loadMoreRef.current);
+      }
+    };
+  }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
   if (loading) {
     return (
@@ -62,7 +102,12 @@ export const OrdersTab = () => {
         <div className="flex items-center justify-between">
           <div>
             <p className="text-sm text-gray-600 mb-1">Total Orders</p>
-            <p className="text-3xl font-bold text-primary">{orders.length}</p>
+            <p className="text-3xl font-bold text-primary">{totalOrders}</p>
+            {orders.length < totalOrders && (
+              <p className="text-xs text-gray-500 mt-1">
+                Showing {orders.length} of {totalOrders}
+              </p>
+            )}
           </div>
           <div className="h-16 w-16 rounded-full bg-primary/10 flex items-center justify-center">
             <svg
@@ -219,6 +264,22 @@ export const OrdersTab = () => {
                 ))}
               </tbody>
             </table>
+          </div>
+
+          {/* Infinite Scroll Trigger */}
+          <div
+            ref={loadMoreRef}
+            className="h-20 flex items-center justify-center"
+          >
+            {isFetchingNextPage && (
+              <div className="flex items-center gap-2 text-gray-600">
+                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-primary"></div>
+                <span className="text-sm">Loading more orders...</span>
+              </div>
+            )}
+            {!hasNextPage && orders.length > 0 && (
+              <p className="text-sm text-gray-500">No more orders to load</p>
+            )}
           </div>
         </div>
       )}

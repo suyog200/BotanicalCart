@@ -1,4 +1,5 @@
-import { useQuery } from "@tanstack/react-query";
+import { useInfiniteQuery } from "@tanstack/react-query";
+import { useRef, useEffect } from "react";
 import { getOrders } from "@/api/orders";
 import { Package } from "lucide-react";
 import type { Order } from "@/types/order";
@@ -8,12 +9,55 @@ import ErrorState from "@/components/orders/ErrorState";
 import EmptyOrdersState from "@/components/orders/EmptyOrdersState";
 
 const OrdersPage = () => {
-  const { data, isLoading, isError } = useQuery({
+  const loadMoreRef = useRef<HTMLDivElement>(null);
+
+  const {
+    data,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    isLoading,
+    isError,
+  } = useInfiniteQuery({
     queryKey: ["orders"],
-    queryFn: getOrders,
+    queryFn: async ({ pageParam }) => {
+      const res = await getOrders(pageParam);
+      return res;
+    },
+    getNextPageParam: (lastPage) => {
+      return lastPage.pagination?.hasMore
+        ? lastPage.pagination.nextCursor
+        : undefined;
+    },
+    initialPageParam: undefined,
   });
 
-  const orders: Order[] = data?.data || [];
+  // Flatten all pages into a single array of orders
+  const orders: Order[] =
+    data?.pages.flatMap((page) => page.data || []).filter(Boolean) || [];
+  const totalOrders = data?.pages[0]?.pagination?.totalCount || 0;
+
+  // Intersection Observer for infinite scroll
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && hasNextPage && !isFetchingNextPage) {
+          fetchNextPage();
+        }
+      },
+      { threshold: 0.1 },
+    );
+
+    if (loadMoreRef.current) {
+      observer.observe(loadMoreRef.current);
+    }
+
+    return () => {
+      if (loadMoreRef.current) {
+        observer.unobserve(loadMoreRef.current);
+      }
+    };
+  }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 py-12 px-4">
@@ -31,8 +75,11 @@ const OrdersPage = () => {
           </div>
           {!isLoading && !isError && orders.length > 0 && (
             <div className="flex items-center gap-2 mt-4 text-sm text-gray-600">
-              <span className="font-medium">{orders.length}</span>
-              <span>{orders.length === 1 ? "order" : "orders"} in total</span>
+              <span className="font-medium">{totalOrders}</span>
+              <span>{totalOrders === 1 ? "order" : "orders"} in total</span>
+              {orders.length < totalOrders && (
+                <span className="text-gray-500">(showing {orders.length})</span>
+              )}
             </div>
           )}
         </div>
@@ -42,11 +89,31 @@ const OrdersPage = () => {
         {isError && <ErrorState />}
         {!isLoading && !isError && orders.length === 0 && <EmptyOrdersState />}
         {!isLoading && !isError && orders.length > 0 && (
-          <div className="space-y-4">
-            {orders.map((order) => (
-              <OrderCard key={order.id} order={order} />
-            ))}
-          </div>
+          <>
+            <div className="space-y-4">
+              {orders.map((order) => (
+                <OrderCard key={order.id} order={order} />
+              ))}
+            </div>
+
+            {/* Infinite Scroll Trigger */}
+            <div
+              ref={loadMoreRef}
+              className="flex items-center justify-center py-8"
+            >
+              {isFetchingNextPage && (
+                <div className="flex items-center gap-2 text-gray-600">
+                  <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-green-600"></div>
+                  <span className="text-sm">Loading more orders...</span>
+                </div>
+              )}
+              {!hasNextPage && orders.length > 0 && (
+                <p className="text-sm text-gray-500">
+                  You've reached the end of your orders
+                </p>
+              )}
+            </div>
+          </>
         )}
       </div>
     </div>
