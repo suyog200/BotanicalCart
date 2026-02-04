@@ -16,11 +16,13 @@ import OrderAndEnquiries from "./pages/admin/OrderAndEnquiries";
 import Settings from "./pages/admin/Settings";
 import Analytics from "./pages/admin/Analytics";
 import SearchResults from "./pages/customer/SearchResults";
+import CheckoutPage from "./pages/customer/CheckoutPage";
+import OrdersPage from "./pages/customer/OrdersPage";
 import { lazy, Suspense } from "react";
 const WishlistPage = lazy(() => import("./pages/customer/WishlistPage"));
 
 const App = () => {
-  const isSellerPath = useLocation().pathname.includes("/seller");
+  const isSellerPath = useLocation().pathname.includes("/admin");
 
   return (
     <div className="bg-(--background) flex flex-col min-h-screen">
@@ -39,6 +41,8 @@ const App = () => {
           <Route path="/search" element={<SearchResults />} />
           <Route path="/plants-details/:id" element={<ProductDetails />} />
           <Route path="/about" element={<AboutPage />} />
+          <Route path="/checkout" element={<CheckoutPage />} />
+          <Route path="/orders" element={<OrdersPage />} />
           <Route
             path="/wishlist"
             element={
@@ -54,12 +58,12 @@ const App = () => {
             }
           />
           {/* admin routes (nested inside AdminDashboard) */}
-          <Route path="/seller/admin" element={<AdminDashboard />}>
+          <Route path="/admin" element={<AdminDashboard />}>
             <Route index element={<DashboardPage />} /> {/* default */}
             <Route path="dashboard" element={<DashboardPage />} />
             <Route path="products" element={<ProductsPage />} />
             <Route path="category" element={<CategoryPage />} />
-            <Route path="orders-enquiries" element={<OrderAndEnquiries />} />
+            <Route path="orders" element={<OrderAndEnquiries />} />
             <Route path="settings" element={<Settings />} />
             <Route path="analytics" element={<Analytics />} />
           </Route>

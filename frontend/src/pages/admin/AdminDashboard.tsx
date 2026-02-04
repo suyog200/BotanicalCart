@@ -12,32 +12,32 @@ const AdminDashboard = () => {
   const sidebarLinks = [
     {
       name: "Dashboard",
-      path: "/seller/admin/dashboard",
+      path: "/admin/dashboard",
       icon: <House size={20} />,
     },
     {
       name: "Products",
-      path: "/seller/admin/products",
+      path: "/admin/products",
       icon: <Image size={20} />,
     },
     {
       name: "Category",
-      path: "/seller/admin/category",
+      path: "/admin/category",
       icon: <SquarePlus size={20} />,
     },
     {
       name: "Orders & Enquiries",
-      path: "/seller/admin/orders-enquiries",
+      path: "/admin/orders",
       icon: <Calendar size={20} />,
     },
     {
       name: "Analytics",
-      path: "/seller/admin/analytics",
+      path: "/admin/analytics",
       icon: <ChartLine size={20} />,
     },
     {
       name: "Settings",
-      path: "/seller/admin/settings",
+      path: "/admin/settings",
       icon: <Settings size={20} />,
     },
   ];
