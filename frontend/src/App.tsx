@@ -18,6 +18,7 @@ import Analytics from "./pages/admin/Analytics";
 import SearchResults from "./pages/customer/SearchResults";
 import CheckoutPage from "./pages/customer/CheckoutPage";
 import OrdersPage from "./pages/customer/OrdersPage";
+import OrderEnquiryPage from "./pages/customer/OrderEnquiryPage";
 import { lazy, Suspense } from "react";
 const WishlistPage = lazy(() => import("./pages/customer/WishlistPage"));
 
@@ -43,6 +44,10 @@ const App = () => {
           <Route path="/about" element={<AboutPage />} />
           <Route path="/checkout" element={<CheckoutPage />} />
           <Route path="/orders" element={<OrdersPage />} />
+          <Route
+            path="/orders/:orderId/enquire"
+            element={<OrderEnquiryPage />}
+          />
           <Route
             path="/wishlist"
             element={
