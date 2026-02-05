@@ -9,6 +9,7 @@ export const getAllAdminOrders = async (
     params.append("cursor", cursor);
   }
   const res = await api.get(`/api/v1/admin/orders?${params.toString()}`);
+  console.log("Fetched admin orders:", res.data);
   return res.data;
 };
 

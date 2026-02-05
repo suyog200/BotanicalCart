@@ -71,7 +71,9 @@ const ProductsPage = () => {
     }
 
     try {
-      const response = await api.get(`/api/v1/products?page=${page}&limit=5`);
+      const response = await api.get(
+        `/api/v1/admin/products?page=${page}&limit=5&includeHidden=true`,
+      );
       if (response.status === 200) {
         const newProducts = response.data.data || response.data;
         const pagination = response.data.pagination;
@@ -85,7 +87,7 @@ const ProductsPage = () => {
 
         // Check if there are more pages
         setHasNextPage(
-          pagination ? pagination.hasNextPage : newProducts.length === 10
+          pagination ? pagination.hasNextPage : newProducts.length === 10,
         );
         setCurrentPage(page);
       }
@@ -124,15 +126,15 @@ const ProductsPage = () => {
     formData.append("inStock", data.inStock?.toString() || "true");
 
     if (Array.isArray(data.categoryIds) && data.categoryIds.length) {
-    data.categoryIds.forEach((id) => {
-      if (id) formData.append("categoryIds", id);
-    });
-  }
+      data.categoryIds.forEach((id) => {
+        if (id) formData.append("categoryIds", id);
+      });
+    }
 
     if (Array.isArray(data.careInstructions)) {
       formData.append(
         "careInstructions",
-        JSON.stringify(data.careInstructions)
+        JSON.stringify(data.careInstructions),
       );
     }
 
@@ -147,7 +149,7 @@ const ProductsPage = () => {
     setIsLoading(true);
     try {
       const formData = buildProductFormData(data);
-      const response = await api.post("/api/v1/products", formData, {
+      const response = await api.post("/api/v1/admin/products", formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
@@ -174,13 +176,13 @@ const ProductsPage = () => {
     try {
       const formData = buildProductFormData(data);
       const response = await api.put(
-        `/api/v1/products/${editingProduct.id}`,
+        `/api/v1/admin/products/${editingProduct.id}`,
         formData,
         {
           headers: {
             "Content-Type": "multipart/form-data",
           },
-        }
+        },
       );
 
       if (response.status === 200 || response.status === 201) {

@@ -39,9 +39,9 @@ const AddProductModal = ({
   productData = null,
 }: AddProductModalProps) => {
   const [isFormReady, setIsFormReady] = useState(false);
-  const [categories, setCategories] = useState<{ id: string; name: string }[]>(
-    [],
-  );
+  const [categories, setCategories] = useState<
+    { id: string; name: string; isActive: boolean }[]
+  >([]);
   const [categoriesLoading, setCategoriesLoading] = useState(false);
   const [categoriesError, setCategoriesError] = useState<string | null>(null);
 
@@ -99,18 +99,26 @@ const AddProductModal = ({
     name: "careInstructions",
   });
 
-  // fetch categories for dropdown (active only)
+  // fetch categories for dropdown (include inactive for edit mode)
   useEffect(() => {
     let mounted = true;
     const fetchCategories = async () => {
       setCategoriesLoading(true);
       try {
-        const res = await api.get(
-          "/api/v1/categories?activeOnly=true&limit=200",
-        );
+        const endpoint =
+          mode === "edit"
+            ? "/api/v1/categories?limit=200"
+            : "/api/v1/categories?activeOnly=true&limit=200";
+        const res = await api.get(endpoint);
         const data = res.data?.data ?? [];
         if (!mounted) return;
-        setCategories(data.map((c: any) => ({ id: c.id, name: c.name })));
+        setCategories(
+          data.map((c: any) => ({
+            id: c.id,
+            name: c.isActive === false ? `${c.name} (inactive)` : c.name,
+            isActive: c.isActive ?? true,
+          })),
+        );
       } catch (err) {
         console.error("Failed to fetch categories", err);
         setCategoriesError("Failed to load categories");
@@ -122,7 +130,7 @@ const AddProductModal = ({
     return () => {
       mounted = false;
     };
-  }, []);
+  }, [mode]);
 
   // populate form when modal opens (edit mode)
   useEffect(() => {

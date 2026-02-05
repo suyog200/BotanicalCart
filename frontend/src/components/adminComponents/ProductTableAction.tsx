@@ -1,21 +1,23 @@
-import { Edit, Trash2, Loader } from "lucide-react";
+import { Edit, Eye, EyeOff, Loader } from "lucide-react";
 
 interface ProductTableActionProps {
   onEdit: () => void;
-  onDelete: () => void;
-  isDeleting?: boolean;
+  onToggleVisibility: () => void;
+  isVisible: boolean;
+  isToggling?: boolean;
 }
 
 const ProductTableAction = ({
   onEdit,
-  onDelete,
-  isDeleting = false,
+  onToggleVisibility,
+  isVisible,
+  isToggling = false,
 }: ProductTableActionProps) => {
   return (
     <div className="flex items-center gap-2">
       <button
         onClick={onEdit}
-        disabled={isDeleting}
+        disabled={isToggling}
         className="p-2 text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
         title="Edit product"
       >
@@ -23,15 +25,23 @@ const ProductTableAction = ({
       </button>
 
       <button
-        onClick={onDelete}
-        disabled={isDeleting}
-        className="p-2 text-red-600 hover:text-red-800 hover:bg-red-50 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-        title={isDeleting ? "Deleting..." : "Delete product"}
+        onClick={onToggleVisibility}
+        disabled={isToggling}
+        className="p-2 text-gray-600 hover:text-gray-800 hover:bg-gray-50 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+        title={
+          isToggling
+            ? "Toggling..."
+            : isVisible
+              ? "Hide product"
+              : "Show product"
+        }
       >
-        {isDeleting ? (
+        {isToggling ? (
           <Loader className="h-4 w-4 animate-spin" />
+        ) : isVisible ? (
+          <Eye className="h-4 w-4" />
         ) : (
-          <Trash2 className="h-4 w-4" />
+          <EyeOff className="h-4 w-4" />
         )}
       </button>
     </div>

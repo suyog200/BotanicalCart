@@ -16,7 +16,7 @@ interface Action<T> {
   className?: string;
   icon?: React.ReactNode;
   isLoading?: (item: T) => boolean;
-  variant?: 'primary' | 'secondary' | 'danger';
+  variant?: "primary" | "secondary" | "danger";
 }
 
 interface DataTableProps<T> {
@@ -65,12 +65,12 @@ const DataTable = <T,>({
         {
           threshold: 1.0,
           rootMargin: "100px",
-        }
+        },
       );
 
       if (node) observerRef.current.observe(node);
     },
-    [isLoadingMore, hasNextPage, onLoadMore]
+    [isLoadingMore, hasNextPage, onLoadMore],
   );
 
   useEffect(() => {
@@ -125,8 +125,8 @@ const DataTable = <T,>({
                   <th
                     key={column.key}
                     className={`px-4 py-3 font-semibold truncate ${
-                      column.hideOnMobile ? 'max-sm:hidden' : ''
-                    } ${column.className || ''}`}
+                      column.hideOnMobile ? "max-sm:hidden" : ""
+                    } ${column.className || ""}`}
                   >
                     {column.header}
                   </th>
@@ -139,7 +139,10 @@ const DataTable = <T,>({
             <tbody className="text-sm text-gray-500">
               {data.length === 0 && (
                 <tr>
-                  <td colSpan={columns.length + (actions.length > 0 ? 1 : 0)} className="text-center py-10 text-gray-400">
+                  <td
+                    colSpan={columns.length + (actions.length > 0 ? 1 : 0)}
+                    className="text-center py-10 text-gray-400"
+                  >
                     {emptyMessage}
                   </td>
                 </tr>
@@ -161,23 +164,27 @@ const DataTable = <T,>({
                       <td
                         key={column.key}
                         className={`px-4 py-3 ${
-                          column.hideOnMobile ? 'max-sm:hidden' : ''
-                        } ${column.className || ''}`}
+                          column.hideOnMobile ? "max-sm:hidden" : ""
+                        } ${column.className || ""}`}
                       >
-                        {column.render 
+                        {column.render
                           ? column.render(item, index)
-                          : String((item as any)[column.key] || '')
-                        }
+                          : String((item as any)[column.key] || "")}
                       </td>
                     ))}
                     {actions.length > 0 && (
                       <td className="px-4 py-3">
                         <div className="flex items-center justify-end space-x-2">
-                            <ProductTableAction 
-                                onEdit={() => actions[0].onClick(item)}
-                                onDelete={() => actions[1].onClick(item)}
-                                isDeleting={actions[1].isLoading ? actions[1].isLoading(item) : false}
-                            />  
+                          <ProductTableAction
+                            onEdit={() => actions[0].onClick(item)}
+                            onToggleVisibility={() => actions[1].onClick(item)}
+                            isVisible={(item as any).isVisible ?? true}
+                            isToggling={
+                              actions[1].isLoading
+                                ? actions[1].isLoading(item)
+                                : false
+                            }
+                          />
                         </div>
                       </td>
                     )}

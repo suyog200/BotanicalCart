@@ -1,5 +1,5 @@
 import { formatCategories } from "@/utils/formatters";
-import { Edit, Trash2 } from "lucide-react";
+import { Edit, Eye, EyeOff } from "lucide-react";
 import type { Product } from "@/types/types";
 import { api } from "@/api/api";
 import { useState } from "react";
@@ -25,16 +25,16 @@ const ProductTable = ({
   onLoadMore,
   onEdit,
 }: ProductTableProps) => {
-  const [deletingProducts, setDeletingProducts] = useState<Set<string>>(
-    new Set()
-  );
   const [togglingProducts, setTogglingProducts] = useState<Set<string>>(
-    new Set()
+    new Set(),
+  );
+  const [togglingVisibility, setTogglingVisibility] = useState<Set<string>>(
+    new Set(),
   );
 
-    // Create loading states map
+  // Create loading states map
   const loadingStates = new Map<string, boolean>();
-  [...deletingProducts, ...togglingProducts].forEach(id => {
+  [...togglingProducts, ...togglingVisibility].forEach((id) => {
     loadingStates.set(id, true);
   });
 
@@ -48,17 +48,17 @@ const ProductTable = ({
     try {
       const newInStockStatus = !product.inStock;
       const response = await api.patch(
-        `/api/v1/products/${product.id}/update-instock`,
+        `/api/v1/admin/products/${product.id}/update-instock`,
         {
           inStock: newInStockStatus,
-        }
+        },
       );
 
       if (response.status >= 200 && response.status < 300) {
         toast.success(
           `${product.name} is now ${
             newInStockStatus ? "in stock" : "out of stock"
-          }`
+          }`,
         );
 
         if (onRefresh) {
@@ -96,26 +96,27 @@ const ProductTable = ({
     }
   };
 
-  const handleDelete = async (product: Product) => {
+  const handleVisibilityToggle = async (product: Product) => {
     if (!product?.id) {
       toast.error("Invalid product ID");
       return;
     }
 
-    const confirmMessage = `Are you sure you want to delete "${product.name}"?\n\nThis action cannot be undone.`;
-    const confirmed = window.confirm(confirmMessage);
-
-    if (!confirmed) return;
-
-    // Add product to deleting state
-    setDeletingProducts((prev) => new Set(prev).add(product.id));
+    setTogglingVisibility((prev) => new Set(prev).add(product.id));
 
     try {
-      // Make delete API call
-      const response = await api.delete(`/api/v1/products/${product.id}`);
+      const newVisibilityStatus = !product.isVisible;
+      const response = await api.patch(
+        `/api/v1/admin/products/${product.id}/visibility`,
+        {
+          isVisible: newVisibilityStatus,
+        },
+      );
 
-      if (response.status === 200 || response.status === 204) {
-        toast.success(`"${product.name}" deleted successfully`);
+      if (response.status >= 200 && response.status < 300) {
+        toast.success(
+          `${product.name} is now ${newVisibilityStatus ? "visible" : "hidden"}`,
+        );
 
         if (onRefresh) {
           await onRefresh();
@@ -124,24 +125,27 @@ const ProductTable = ({
         throw new Error(`Unexpected response status: ${response.status}`);
       }
     } catch (error: any) {
-      console.error("Error deleting product:", error);
+      console.error("Error toggling product visibility:", error);
 
       if (error.response?.status === 404) {
-        toast.error("Product not found. It may have already been deleted.");
+        toast.error("Product not found. It may have been deleted.");
         onRefresh?.();
       } else if (error.response?.status === 403) {
-        toast.error("You don't have permission to delete this product");
-      } else if (error.response?.status === 409) {
-        toast.error("Cannot delete product. It may have pending orders.");
+        toast.error("You don't have permission to update this product");
       } else if (error.response?.data?.message) {
         toast.error(error.response.data.message);
       } else if (error.message) {
-        toast.error(`Failed to delete product: ${error.message}`);
+        toast.error(`Failed to update visibility: ${error.message}`);
       } else {
-        toast.error("Failed to delete product. Please try again.");
+        toast.error("Failed to update visibility. Please try again.");
+      }
+
+      // Refresh to revert any optimistic updates
+      if (onRefresh) {
+        await onRefresh();
       }
     } finally {
-      setDeletingProducts((prev) => {
+      setTogglingVisibility((prev) => {
         const newSet = new Set(prev);
         newSet.delete(product.id);
         return newSet;
@@ -149,20 +153,25 @@ const ProductTable = ({
     }
   };
 
-   const columns = [
+  const columns = [
     {
-      key: 'product',
-      header: 'Product',
-      render: (product: Product, index: number) => (
+      key: "product",
+      header: "Product",
+      render: (product: Product) => (
         <div className="md:px-4 pl-2 md:pl-4 py-3 flex items-center space-x-3 truncate">
           <div className="border border-gray-300 rounded overflow-hidden">
             <img src={product.imageUrl} alt="Product" className="w-16" />
           </div>
           <span className="truncate max-sm:hidden w-full">{product.name}</span>
-          <span className="truncate max-md:hidden w-full">
+          <span className="truncate max-md:hidden w-full flex gap-2">
             {product.isFeatured && (
               <span className="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded">
                 Featured
+              </span>
+            )}
+            {!product.isVisible && (
+              <span className="bg-gray-100 text-gray-800 text-xs font-medium px-2.5 py-0.5 rounded">
+                Hidden
               </span>
             )}
           </span>
@@ -171,27 +180,30 @@ const ProductTable = ({
       className: "px-0",
     },
     {
-      key: 'category',
-      header: 'Category',
-      render: (product: Product) => formatCategories(product.categories ?? product.categories ?? [])
+      key: "category",
+      header: "Category",
+      render: (product: Product) =>
+        formatCategories(product.categories ?? product.categories ?? []),
     },
     {
-      key: 'price',
-      header: 'Selling Price',
+      key: "price",
+      header: "Selling Price",
       render: (product: Product) => `Rs ${product.price.toFixed(2)}`,
       hideOnMobile: true,
     },
     {
-      key: 'units',
-      header: 'Units',
+      key: "units",
+      header: "Units",
     },
     {
-      key: 'inStock',
-      header: 'In Stock',
+      key: "inStock",
+      header: "In Stock",
       render: (product: Product) => (
         <label
           className={`relative inline-flex items-center text-gray-900 gap-3 ${
-            togglingProducts.has(product.id) ? "cursor-wait opacity-75" : "cursor-pointer"
+            togglingProducts.has(product.id)
+              ? "cursor-wait opacity-75"
+              : "cursor-pointer"
           }`}
         >
           <input
@@ -216,23 +228,22 @@ const ProductTable = ({
     },
   ];
 
-    // Define actions
+  // Define actions
   const actions = [
     {
-      label: 'Edit',
+      label: "Edit",
       onClick: (product: Product) => onEdit?.(product),
       icon: <Edit className="h-4 w-4" />,
-      variant: 'secondary' as const,
+      variant: "secondary" as const,
     },
     {
-      label: 'Delete',
-      onClick: handleDelete,
-      icon: <Trash2 className="h-4 w-4" />,
-      variant: 'danger' as const,
-      isLoading: (product: Product) => deletingProducts.has(product.id),
+      label: "Toggle Visibility",
+      onClick: handleVisibilityToggle,
+      icon: <Eye className="h-4 w-4" />,
+      variant: "secondary" as const,
+      isLoading: (product: Product) => togglingVisibility.has(product.id),
     },
   ];
-
 
   return (
     <DataTable
@@ -249,7 +260,7 @@ const ProductTable = ({
       getItemId={(product) => product.id}
       loadingStates={loadingStates}
     />
-  )
-}
+  );
+};
 
 export default ProductTable;

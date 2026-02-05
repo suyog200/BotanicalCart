@@ -28,6 +28,7 @@ export interface Product {
   isFeatured: boolean;
   units: string;
   inStock: boolean;
+  isVisible: boolean;
   createdAt: string; // ISO timestamp
   updatedAt: string; // ISO timestamp
 }
