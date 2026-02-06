@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
 import { Plus } from "lucide-react";
 import DataTable from "../../components/adminComponents/DataTable";
-import AddCategoryModal from "../../components/adminComponents/AddCategoryModal";
-import CategoryTableActions from "../../components/adminComponents/CategoryTableActions";
+import AddCategoryModal from "../../components/adminComponents/category/AddCategoryModal";
+import CategoryTableActions from "../../components/adminComponents/category/CategoryTableActions";
 import { Button } from "../../components/ui/button";
 import { api } from "../../api/api";
 import type { Category, CategorySubmitData } from "@/types/categoryTypes";

@@ -1,6 +1,6 @@
 import { RotateCw } from "lucide-react";
 import { useEffect, useRef, useCallback } from "react";
-import ProductTableAction from "./ProductTableAction";
+import ProductTableAction from "./product/ProductTableAction";
 
 interface Column<T> {
   key: string;

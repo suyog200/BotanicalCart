@@ -1,12 +1,16 @@
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { getAllAdminOrders } from "@/api/adminOrders";
 
-export const useAdminOrders = () => {
+export const useAdminOrders = ({
+    search,
+    status,
+    paymentStatus,
+} : { search?: string; status?: string; paymentStatus?: string }) => {
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } =
     useInfiniteQuery({
-      queryKey: ["adminOrders"],
+      queryKey: ["adminOrders", search, status, paymentStatus],
       queryFn: async ({ pageParam }) => {
-        const res = await getAllAdminOrders(pageParam);
+        const res = await getAllAdminOrders(pageParam, search, status, paymentStatus);
         return res;
       },
       getNextPageParam: (lastPage) => {

@@ -1,37 +1,36 @@
-import { Package, MoveUp, MoveDown, SquarePen } from "lucide-react";
+import { Package, MoveUp, MoveDown, SquarePen, Search, X } from "lucide-react";
 import OverviewCards from "@/components/adminComponents/OverviewCards";
-import ProductTable from "@/components/adminComponents/ProductTable";
-import { useEffect, useState } from "react";
-import AddProductModal from "@/components/adminComponents/AddProductModal";
-import { api } from "@/api/api";
+import ProductTable from "@/components/adminComponents/product/ProductTable";
+import { useState } from "react";
+import AddProductModal from "@/components/adminComponents/product/AddProductModal";
 import { calculateProductStats } from "@/utils/ProductStatsCalu";
-import toast from "react-hot-toast";
 import type { Product } from "@/types/types";
-
-interface ProductData {
-  name: string;
-  price: number;
-  description: string;
-  units?: number;
-  isFeatured?: boolean;
-  inStock?: boolean;
-  categoryIds?: string[];
-  careInstructions?: string[];
-  image?: File;
-}
+import { useAdminProducts } from "@/components/adminComponents/product/useAdminProducts";
+import type { ProductData } from "@/api/products";
+import { useDebounce } from "@/hooks/useDebounce";
 
 const ProductsPage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [products, setProducts] = useState<Product[]>([]);
-  const [isLoadingProducts, setIsLoadingProducts] = useState(false);
   const [modalMode, setModalMode] = useState<"add" | "edit">("add");
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
 
-  // Add pagination states
-  const [hasNextPage, setHasNextPage] = useState(true);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  // Debounce search query
+  const debouncedSearch = useDebounce(searchQuery, 500);
+
+  // Use the custom hook for data fetching
+  const {
+    products,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    isLoading,
+    refetch,
+    createProduct,
+    updateProduct,
+    isCreating,
+    isUpdating,
+  } = useAdminProducts(5, debouncedSearch);
 
   const stats = calculateProductStats(products);
 
@@ -62,149 +61,41 @@ const ProductsPage = () => {
     },
   ];
 
-  // Fetch products function with pagination
-  const fetchProducts = async (page = 1, reset = false) => {
-    if (reset) {
-      setIsLoadingProducts(true);
-    } else {
-      setIsLoadingMore(true);
-    }
-
-    try {
-      const response = await api.get(
-        `/api/v1/admin/products?page=${page}&limit=5&includeHidden=true`,
-      );
-      if (response.status === 200) {
-        const newProducts = response.data.data || response.data;
-        const pagination = response.data.pagination;
-
-        if (reset) {
-          setProducts(newProducts);
-          setCurrentPage(1);
-        } else {
-          setProducts((prev) => [...prev, ...newProducts]);
-        }
-
-        // Check if there are more pages
-        setHasNextPage(
-          pagination ? pagination.hasNextPage : newProducts.length === 10,
-        );
-        setCurrentPage(page);
-      }
-    } catch (error) {
-      console.error("Error fetching products:", error);
-      toast.error("Failed to load products");
-    } finally {
-      setIsLoadingProducts(false);
-      setIsLoadingMore(false);
-    }
+  // Convert form data to API data format
+  const convertFormDataToProductData = (formData: any): ProductData => {
+    return {
+      name: formData.name,
+      price:
+        typeof formData.price === "string"
+          ? parseFloat(formData.price)
+          : formData.price,
+      description: formData.description,
+      units:
+        typeof formData.units === "string"
+          ? parseInt(formData.units, 10)
+          : formData.units,
+      isFeatured: formData.isFeatured,
+      inStock: formData.inStock,
+      categoryIds: formData.categoryIds,
+      careInstructions: formData.careInstructions,
+      image: formData.image,
+    };
   };
-
-  // Load more products function
-  const loadMoreProducts = async () => {
-    if (isLoadingMore || !hasNextPage) return;
-    await fetchProducts(currentPage + 1, false);
-  };
-
-  // Reset and fetch products
-  const refreshProducts = async () => {
-    await fetchProducts(1, true);
-  };
-
-  useEffect(() => {
-    fetchProducts(1, true);
-  }, []);
-
-  const buildProductFormData = (data: ProductData): FormData => {
-    console.log("Building FormData with data:", data);
-    const formData = new FormData();
-    formData.append("name", data.name);
-    formData.append("price", data.price.toString());
-    formData.append("description", data.description);
-    formData.append("units", data.units?.toString() || "0");
-    formData.append("isFeatured", data.isFeatured?.toString() || "false");
-    formData.append("inStock", data.inStock?.toString() || "true");
-
-    if (Array.isArray(data.categoryIds) && data.categoryIds.length) {
-      data.categoryIds.forEach((id) => {
-        if (id) formData.append("categoryIds", id);
-      });
-    }
-
-    if (Array.isArray(data.careInstructions)) {
-      formData.append(
-        "careInstructions",
-        JSON.stringify(data.careInstructions),
-      );
-    }
-
-    if (data.image && data.image instanceof File) {
-      formData.append("image", data.image);
-    }
-    return formData;
-  };
-
-  // Handle adding a new product
-  async function handleAddProduct(data: ProductData) {
-    setIsLoading(true);
-    try {
-      const formData = buildProductFormData(data);
-      const response = await api.post("/api/v1/admin/products", formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      });
-
-      if (response.status === 200 || response.status === 201) {
-        toast.success("Product added successfully!");
-        await refreshProducts();
-        closeModal();
-      }
-    } catch (error) {
-      console.error("Error adding product:", error);
-      toast.error("Failed to add product. Please try again.");
-    } finally {
-      setIsLoading(false);
-    }
-  }
-
-  // Handle editing a product
-  async function handleEditProduct(data: any) {
-    if (!editingProduct) return;
-
-    setIsLoading(true);
-    try {
-      const formData = buildProductFormData(data);
-      const response = await api.put(
-        `/api/v1/admin/products/${editingProduct.id}`,
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        },
-      );
-
-      if (response.status === 200 || response.status === 201) {
-        toast.success("Product updated successfully!");
-        await refreshProducts();
-        closeModal();
-      }
-    } catch (error) {
-      console.error("Error editing product:", error);
-      toast.error("Failed to edit product. Please try again.");
-    } finally {
-      setIsLoading(false);
-    }
-  }
 
   // Handle modal save (determines add or edit)
-  const handleModalSave = (data: any) => {
-    console.log("Modal submitted payload:", data);
-    if (modalMode === "edit") {
-      handleEditProduct(data);
+  const handleModalSave = (formData: any) => {
+    const data = convertFormDataToProductData(formData);
+    if (modalMode === "edit" && editingProduct) {
+      updateProduct(
+        { productId: editingProduct.id, data },
+        {
+          onSuccess: () => closeModal(),
+        },
+      );
     } else {
-      handleAddProduct(data);
+      createProduct(data, {
+        onSuccess: () => closeModal(),
+      });
     }
   };
 
@@ -261,14 +152,46 @@ const ProductsPage = () => {
       {/* Stats Cards Container */}
       <OverviewCards cards={overviewCards} />
 
+      {/* Search Bar */}
+      <div className="mb-6">
+        <div className="relative max-w-md">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+          <input
+            type="text"
+            placeholder="Search products by name..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full pl-10 pr-10 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
+          />
+          {searchQuery && (
+            <button
+              onClick={() => setSearchQuery("")}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+            >
+              <X className="h-5 w-5" />
+            </button>
+          )}
+        </div>
+        {searchQuery && (
+          <p className="mt-2 text-sm text-gray-600">
+            Searching for:{" "}
+            <span className="font-medium text-green-600">{searchQuery}</span>
+          </p>
+        )}
+      </div>
+
       {/* Product Table */}
       <ProductTable
         products={products}
-        isLoading={isLoadingProducts}
-        isLoadingMore={isLoadingMore}
+        isLoading={isLoading}
+        isLoadingMore={isFetchingNextPage}
         hasNextPage={hasNextPage}
-        onRefresh={refreshProducts}
-        onLoadMore={loadMoreProducts}
+        onRefresh={() => {
+          refetch();
+        }}
+        onLoadMore={() => {
+          fetchNextPage();
+        }}
         onEdit={openEditModal}
       />
 
@@ -276,7 +199,7 @@ const ProductsPage = () => {
         isOpen={isModalOpen}
         onClose={closeModal}
         onSave={handleModalSave}
-        isLoading={isLoading}
+        isLoading={isCreating || isUpdating}
         mode={modalMode}
         productData={editingProduct}
       />

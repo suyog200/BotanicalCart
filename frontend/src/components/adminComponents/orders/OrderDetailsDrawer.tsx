@@ -1,4 +1,4 @@
-import OrderDetails from "../OrderDetails";
+import OrderDetails from "./OrderDetails";
 
 interface Props {
   orderId: string | null;

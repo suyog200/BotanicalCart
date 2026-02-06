@@ -4,11 +4,23 @@ import {
   OrdersStats,
   OrdersTable,
   OrderDetailsDrawer,
-} from "./orders";
+  OrdersFilters,
+} from ".";
+import { useDebounce } from "@/hooks/useDebounce";
 
 export const OrdersTab = () => {
   const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
   const loadMoreRef = useRef<HTMLDivElement>(null);
+  const [search, setSearch] = useState("");
+  const [status, setStatus] = useState<string | undefined>();
+  const [paymentStatus, setPaymentStatus] = useState<string | undefined>();
+  const debouncedSearch = useDebounce(search);
+
+  const handleClearFilters = () => {
+    setSearch("");
+    setStatus(undefined);
+    setPaymentStatus(undefined);
+  };
 
   const {
     orders,
@@ -17,7 +29,11 @@ export const OrdersTab = () => {
     hasNextPage,
     isFetchingNextPage,
     isLoading,
-  } = useAdminOrders();
+  } = useAdminOrders({
+    search: debouncedSearch,
+    status,
+    paymentStatus,
+  });
 
   // Intersection Observer for infinite scroll
   useEffect(() => {
@@ -55,6 +71,16 @@ export const OrdersTab = () => {
   return (
     <>
       <OrdersStats totalOrders={totalOrders} displayedCount={orders.length} />
+
+      <OrdersFilters
+        search={search}
+        status={status}
+        paymentStatus={paymentStatus}
+        onSearchChange={setSearch}
+        onStatusChange={setStatus}
+        onPaymentStatusChange={setPaymentStatus}
+        onClearFilters={handleClearFilters}
+      />
 
       <OrdersTable
         orders={orders}

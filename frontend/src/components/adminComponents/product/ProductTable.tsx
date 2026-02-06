@@ -1,10 +1,10 @@
 import { formatCategories } from "@/utils/formatters";
-import { Edit, Eye, EyeOff } from "lucide-react";
+import { Edit, Eye } from "lucide-react";
 import type { Product } from "@/types/types";
 import { api } from "@/api/api";
 import { useState } from "react";
 import toast from "react-hot-toast";
-import DataTable from "./DataTable";
+import DataTable from "../DataTable";
 
 interface ProductTableProps {
   products: Product[];
@@ -182,8 +182,7 @@ const ProductTable = ({
     {
       key: "category",
       header: "Category",
-      render: (product: Product) =>
-        formatCategories(product.categories ?? product.categories ?? []),
+      render: (product: Product) => formatCategories(product.categories ?? []),
     },
     {
       key: "price",
