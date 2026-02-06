@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { OrdersTab } from "@/components/adminComponents/OrdersTab";
-import { EnquiriesTab } from "@/components/adminComponents/EnquiriesTab";
+import { EnquiriesTab } from "@/components/adminComponents/enquiries/EnquiriesTab";
 
 const OrderAndEnquiries = () => {
   const [activeTab, setActiveTab] = useState("orders");
