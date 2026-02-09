@@ -9,7 +9,7 @@ import { useAdminProducts } from "@/components/adminComponents/product/useAdminP
 import type { ProductData } from "@/api/products";
 import { useDebounce } from "@/hooks/useDebounce";
 
-const ProductsPage = () => {
+const AdminProductsPage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState<"add" | "edit">("add");
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
@@ -207,4 +207,4 @@ const ProductsPage = () => {
   );
 };
 
-export default ProductsPage;
+export default AdminProductsPage;

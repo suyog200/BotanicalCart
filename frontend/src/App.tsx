@@ -9,7 +9,7 @@ import Cart from "./pages/customer/Cart";
 import ProductDetails from "./pages/customer/ProductDetails";
 import AboutPage from "./pages/customer/AboutPage";
 import AdminDashboard from "./pages/admin/AdminDashboard";
-import ProductsPage from "./pages/admin/ProductsPage";
+import AdminProductsPage from "./pages/admin/AdminProductsPage";
 import CategoryPage from "./pages/admin/CategoryPage";
 import DashboardPage from "./pages/admin/DashboardPage";
 import OrderAndEnquiries from "./pages/admin/OrderAndEnquiries";
@@ -19,6 +19,7 @@ import SearchResults from "./pages/customer/SearchResults";
 import CheckoutPage from "./pages/customer/CheckoutPage";
 import OrdersPage from "./pages/customer/OrdersPage";
 import OrderEnquiryPage from "./pages/customer/OrderEnquiryPage";
+import ProductsPage from "./pages/customer/ProductsPage";
 import { lazy, Suspense } from "react";
 const WishlistPage = lazy(() => import("./pages/customer/WishlistPage"));
 
@@ -44,6 +45,7 @@ const App = () => {
           <Route path="/about" element={<AboutPage />} />
           <Route path="/checkout" element={<CheckoutPage />} />
           <Route path="/orders" element={<OrdersPage />} />
+          <Route path="/products" element={<ProductsPage />} />
           <Route
             path="/orders/:orderId/enquire"
             element={<OrderEnquiryPage />}
@@ -66,7 +68,7 @@ const App = () => {
           <Route path="/admin" element={<AdminDashboard />}>
             <Route index element={<DashboardPage />} /> {/* default */}
             <Route path="dashboard" element={<DashboardPage />} />
-            <Route path="products" element={<ProductsPage />} />
+            <Route path="products" element={<AdminProductsPage />} />
             <Route path="category" element={<CategoryPage />} />
             <Route path="orders" element={<OrderAndEnquiries />} />
             <Route path="settings" element={<Settings />} />

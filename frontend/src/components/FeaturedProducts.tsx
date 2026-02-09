@@ -5,7 +5,7 @@ import { items } from "@/data/featuredProductsItems";
 export function FeaturedProducts() {
   return (
     <div>
-    <ColorfulTextHeader featuredText="featured" text1="The best" text2="products you can find" />
+    <ColorfulTextHeader featuredText="Botanical" text1="The Best Of" text2="Cart" />
     <BentoGrid className="max-w-full mx-auto">
       {items.map((item, i) => (
         <BentoGridItem

@@ -43,12 +43,16 @@ const Navbar = () => {
         <NavLink to="/about" className="hover:text-primary-dull">
           About
         </NavLink>
+        {isAdmin && isSignedIn && (
+          <>
         <NavLink to="/orders" className="hover:text-primary-dull">
           Orders
         </NavLink>
         <NavLink to="/wishlist" className="hover:text-primary-dull">
           Wishlist
         </NavLink>
+          </>
+        )}
         {isAdmin && isSignedIn && (
           <Link to="/admin/dashboard" className="hover:text-primary-dull" target="_blank">
             Dashboard
