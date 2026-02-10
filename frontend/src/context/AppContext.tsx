@@ -1,7 +1,9 @@
-import { createContext, useContext, useEffect, useMemo, useState } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import type { Plant } from "@/types/types";
 import toast from "react-hot-toast";
+
+const CART_STORAGE_KEY = "botanical_cart_items";
 
 // Define the context type
 
@@ -30,7 +32,22 @@ export const AppContextProvider = ({
 }) => {
   const navigate = useNavigate();
   const [seller, setIsSeller] = useState(false);
-  const [items, setItems] = useState<CartItems[]>([]);
+  const [items, setItems] = useState<CartItems[]>(() => {
+  try {
+    const stored = localStorage.getItem(CART_STORAGE_KEY);
+    return stored ? JSON.parse(stored) : [];
+  } catch {
+    return [];
+  }
+});
+
+useEffect(() => {
+  localStorage.setItem(
+    CART_STORAGE_KEY,
+    JSON.stringify(items)
+  );
+}, [items]);
+
 
   // add items to cart
   const addToCart = (plant: Plant) => {
@@ -65,6 +82,7 @@ export const AppContextProvider = ({
 
   const clearCart = () => {
     setItems([]);
+    localStorage.removeItem(CART_STORAGE_KEY);
   };
 
   const total = items.reduce(

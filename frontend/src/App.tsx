@@ -20,6 +20,7 @@ import CheckoutPage from "./pages/customer/CheckoutPage";
 import OrdersPage from "./pages/customer/OrdersPage";
 import OrderEnquiryPage from "./pages/customer/OrderEnquiryPage";
 import ProductsPage from "./pages/customer/ProductsPage";
+import ProtectedRoute from "./auth/ProtectedRoute";
 import { lazy, Suspense } from "react";
 const WishlistPage = lazy(() => import("./pages/customer/WishlistPage"));
 
@@ -65,7 +66,7 @@ const App = () => {
             }
           />
           {/* admin routes (nested inside AdminDashboard) */}
-          <Route path="/admin" element={<AdminDashboard />}>
+          <Route path="/admin" element={<ProtectedRoute allowedRoles={["admin","seller"]}><AdminDashboard /></ProtectedRoute>}>
             <Route index element={<DashboardPage />} /> {/* default */}
             <Route path="dashboard" element={<DashboardPage />} />
             <Route path="products" element={<AdminProductsPage />} />
