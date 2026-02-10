@@ -1,42 +1,21 @@
-import { forwardRef } from "react";
-import type { ReactNode } from "react";
+import React, { forwardRef } from "react";
 
 interface SearchDropdownProps {
+  children: React.ReactNode;
   isOpen: boolean;
-  children: ReactNode;
-  className?: string;
 }
 
 const SearchDropdown = forwardRef<HTMLDivElement, SearchDropdownProps>(
-  ({ isOpen, children, className = "" }, ref) => {
+  ({ children, isOpen }, ref) => {
     if (!isOpen) return null;
 
     return (
-      <>
-        <div
-          ref={ref}
-          className={`absolute z-50 mt-2 w-full bg-white border border-gray-200 rounded-xl shadow-xl overflow-hidden ${className}`}
-          style={{
-            animation: "fadeInScale 0.15s ease-out forwards",
-          }}
-        >
-          {children}
-        </div>
-
-        {/* CSS Animation */}
-        <style>{`
-          @keyframes fadeInScale {
-            from {
-              opacity: 0;
-              transform: translateY(-8px) scale(0.95);
-            }
-            to {
-              opacity: 1;
-              transform: translateY(0) scale(1);
-            }
-          }
-        `}</style>
-      </>
+      <div
+        ref={ref}
+        className="absolute left-0 right-0 z-50 mt-2 w-full overflow-hidden rounded-lg border border-gray-200 bg-white shadow-lg"
+      >
+        {children}
+      </div>
     );
   }
 );

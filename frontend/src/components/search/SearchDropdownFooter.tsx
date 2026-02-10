@@ -1,38 +1,27 @@
-import React from "react";
-import { useNavigate } from "react-router-dom";
+import { ArrowRight } from "lucide-react";
 
 interface SearchDropdownFooterProps {
   query: string;
-  onViewAllClick?: () => void;
+  onViewAllClick: () => void;
   isVisible: boolean;
 }
 
-const SearchDropdownFooter: React.FC<SearchDropdownFooterProps> = ({
+export default function SearchDropdownFooter({
   query,
   onViewAllClick,
   isVisible,
-}) => {
-  const navigate = useNavigate();
-
+}: SearchDropdownFooterProps) {
   if (!isVisible) return null;
 
-  const handleViewAllClick = () => {
-    if (onViewAllClick) {
-      onViewAllClick();
-    }
-    navigate(`/search?q=${encodeURIComponent(query)}`);
-  };
-
   return (
-    <div className="px-4 py-3 bg-gray-50 border-t border-gray-100">
+    <div className="border-t border-gray-100 bg-gray-50 px-3 py-2 sm:px-4">
       <button
-        onClick={handleViewAllClick}
-        className="w-full text-sm font-medium text-primary hover:text-primary/80 transition-colors text-center py-2 rounded-lg hover:bg-primary/5"
+        onClick={onViewAllClick}
+        className="flex w-full items-center justify-center gap-2 rounded-md px-3 py-2 text-sm font-medium text-primary transition-colors hover:bg-primary/10 sm:px-4"
       >
-        View all results for "{query}"
+        <span>View all results for "{query}"</span>
+        <ArrowRight className="h-4 w-4" />
       </button>
     </div>
   );
-};
-
-export default SearchDropdownFooter;
+}

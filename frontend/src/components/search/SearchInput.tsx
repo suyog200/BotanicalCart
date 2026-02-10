@@ -10,7 +10,10 @@ interface SearchInputProps {
 }
 
 const SearchInput = forwardRef<HTMLInputElement, SearchInputProps>(
-  ({ value, onChange, onFocus, onKeyDown, placeholder, className = "" }, ref) => {
+  (
+    { value, onChange, onFocus, onKeyDown, placeholder, className = "" },
+    ref,
+  ) => {
     return (
       <div className={`relative ${className}`}>
         <input
@@ -25,7 +28,7 @@ const SearchInput = forwardRef<HTMLInputElement, SearchInputProps>(
           aria-expanded="false"
           aria-haspopup="listbox"
           aria-autocomplete="list"
-          className="w-full px-4 py-2 pr-10 rounded-4xl border border-green-700 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-200"
+          className="w-full px-3 py-1.5 lg:px-4 lg:py-2 pr-8 lg:pr-10 text-sm rounded-4xl border border-green-700 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-200"
         />
 
         <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
@@ -45,7 +48,7 @@ const SearchInput = forwardRef<HTMLInputElement, SearchInputProps>(
         </div>
       </div>
     );
-  }
+  },
 );
 
 SearchInput.displayName = "SearchInput";

@@ -14,7 +14,7 @@ export default function Newsletter() {
           className="bg-transparent outline-none focus:outline-none focus:ring-0 border-none focus:border-none rounded-full px-4 h-full flex-1 text-black placeholder:text-black/60"
           placeholder="Enter your email address"
         />
-        <button className="bg-primary text-white rounded-full h-11 mr-1 px-8 flex items-center justify-center cursor-pointer">
+        <button className="bg-primary text-white rounded-full h-11 mr-1 px-8 flex items-center justify-center cursor-pointer sm:px-10">
           Subscribe now
         </button>
       </div>
