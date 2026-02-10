@@ -191,7 +191,7 @@ const ReviewStep = ({ address, onBack, onOrderComplete }: ReviewStepProps) => {
                     Total
                   </span>
                   <span className="text-xl font-bold text-green-600">
-                    ₹{(total + total * 0.1).toFixed(2)}
+                    ₹{(total).toFixed(2)}
                   </span>
                 </div>
               </div>

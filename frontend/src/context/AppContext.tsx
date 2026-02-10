@@ -33,34 +33,29 @@ export const AppContextProvider = ({
   const navigate = useNavigate();
   const [seller, setIsSeller] = useState(false);
   const [items, setItems] = useState<CartItems[]>(() => {
-  try {
-    const stored = localStorage.getItem(CART_STORAGE_KEY);
-    return stored ? JSON.parse(stored) : [];
-  } catch {
-    return [];
-  }
-});
+    try {
+      const stored = localStorage.getItem(CART_STORAGE_KEY);
+      return stored ? JSON.parse(stored) : [];
+    } catch {
+      return [];
+    }
+  });
 
-useEffect(() => {
-  localStorage.setItem(
-    CART_STORAGE_KEY,
-    JSON.stringify(items)
-  );
-}, [items]);
-
+  useEffect(() => {
+    localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(items));
+  }, [items]);
 
   // add items to cart
   const addToCart = (plant: Plant) => {
     setItems((prev) => {
       const existingItem = prev.find((item) => item.id === plant.id);
       if (existingItem) {
-        return prev.map((item) =>
-          item.id === plant.id ? { ...item, quantity: item.quantity + 1 } : item
-        );
+        toast.error(`${plant.name} is already in your cart!`);
+        return prev;
       }
+      toast.success(`${plant.name} added to cart!`);
       return [...prev, { ...plant, quantity: 1 }];
     });
-    toast.success(`${plant.name} added to cart!`);
   };
 
   // remove items from cart
@@ -75,8 +70,21 @@ useEffect(() => {
       removeFromCart(plantId);
       return;
     }
+
     setItems((prev) =>
-      prev.map((item) => (item.id === plantId ? { ...item, quantity } : item))
+      prev.map((item) => {
+        if (item.id === plantId) {
+          // Ensure quantity doesn't exceed available units
+          const maxQuantity = Math.min(quantity, item.units);
+
+          if (quantity > item.units) {
+            toast.error(`Only ${item.units} units available for ${item.name}`);
+          }
+
+          return { ...item, quantity: maxQuantity };
+        }
+        return item;
+      }),
     );
   };
 
@@ -87,7 +95,7 @@ useEffect(() => {
 
   const total = items.reduce(
     (sum, item) => sum + item.price * item.quantity,
-    0
+    0,
   );
   const itemCount = items.reduce((sum, item) => sum + item.quantity, 0);
 

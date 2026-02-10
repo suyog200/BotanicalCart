@@ -53,7 +53,7 @@ const Navbar = () => {
         >
           About
         </NavLink>
-        {isAdmin && isSignedIn && (
+        {isSignedIn && (
           <>
             <NavLink
               to="/orders"
