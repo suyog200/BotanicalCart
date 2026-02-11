@@ -1,6 +1,7 @@
 import React from "react";
 import { Button } from "@/components/ui/button";
 import toast from "react-hot-toast";
+import { useNavigate } from "react-router-dom";
 
 interface ProductActionsProps {
   plant: {
@@ -21,13 +22,14 @@ const ProductActions: React.FC<ProductActionsProps> = ({
   onAddToCart,
   onUpdateQuantity,
 }) => {
+  const navigate = useNavigate();
+
   const handleBuyNow = () => {
     if (!plant.inStock || quantity === 0) {
       toast.error("Please add item to cart first");
       return;
     }
-    // Add your buy now logic here
-    toast.success("Redirecting to checkout...");
+    navigate("/checkout");
   };
 
   return (

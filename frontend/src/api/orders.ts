@@ -2,6 +2,8 @@ import { api } from "@/api/api";
 
 interface CreateOrderPayload {
   items: { productId: string; quantity: number }[];
+  fullName: string;
+  phone: string;
   addressLine1: string;
   addressLine2?: string;
   city: string;
@@ -12,7 +14,7 @@ interface CreateOrderPayload {
 
 export const createOrder = async (payload: CreateOrderPayload) => {
   const res = await api.post("/api/v1/orders", payload);
-  return res.data;
+  return res.data.data;
 };
 
 export const getOrders = async (cursor?: string, limit: number = 10) => {
@@ -21,10 +23,10 @@ export const getOrders = async (cursor?: string, limit: number = 10) => {
     params.append("cursor", cursor);
   }
   const res = await api.get(`/api/v1/orders/my-orders?${params.toString()}`);
-  return res.data;
+  return res.data.data;
 };
 
 export const cancelOrder = async (orderId: string) => {
   const res = await api.patch(`/api/v1/orders/${orderId}/cancel`);
-  return res.data;
+  return res.data.data;
 };

@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
 import { Plus } from "lucide-react";
 import DataTable from "../../components/adminComponents/DataTable";
-import AddCategoryModal from "../../components/adminComponents/AddCategoryModal";
-import CategoryTableActions from "../../components/adminComponents/CategoryTableActions";
+import AddCategoryModal from "../../components/adminComponents/category/AddCategoryModal";
+import CategoryTableActions from "../../components/adminComponents/category/CategoryTableActions";
 import { Button } from "../../components/ui/button";
 import { api } from "../../api/api";
 import type { Category, CategorySubmitData } from "@/types/categoryTypes";
@@ -58,29 +58,6 @@ const CategoryPage = () => {
     setModalMode("edit");
     setSelectedCategory(category);
     setIsModalOpen(true);
-  };
-
-  // Handle delete category
-  const handleDeleteCategory = async (category: Category) => {
-    if (!confirm(`Are you sure you want to delete "${category.name}"?`)) {
-      return;
-    }
-
-    setLoadingStates((prev) => new Map(prev).set(category.id, true));
-
-    try {
-      await api.delete(`/api/v1/categories/${category.id}`);
-      toast.success(`Category "${category.name}" deleted successfully.`);
-      await fetchCategories(); // Refresh the list
-    } catch (error) {
-      console.error("Failed to delete category:", error);
-    } finally {
-      setLoadingStates((prev) => {
-        const newMap = new Map(prev);
-        newMap.delete(category.id);
-        return newMap;
-      });
-    }
   };
 
   // Handle toggle active status
@@ -180,7 +157,7 @@ const CategoryPage = () => {
     },
     {
       key: "isActive",
-      header: "Status",
+      header: "Active Status",
       render: (category) => {
         const isItemLoading = loadingStates.get(category.id);
         return (
@@ -208,8 +185,6 @@ const CategoryPage = () => {
         <CategoryTableActions
           category={category}
           onEdit={handleEditCategory}
-          onDelete={handleDeleteCategory}
-          isDeleting={loadingStates.get(category.id)}
         />
       ),
     },

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { OrdersTab } from "@/components/adminComponents/OrdersTab";
-import { EnquiriesTab } from "@/components/adminComponents/EnquiriesTab";
+import { OrdersTab } from "@/components/adminComponents/orders/OrdersTab";
+import { EnquiriesTab } from "@/components/adminComponents/enquiries/EnquiriesTab";
 
 const OrderAndEnquiries = () => {
   const [activeTab, setActiveTab] = useState("orders");
@@ -43,7 +43,10 @@ const OrderAndEnquiries = () => {
                 </svg>
                 Orders
               </TabsTrigger>
-              <TabsTrigger value="enquiries" className="flex items-center gap-2">
+              <TabsTrigger
+                value="enquiries"
+                className="flex items-center gap-2"
+              >
                 <svg
                   className="h-4 w-4"
                   fill="none"

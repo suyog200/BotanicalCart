@@ -25,7 +25,7 @@ const OrdersPage = () => {
       return res;
     },
     getNextPageParam: (lastPage) => {
-      return lastPage.pagination?.hasMore
+      return lastPage?.pagination?.hasMore
         ? lastPage.pagination.nextCursor
         : undefined;
     },
@@ -33,9 +33,8 @@ const OrdersPage = () => {
   });
 
   // Flatten all pages into a single array of orders
-  const orders: Order[] =
-    data?.pages.flatMap((page) => page.data || []).filter(Boolean) || [];
-  const totalOrders = data?.pages[0]?.pagination?.totalCount || 0;
+  const orders: Order[] = data?.pages.flat() || [];
+  const totalOrders = orders.length;
 
   // Intersection Observer for infinite scroll
   useEffect(() => {

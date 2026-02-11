@@ -1,186 +1,160 @@
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import {
-  addressSchema,
-  type AddressFormData,
-} from "@/validateSchema/addressSchema";
-import { MapPin } from "lucide-react";
+import { useState } from "react";
+import { MapPin, Plus, Loader2 } from "lucide-react";
+import type { Address } from "@/api/addresses";
+import { useAddresses, useDeleteAddress } from "@/hooks/useAddresses";
+import SavedAddressCard from "./SavedAddressCard";
+import AddressFormModal from "./AddressFormModal";
+import DeleteConfirmModal from "./DeleteConfirmModal";
+import { useCheckout } from "@/context/CheckoutContext";
 
 interface AddressStepProps {
-  onSubmit: (data: AddressFormData) => void;
+  onContinue: () => void;
 }
 
-const AddressStep = ({ onSubmit }: AddressStepProps) => {
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm<AddressFormData>({
-    resolver: zodResolver(addressSchema),
-  });
+const AddressStep = ({ onContinue }: AddressStepProps) => {
+  const { selectedAddress, setSelectedAddress } = useCheckout();
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingAddress, setEditingAddress] = useState<Address | null>(null);
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+  const [addressToDelete, setAddressToDelete] = useState<string | null>(null);
+
+  // Fetch addresses using TanStack Query
+  const { data: addresses = [], isLoading, error } = useAddresses();
+  const deleteAddressMutation = useDeleteAddress();
+
+  const handleAddressSelect = (address: Address) => {
+    setSelectedAddress(address);
+  };
+
+  const handleEdit = (address: Address) => {
+    setEditingAddress(address);
+    setIsModalOpen(true);
+  };
+
+  const handleDelete = (addressId: string) => {
+    setAddressToDelete(addressId);
+    setDeleteConfirmOpen(true);
+  };
+
+  const confirmDelete = () => {
+    if (addressToDelete) {
+      deleteAddressMutation.mutate(addressToDelete, {
+        onSuccess: () => {
+          // If deleted address was selected, clear selection
+          if (selectedAddress?.id === addressToDelete) {
+            setSelectedAddress(null);
+          }
+          setDeleteConfirmOpen(false);
+          setAddressToDelete(null);
+        },
+      });
+    }
+  };
+
+  const cancelDelete = () => {
+    setDeleteConfirmOpen(false);
+    setAddressToDelete(null);
+  };
+
+  const handleAddNew = () => {
+    setEditingAddress(null);
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setEditingAddress(null);
+  };
+
+  const handleContinue = () => {
+    if (!selectedAddress) {
+      return;
+    }
+    onContinue();
+  };
 
   return (
-    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 md:p-8">
-      <div className="flex items-center gap-3 mb-6">
-        <div className="p-2 bg-green-100 rounded-lg">
-          <MapPin className="w-6 h-6 text-green-600" />
-        </div>
-        <div>
-          <h2 className="text-xl font-semibold text-gray-900">
-            Shipping Address
-          </h2>
-          <p className="text-sm text-gray-500">Enter your delivery details</p>
-        </div>
-      </div>
-
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-        {/* Address Information */}
-        <div className="space-y-4 pt-4 border-t border-gray-200">
-          <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">
-            Address Details
-          </h3>
-
+    <>
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 md:p-8">
+        <div className="flex items-center gap-3 mb-6">
+          <div className="p-2 bg-green-100 rounded-lg">
+            <MapPin className="w-6 h-6 text-green-600" />
+          </div>
           <div>
-            <label
-              htmlFor="addressLine1"
-              className="block text-sm font-medium text-gray-700 mb-2"
-            >
-              Address Line 1 <span className="text-red-500">*</span>
-            </label>
-            <input
-              id="addressLine1"
-              type="text"
-              {...register("addressLine1")}
-              placeholder="Street address, P.O. box"
-              className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all ${
-                errors.addressLine1 ? "border-red-500" : "border-gray-300"
-              }`}
-            />
-            {errors.addressLine1 && (
-              <p className="mt-1 text-sm text-red-500 flex items-center gap-1">
-                <span className="text-xs">⚠</span> {errors.addressLine1.message}
-              </p>
-            )}
-          </div>
-
-          <div>
-            <label
-              htmlFor="addressLine2"
-              className="block text-sm font-medium text-gray-700 mb-2"
-            >
-              Address Line 2{" "}
-              <span className="text-gray-400 text-xs">(Optional)</span>
-            </label>
-            <input
-              id="addressLine2"
-              type="text"
-              {...register("addressLine2")}
-              placeholder="Apartment, suite, unit, building, floor, etc."
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
-            />
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label
-                htmlFor="city"
-                className="block text-sm font-medium text-gray-700 mb-2"
-              >
-                City <span className="text-red-500">*</span>
-              </label>
-              <input
-                id="city"
-                type="text"
-                {...register("city")}
-                placeholder="Enter city"
-                className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all ${
-                  errors.city ? "border-red-500" : "border-gray-300"
-                }`}
-              />
-              {errors.city && (
-                <p className="mt-1 text-sm text-red-500 flex items-center gap-1">
-                  <span className="text-xs">⚠</span> {errors.city.message}
-                </p>
-              )}
-            </div>
-
-            <div>
-              <label
-                htmlFor="state"
-                className="block text-sm font-medium text-gray-700 mb-2"
-              >
-                State / Province <span className="text-red-500">*</span>
-              </label>
-              <input
-                id="state"
-                type="text"
-                {...register("state")}
-                placeholder="Enter state"
-                className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all ${
-                  errors.state ? "border-red-500" : "border-gray-300"
-                }`}
-              />
-              {errors.state && (
-                <p className="mt-1 text-sm text-red-500 flex items-center gap-1">
-                  <span className="text-xs">⚠</span> {errors.state.message}
-                </p>
-              )}
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label
-                htmlFor="postalCode"
-                className="block text-sm font-medium text-gray-700 mb-2"
-              >
-                Postal Code <span className="text-red-500">*</span>
-              </label>
-              <input
-                id="postalCode"
-                type="text"
-                {...register("postalCode")}
-                placeholder="12345"
-                className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all ${
-                  errors.postalCode ? "border-red-500" : "border-gray-300"
-                }`}
-              />
-              {errors.postalCode && (
-                <p className="mt-1 text-sm text-red-500 flex items-center gap-1">
-                  <span className="text-xs">⚠</span> {errors.postalCode.message}
-                </p>
-              )}
-            </div>
-
-            <div>
-              <label
-                htmlFor="country"
-                className="block text-sm font-medium text-gray-700 mb-2"
-              >
-                Country <span className="text-red-500">*</span>
-              </label>
-              <input
-                id="country"
-                type="text"
-                {...register("country")}
-                placeholder="United States"
-                className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all ${
-                  errors.country ? "border-red-500" : "border-gray-300"
-                }`}
-              />
-              {errors.country && (
-                <p className="mt-1 text-sm text-red-500 flex items-center gap-1">
-                  <span className="text-xs">⚠</span> {errors.country.message}
-                </p>
-              )}
-            </div>
+            <h2 className="text-xl font-semibold text-gray-900">
+              Shipping Address
+            </h2>
+            <p className="text-sm text-gray-500">
+              Select or add a delivery address
+            </p>
           </div>
         </div>
 
-        <div className="pt-6 border-t border-gray-200">
+        {/* Loading State */}
+        {isLoading && (
+          <div className="flex items-center justify-center py-12">
+            <Loader2 className="w-8 h-8 text-green-600 animate-spin" />
+          </div>
+        )}
+
+        {/* Error State */}
+        {error && (
+          <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+            <p className="text-sm text-red-800">
+              Failed to load addresses. Please try again.
+            </p>
+          </div>
+        )}
+
+        {/* Saved Addresses */}
+        {!isLoading && !error && addresses.length > 0 && (
+          <div className="space-y-4 mb-6">
+            <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">
+              Saved Addresses
+            </h3>
+            <div className="grid grid-cols-1 gap-4">
+              {addresses.map((address) => (
+                <SavedAddressCard
+                  key={address.id}
+                  address={address}
+                  isSelected={selectedAddress?.id === address.id}
+                  onSelect={handleAddressSelect}
+                  onEdit={handleEdit}
+                  onDelete={handleDelete}
+                />
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* No Addresses State */}
+        {!isLoading && !error && addresses.length === 0 && (
+          <div className="text-center py-12 border-2 border-dashed border-gray-300 rounded-lg mb-6">
+            <MapPin className="w-12 h-12 text-gray-400 mx-auto mb-3" />
+            <p className="text-gray-600 mb-2">No saved addresses</p>
+            <p className="text-sm text-gray-500">
+              Add your first delivery address
+            </p>
+          </div>
+        )}
+
+        {/* Add New Address Button */}
+        <button
+          type="button"
+          onClick={handleAddNew}
+          className="w-full flex items-center justify-center gap-2 px-4 py-3 border-2 border-dashed border-gray-300 text-gray-700 font-medium rounded-lg hover:border-green-500 hover:text-green-600 hover:bg-green-50 transition-all"
+        >
+          <Plus className="w-5 h-5" />
+          Add New Address
+        </button>
+
+        {/* Continue Button */}
+        <div className="pt-6 border-t border-gray-200 mt-6">
           <button
-            type="submit"
-            className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-4 px-6 rounded-lg transition-colors duration-200 shadow-md hover:shadow-lg flex items-center justify-center gap-2 group"
+            type="button"
+            onClick={handleContinue}
+            disabled={!selectedAddress}
+            className="w-full bg-green-600 hover:bg-green-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-semibold py-4 px-6 rounded-lg transition-colors duration-200 shadow-md hover:shadow-lg flex items-center justify-center gap-2 group"
           >
             Continue to Review
             <svg
@@ -197,9 +171,29 @@ const AddressStep = ({ onSubmit }: AddressStepProps) => {
               />
             </svg>
           </button>
+          {!selectedAddress && (
+            <p className="mt-2 text-sm text-gray-500 text-center">
+              Please select or add an address to continue
+            </p>
+          )}
         </div>
-      </form>
-    </div>
+      </div>
+
+      {/* Address Form Modal */}
+      <AddressFormModal
+        isOpen={isModalOpen}
+        onClose={handleCloseModal}
+        address={editingAddress}
+      />
+
+      {/* Delete Confirmation Modal */}
+      <DeleteConfirmModal
+        isOpen={deleteConfirmOpen}
+        onClose={cancelDelete}
+        onConfirm={confirmDelete}
+        isDeleting={deleteAddressMutation.isPending}
+      />
+    </>
   );
 };
 

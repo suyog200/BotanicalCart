@@ -20,7 +20,7 @@ type SearchProduct = {
 
 const searchProducts = async (q: string, limit = 10) => {
   const res = await api.get(
-    `/api/v1/products/search?q=${encodeURIComponent(q)}&limit=${limit}`
+    `/api/v1/products/search?q=${encodeURIComponent(q)}&limit=${limit}`,
   );
   return res.data;
 };
@@ -58,13 +58,11 @@ export default function SearchBar({
 
   const results: SearchProduct[] = data?.data ?? [];
 
-
   useEffect(() => {
     if (autoFocus && inputRef.current) {
       inputRef.current.focus();
     }
   }, [autoFocus]);
-
 
   useEffect(() => {
     if (debouncedQuery.trim().length > 0) {
@@ -74,7 +72,6 @@ export default function SearchBar({
       setOpen(false);
     }
   }, [debouncedQuery]);
-
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
@@ -91,11 +88,9 @@ export default function SearchBar({
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [onClose]);
 
-
   useEffect(() => {
     if (!open) setHighlightIndex(-1);
   }, [open]);
-
 
   useEffect(() => {
     if (highlightIndex >= 0 && listRef.current) {
@@ -116,7 +111,6 @@ export default function SearchBar({
       }
     }
   }, [highlightIndex]);
-
 
   const handleInputFocus = () => {
     if (debouncedQuery.trim() && results.length > 0) {
@@ -139,7 +133,7 @@ export default function SearchBar({
         setHighlightIndex(0);
       } else {
         setHighlightIndex((prev) =>
-          prev < results.length - 1 ? prev + 1 : prev
+          prev < results.length - 1 ? prev + 1 : prev,
         );
       }
     } else if (e.key === "ArrowUp") {
@@ -177,7 +171,6 @@ export default function SearchBar({
     setHighlightIndex(index);
   };
 
-
   const renderDropdownContent = () => {
     if (isFetching) {
       return <SearchLoadingState />;
@@ -199,7 +192,7 @@ export default function SearchBar({
   };
 
   return (
-    <div className="relative w-full max-w-xl">
+    <div className="relative w-full lg:max-w-[200px] xl:max-w-[220px] 2xl:max-w-xs">
       <SearchInput
         ref={inputRef}
         value={query}

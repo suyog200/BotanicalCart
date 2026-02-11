@@ -1,10 +1,10 @@
 import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { GenericFormModal } from "../form/GenericFormModal";
-import { ImageUploadField } from "../form/ImageUploadField";
+import { GenericFormModal } from "@/components/form/GenericFormModal";
+import { ImageUploadField } from "@/components/form/ImageUploadField";
 import { Button } from "@/components/ui/button";
-import { useImageUpload } from "../../hooks/useImageUpload";
+import { useImageUpload } from "@/hooks/useImageUpload";
 import {
   categorySchema,
 } from "@/validateSchema/categorySchema";

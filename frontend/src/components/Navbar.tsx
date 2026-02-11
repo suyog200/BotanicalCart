@@ -25,38 +25,64 @@ const Navbar = () => {
   };
 
   return (
-    <nav className="z-40 flex items-center justify-between px-6 md:px-16 lg:px-24 xl:px-32 py-2 bg-white/70 transition-all sticky top-0 backdrop-blur-sm">
-      <NavLink to="/" className="text-lg font-semibold" onClick={closeAll}>
+    <nav className="z-40 flex items-center justify-between px-4 sm:px-6 md:px-12 lg:px-16 xl:px-24 py-3 bg-white/70 transition-all sticky top-0 backdrop-blur-sm">
+      <NavLink
+        to="/"
+        className="text-lg font-semibold flex-shrink-0"
+        onClick={closeAll}
+      >
         <ColorfulTextHeader
           text1=""
           featuredText="Botanical Cart"
           text2=""
-          className="text-2xl md:text-xl lg:text-2xl font-bold text-center text-black relative z-2 font-sans"
+          className="text-xl sm:text-2xl lg:text-2xl font-bold text-center text-black relative z-2 font-sans"
         />
       </NavLink>
 
       {/* Desktop Menu */}
-      <div className="hidden sm:flex items-center gap-8">
-        <NavLink to="/" className="hover:text-primary-dull">
+      <div className="hidden lg:flex items-center gap-3 xl:gap-5 2xl:gap-6">
+        <NavLink
+          to="/"
+          className="hover:text-primary-dull transition-colors text-sm xl:text-base whitespace-nowrap font-medium"
+        >
           Home
         </NavLink>
-        <NavLink to="/about" className="hover:text-primary-dull">
+        <NavLink
+          to="/about"
+          className="hover:text-primary-dull transition-colors text-sm xl:text-base whitespace-nowrap font-medium"
+        >
           About
         </NavLink>
-        <NavLink to="/orders" className="hover:text-primary-dull">
-          Orders
-        </NavLink>
-        <NavLink to="/wishlist" className="hover:text-primary-dull">
-          Wishlist
-        </NavLink>
+        {isSignedIn && (
+          <>
+            <NavLink
+              to="/orders"
+              className="hover:text-primary-dull transition-colors text-sm xl:text-base whitespace-nowrap font-medium"
+            >
+              Orders
+            </NavLink>
+            <NavLink
+              to="/wishlist"
+              className="hover:text-primary-dull transition-colors text-sm xl:text-base whitespace-nowrap font-medium"
+            >
+              Wishlist
+            </NavLink>
+          </>
+        )}
         {isAdmin && isSignedIn && (
-          <Link to="/admin/dashboard" className="hover:text-primary-dull" target="_blank">
+          <Link
+            to="/admin/dashboard"
+            className="hover:text-primary-dull transition-colors text-sm xl:text-base whitespace-nowrap font-medium"
+            target="_blank"
+          >
             Dashboard
           </Link>
         )}
-        <SearchBar />
+        <div className="flex-shrink-0">
+          <SearchBar />
+        </div>
         <div
-          className="relative cursor-pointer"
+          className="relative cursor-pointer flex-shrink-0"
           onClick={() => navigate?.("/cart")}
         >
           <svg
@@ -79,21 +105,23 @@ const Navbar = () => {
         </div>
 
         {!user ? (
-          <ShinyButton
-            text="Login"
-            onClick={() => {
-              navigate?.("/sign-in");
-            }}
-          />
+          <div className="flex-shrink-0">
+            <ShinyButton
+              text="Login"
+              onClick={() => {
+                navigate?.("/sign-in");
+              }}
+            />
+          </div>
         ) : (
-          <div className="relative group">
+          <div className="relative group flex-shrink-0">
             <UserButton />
           </div>
         )}
       </div>
 
-      {/* Mobile Actions */}
-      <div className="flex items-center gap-4 sm:hidden">
+      {/* Mobile/Tablet Actions */}
+      <div className="flex items-center gap-3 sm:gap-4 lg:hidden">
         {/* Search Button */}
         <button
           onClick={() => setSearchOpen(!searchOpen)}
@@ -154,19 +182,19 @@ const Navbar = () => {
         </button>
       </div>
 
-      {/* Mobile Search Bar - Expandable */}
+      {/* Mobile/Tablet Search Bar - Expandable */}
       {searchOpen && (
-        <div className="absolute top-full left-0 w-full bg-white/95 backdrop-blur-sm shadow-md p-4 sm:hidden z-50 border-t">
+        <div className="absolute top-full left-0 w-full bg-white/95 backdrop-blur-sm shadow-md p-4 lg:hidden z-50 border-t">
           <SearchBar />
         </div>
       )}
 
-      {/* Mobile Menu */}
+      {/* Mobile/Tablet Menu */}
       {open && (
         <div
           className={`${
             open ? "flex" : "hidden"
-          } absolute top-full left-0 w-full bg-white/95 shadow-md py-4 flex-col items-start gap-2 px-5 text-sm sm:hidden backdrop-blur-sm transition-all border-t z-40`}
+          } absolute top-full left-0 w-full bg-white/95 shadow-md py-4 flex-col items-start gap-2 px-5 text-sm lg:hidden backdrop-blur-sm transition-all border-t z-40`}
         >
           <NavLink
             to="/"

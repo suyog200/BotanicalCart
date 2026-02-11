@@ -1,11 +1,23 @@
 import { useAppContext } from "@/context/AppContext";
 import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
+import { QuantitySelector } from "@/components/cart/QuantitySelector";
+import toast from "react-hot-toast";
 
 const Cart = () => {
   const { items, updateQuantity, removeFromCart, itemCount, total } =
     useAppContext();
   const navigate = useNavigate();
+
+  const handleCheckout = () => {
+    if (items.length === 0) {
+      toast("Please add products to cart and continue", {
+        icon: "🛒",
+      });
+      return;
+    }
+    navigate("/checkout");
+  };
 
   return (
     <div className="flex flex-col md:flex-row py-16 max-w-6xl w-full px-6 mx-auto">
@@ -34,26 +46,31 @@ const Cart = () => {
                   alt={product.name}
                 />
               </div>
-              <div>
+              <div className="flex-1">
                 <p className="hidden md:block font-semibold">{product.name}</p>
-                <div className="font-normal text-gray-500/70">
-                  <div className="flex items-center">
-                    <p>Qty:</p>
-                    <select
-                      className="outline-none"
-                      value={product.quantity}
-                      onChange={(e) =>
-                        updateQuantity(product.id, Number(e.target.value))
+                <p className="text-sm text-gray-600 hidden md:block">
+                  ₹{product.price} each
+                </p>
+                {product.units <= 5 && product.units > 0 && (
+                  <p className="text-xs text-orange-600 font-medium mt-1">
+                    Only {product.units} left in stock!
+                  </p>
+                )}
+                {product.units === 0 && (
+                  <p className="text-xs text-red-600 font-medium mt-1">
+                    Out of stock
+                  </p>
+                )}
+                <div className="font-normal text-gray-500/70 mt-2">
+                  <div className="flex items-center gap-2">
+                    <p className="text-xs md:text-sm">Qty:</p>
+                    <QuantitySelector
+                      currentQuantity={product.quantity}
+                      availableUnits={product.units}
+                      onQuantityChange={(qty) =>
+                        updateQuantity(product.id, qty)
                       }
-                    >
-                      {Array(10)
-                        .fill("")
-                        .map((_, index) => (
-                          <option key={index} value={index + 1}>
-                            {index + 1}
-                          </option>
-                        ))}
-                    </select>
+                    />
                   </div>
                 </div>
               </div>
@@ -122,7 +139,10 @@ const Cart = () => {
           </p>
         </div>
 
-        <button className="w-full py-3 mt-6 cursor-pointer bg-primary text-white font-medium hover:bg-primary-dull transition" onClick={() => navigate('/checkout')}>
+        <button
+          className="w-full py-3 mt-6 cursor-pointer bg-primary text-white font-medium hover:bg-primary-dull transition"
+          onClick={handleCheckout}
+        >
           Proceed to Checkout
         </button>
       </div>

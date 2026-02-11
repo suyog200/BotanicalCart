@@ -1,18 +1,17 @@
 import { useEffect, useState } from "react";
 import { useAppContext } from "@/context/AppContext";
-import type { AddressFormData } from "@/validateSchema/addressSchema";
+import { CheckoutProvider, useCheckout } from "@/context/CheckoutContext";
 import StepIndicator from "@/components/checkout/StepIndicator";
 import AddressStep from "@/components/checkout/AddressStep";
 import ReviewStep from "@/components/checkout/ReviewStep";
 
 type CheckoutStep = 1 | 2;
 
-const CheckoutPage = () => {
+const CheckoutPageContent = () => {
   const { items, navigate } = useAppContext();
+  const { selectedAddress, clearCheckoutData } = useCheckout();
   const [step, setStep] = useState<CheckoutStep>(1);
-  const [address, setAddress] = useState<AddressFormData | null>(null);
   const [orderCompleted, setOrderCompleted] = useState(false);
-
 
   useEffect(() => {
     if (items.length === 0 && !orderCompleted) {
@@ -20,9 +19,17 @@ const CheckoutPage = () => {
     }
   }, [items, navigate, orderCompleted]);
 
-  const handleAddressSubmit = (data: AddressFormData) => {
-    setAddress(data);
+  const handleContinueToReview = () => {
     setStep(2);
+  };
+
+  const handleBackToAddress = () => {
+    setStep(1);
+  };
+
+  const handleOrderComplete = () => {
+    setOrderCompleted(true);
+    clearCheckoutData();
   };
 
   return (
@@ -31,18 +38,24 @@ const CheckoutPage = () => {
 
       <StepIndicator step={step} />
 
-      {step === 1 && (
-        <AddressStep onSubmit={handleAddressSubmit} />
-      )}
+      {step === 1 && <AddressStep onContinue={handleContinueToReview} />}
 
-      {step === 2 && address && (
+      {step === 2 && selectedAddress && (
         <ReviewStep
-          address={address}
-          onBack={() => setStep(1)}
-          onOrderComplete={() => setOrderCompleted(true)}
+          address={selectedAddress}
+          onBack={handleBackToAddress}
+          onOrderComplete={handleOrderComplete}
         />
       )}
     </div>
+  );
+};
+
+const CheckoutPage = () => {
+  return (
+    <CheckoutProvider>
+      <CheckoutPageContent />
+    </CheckoutProvider>
   );
 };
 

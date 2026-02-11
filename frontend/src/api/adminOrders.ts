@@ -2,13 +2,28 @@ import { api } from "@/api/api";
 
 export const getAllAdminOrders = async (
   cursor?: string,
+  search?: string,
+  status?: string,
+  paymentStatus?: string,
   limit: number = 20,
 ) => {
   const params = new URLSearchParams({ limit: limit.toString() });
+
   if (cursor) {
     params.append("cursor", cursor);
   }
+  if (search) {
+    params.append("search", search);
+  }
+  if (status) {
+    params.append("status", status);
+  }
+  if (paymentStatus) {
+    params.append("paymentStatus", paymentStatus);
+  }
+
   const res = await api.get(`/api/v1/admin/orders?${params.toString()}`);
+  console.log("Fetched admin orders:", res.data);
   return res.data;
 };
 

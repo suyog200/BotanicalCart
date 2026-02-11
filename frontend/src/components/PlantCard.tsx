@@ -32,7 +32,7 @@ const PlantCard = ({ plant }: PlantCardProps) => {
       toast.success(
         wishlist.isWishlisted(plant.id)
           ? "Added to wishlist"
-          : "Removed from wishlist"
+          : "Removed from wishlist",
       );
     } catch (err) {
       console.error("Wishlist toggle error:", err);
@@ -46,7 +46,7 @@ const PlantCard = ({ plant }: PlantCardProps) => {
         <div className="relative overflow-hidden">
           <div className="rounded-t-lg overflow-hidden">
             <img
-              className="w-full h-64 object-cover transition-transform duration-300 group-hover:scale-105"
+              className="w-full h-48 sm:h-56 md:h-64 object-cover transition-transform duration-300 group-hover:scale-105"
               src={plant.imageUrl}
               alt={plant.name}
             />
@@ -67,8 +67,8 @@ const PlantCard = ({ plant }: PlantCardProps) => {
 
             {/* Primary Category Badge */}
             <Badge
-              className={`absolute top-2 left-2 ${getCategoryColor(
-                primaryCategory
+              className={`absolute top-2 left-2 text-xs sm:text-sm ${getCategoryColor(
+                primaryCategory,
               )}`}
             >
               {primaryCategory.replace("-", " ")}
@@ -76,7 +76,7 @@ const PlantCard = ({ plant }: PlantCardProps) => {
 
             {/* Stock Status Badge */}
             <Badge
-              className={`absolute bottom-2 right-2 ${
+              className={`absolute bottom-2 right-2 text-xs sm:text-sm ${
                 plant.inStock
                   ? "bg-green-100 text-green-800"
                   : "bg-red-100 text-red-800"
@@ -87,17 +87,15 @@ const PlantCard = ({ plant }: PlantCardProps) => {
           </div>
         </div>
 
-        <div className="px-5 pb-4 mt-2">
-          <h5 className="text-xl font-semibold tracking-tight text-black">
+        <div className="px-3 sm:px-4 md:px-5 pb-3 sm:pb-4 mt-2">
+          <h5 className="text-lg sm:text-xl font-semibold tracking-tight text-black line-clamp-1">
             {plant.name}
           </h5>
           <p
-            className="text-sm font-medium text-gray-500 truncate"
+            className="text-xs sm:text-sm font-medium text-gray-500 line-clamp-2 mt-1"
             title={plant.description}
           >
-            {plant.description?.length > 50
-              ? plant.description.slice(0, 47) + "..."
-              : plant.description}
+            {plant.description}
           </p>
 
           {/* Multiple Categories Display */}
@@ -142,8 +140,10 @@ const PlantCard = ({ plant }: PlantCardProps) => {
         </div>
       </Link>
 
-      <CardFooter className="p-4 pt-0 flex items-center justify-between">
-        <span className="text-2xl font-bold text-primary">₹{plant.price}</span>
+      <CardFooter className="p-3 sm:p-4 pt-0 flex items-center justify-between gap-2">
+        <span className="text-xl sm:text-2xl font-bold text-primary">
+          ₹{plant.price}
+        </span>
 
         {/* Add to Cart / Quantity Controls */}
         <div className="text-white" onClick={(e) => e.stopPropagation()}>
@@ -152,7 +152,7 @@ const PlantCard = ({ plant }: PlantCardProps) => {
               plant.inStock
                 ? "bg-gradient-hero hover:shadow-hover cursor-pointer"
                 : "bg-gray-400 cursor-not-allowed"
-            } transition-all duration-300 text-white flex items-center gap-2 px-3 py-1 rounded`}
+            } transition-all duration-300 text-white flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-1.5 sm:py-2 rounded text-sm sm:text-base whitespace-nowrap`}
             onClick={() => {
               if (plant.inStock) {
                 addToCart(plant);

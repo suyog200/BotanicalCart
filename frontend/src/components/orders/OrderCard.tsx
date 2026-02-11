@@ -1,11 +1,13 @@
 import { useState } from "react";
-import { Calendar, ChevronDown, ChevronUp } from "lucide-react";
+import { Calendar, ChevronDown, ChevronUp, MessageSquare } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import type { Order } from "@/types/order";
 import { getStatusConfig } from "@/utils/orderUtils";
 import OrderItems from "./OrderItems";
 import ShippingAddress from "./ShippingAddress";
 import PaymentInfo from "./PaymentInfo";
 import CancelOrderButton from "./CancelOrderButton";
+import OrderEnquiries from "./OrderEnquiries";
 
 interface OrderCardProps {
   order: Order;
@@ -13,6 +15,7 @@ interface OrderCardProps {
 
 const OrderCard = ({ order }: OrderCardProps) => {
   const [isExpanded, setIsExpanded] = useState(false);
+  const navigate = useNavigate();
   const statusConfig = getStatusConfig(order.status);
 
   return (
@@ -96,7 +99,21 @@ const OrderCard = ({ order }: OrderCardProps) => {
             <OrderItems items={order.items} />
             <ShippingAddress order={order} />
             <PaymentInfo order={order} />
-            <CancelOrderButton order={order} />
+
+            {/* Action Buttons */}
+            <div className="flex flex-col sm:flex-row gap-3 pt-2">
+              <CancelOrderButton order={order} />
+              <button
+                onClick={() => navigate(`/orders/${order.id}/enquire`)}
+                className="flex items-center justify-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium shadow-sm"
+              >
+                <MessageSquare className="w-5 h-5" />
+                <span>Submit Enquiry</span>
+              </button>
+            </div>
+
+            {/* Order Enquiries */}
+            <OrderEnquiries orderId={order.id} />
           </div>
         )}
       </div>
