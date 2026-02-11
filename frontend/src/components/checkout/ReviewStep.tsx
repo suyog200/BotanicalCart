@@ -1,5 +1,5 @@
-import { useState } from "react";
-import type { AddressFormData } from "@/validateSchema/addressSchema";
+import { useState, useEffect } from "react";
+import type { Address } from "@/api/addresses";
 import { useAppContext } from "@/context/AppContext";
 import {
   MapPin,
@@ -7,13 +7,15 @@ import {
   CreditCard,
   ChevronLeft,
   CheckCircle2,
+  User,
+  Phone,
 } from "lucide-react";
 import { createOrder } from "@/api/orders";
 import OrderSuccessModal from "./OrderSucessModal";
 import toast from "react-hot-toast";
 
 interface ReviewStepProps {
-  address: AddressFormData;
+  address: Address;
   onBack: () => void;
   onOrderComplete: () => void;
 }
@@ -22,6 +24,10 @@ const ReviewStep = ({ address, onBack, onOrderComplete }: ReviewStepProps) => {
   const { items, total, clearCart, navigate } = useAppContext();
   const [loading, setLoading] = useState(false);
   const [orderId, setOrderId] = useState<string | null>(null);
+
+  useEffect(() => {
+    console.log("OrderId state changed:", orderId);
+  }, [orderId]);
 
   const handlePlaceOrder = async () => {
     try {
@@ -37,18 +43,17 @@ const ReviewStep = ({ address, onBack, onOrderComplete }: ReviewStepProps) => {
 
       const res = await createOrder(payload);
 
-      setOrderId(res.data.id);
-      onOrderComplete();
+      setOrderId(res.id);
     } catch (error: any) {
-      toast.error(
-        error?.response?.data?.message || "Failed to place order"
-      );
+      console.error("Order Error:", error);
+      toast.error(error?.response?.data?.message || "Failed to place order");
     } finally {
       setLoading(false);
     }
   };
 
   const handleSuccessClose = () => {
+    onOrderComplete();
     clearCart();
     navigate("/orders");
   };
@@ -93,8 +98,20 @@ const ReviewStep = ({ address, onBack, onOrderComplete }: ReviewStepProps) => {
                 Edit
               </button>
             </div>
-            <div className="bg-gray-50 rounded-lg p-4 space-y-2">
-              <div className="border-t border-gray-200 my-3 pt-3">
+            <div className="bg-gray-50 rounded-lg p-4 space-y-3">
+              <div className="flex items-start gap-2">
+                <User className="w-4 h-4 text-gray-500 mt-0.5" />
+                <div>
+                  <p className="text-sm font-medium text-gray-900">
+                    {address.fullName}
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-start gap-2">
+                <Phone className="w-4 h-4 text-gray-500 mt-0.5" />
+                <p className="text-sm text-gray-700">{address.phone}</p>
+              </div>
+              <div className="border-t border-gray-200 pt-3">
                 <p className="text-sm text-gray-900 leading-relaxed">
                   {address.addressLine1}
                   {address.addressLine2 && <>, {address.addressLine2}</>}
@@ -191,7 +208,7 @@ const ReviewStep = ({ address, onBack, onOrderComplete }: ReviewStepProps) => {
                     Total
                   </span>
                   <span className="text-xl font-bold text-green-600">
-                    ₹{(total).toFixed(2)}
+                    ₹{total.toFixed(2)}
                   </span>
                 </div>
               </div>
@@ -203,7 +220,9 @@ const ReviewStep = ({ address, onBack, onOrderComplete }: ReviewStepProps) => {
                 className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-4 px-6 rounded-lg transition-colors duration-200 shadow-md hover:shadow-lg flex items-center justify-center gap-2 group"
               >
                 <CreditCard className="w-5 h-5" />
-                {loading ? "Placing Order..." : "Place Order (Cash on Delivery)"}
+                {loading
+                  ? "Placing Order..."
+                  : "Place Order (Cash on Delivery)"}
               </button>
 
               <button
@@ -239,7 +258,7 @@ const ReviewStep = ({ address, onBack, onOrderComplete }: ReviewStepProps) => {
       </div>
       {/* Sucess Modal */}
       {orderId && (
-          <OrderSuccessModal orderId={orderId} onClose={handleSuccessClose} />
+        <OrderSuccessModal orderId={orderId} onClose={handleSuccessClose} />
       )}
     </div>
   );
