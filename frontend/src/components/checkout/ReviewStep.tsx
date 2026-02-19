@@ -4,7 +4,6 @@ import { useAppContext } from "@/context/AppContext";
 import {
   MapPin,
   ShoppingCart,
-  CreditCard,
   ChevronLeft,
   CheckCircle2,
   User,
@@ -13,6 +12,7 @@ import {
 import { createOrder } from "@/api/orders";
 import OrderSuccessModal from "./OrderSucessModal";
 import toast from "react-hot-toast";
+import { useCreateStripeSession } from "@/hooks/useCreateStripeSession";
 
 interface ReviewStepProps {
   address: Address;
@@ -22,15 +22,26 @@ interface ReviewStepProps {
 
 const ReviewStep = ({ address, onBack, onOrderComplete }: ReviewStepProps) => {
   const { items, total, clearCart, navigate } = useAppContext();
+  const stripeMutation = useCreateStripeSession();
+
   const [loading, setLoading] = useState(false);
   const [orderId, setOrderId] = useState<string | null>(null);
+  const [paymentMethod, setPaymentMethod] = useState<"COD" | "STRIPE">("COD");
+  const isProcessing = loading || stripeMutation.isPending;
+
 
   useEffect(() => {
     console.log("OrderId state changed:", orderId);
   }, [orderId]);
 
-  const handlePlaceOrder = async () => {
-    try {
+const handlePlaceOrder = async () => {
+  try {
+    if (!items.length) {
+      toast.error("Your cart is empty");
+      return;
+    }
+
+    if (paymentMethod === "COD") {
       setLoading(true);
 
       const payload = {
@@ -39,18 +50,32 @@ const ReviewStep = ({ address, onBack, onOrderComplete }: ReviewStepProps) => {
           quantity: item.quantity,
         })),
         ...address,
+        paymentMethod: "COD",
       };
 
       const res = await createOrder(payload);
-
       setOrderId(res.id);
-    } catch (error: any) {
-      console.error("Order Error:", error);
-      toast.error(error?.response?.data?.message || "Failed to place order");
-    } finally {
-      setLoading(false);
+      return;
     }
-  };
+
+    if (paymentMethod === "STRIPE") {
+      const stripeData = await stripeMutation.mutateAsync({
+        items: items.map((item) => ({
+          productId: item.id,
+          quantity: item.quantity,
+        })),
+        addressId: address.id,
+      });
+
+      window.location.href = stripeData.url;
+    }
+  } catch (error: any) {
+    toast.error(error?.response?.data?.message || "Failed to place order");
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   const handleSuccessClose = () => {
     onOrderComplete();
@@ -78,9 +103,9 @@ const ReviewStep = ({ address, onBack, onOrderComplete }: ReviewStepProps) => {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Left Column - Address & Contact */}
+        {/* LEFT COLUMN */}
         <div className="lg:col-span-2 space-y-6">
-          {/* Shipping Address Card */}
+          {/* Address Card */}
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
             <div className="flex items-start justify-between mb-4">
               <div className="flex items-center gap-3">
@@ -98,19 +123,20 @@ const ReviewStep = ({ address, onBack, onOrderComplete }: ReviewStepProps) => {
                 Edit
               </button>
             </div>
+
             <div className="bg-gray-50 rounded-lg p-4 space-y-3">
               <div className="flex items-start gap-2">
                 <User className="w-4 h-4 text-gray-500 mt-0.5" />
-                <div>
-                  <p className="text-sm font-medium text-gray-900">
-                    {address.fullName}
-                  </p>
-                </div>
+                <p className="text-sm font-medium text-gray-900">
+                  {address.fullName}
+                </p>
               </div>
+
               <div className="flex items-start gap-2">
                 <Phone className="w-4 h-4 text-gray-500 mt-0.5" />
                 <p className="text-sm text-gray-700">{address.phone}</p>
               </div>
+
               <div className="border-t border-gray-200 pt-3">
                 <p className="text-sm text-gray-900 leading-relaxed">
                   {address.addressLine1}
@@ -124,7 +150,7 @@ const ReviewStep = ({ address, onBack, onOrderComplete }: ReviewStepProps) => {
             </div>
           </div>
 
-          {/* Order Items Card */}
+          {/* Order Items */}
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
             <div className="flex items-center gap-3 mb-4">
               <div className="p-2 bg-green-100 rounded-lg">
@@ -139,7 +165,7 @@ const ReviewStep = ({ address, onBack, onOrderComplete }: ReviewStepProps) => {
               {items.map((item) => (
                 <div
                   key={item.id}
-                  className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
+                  className="flex items-center justify-between p-4 bg-gray-50 rounded-lg"
                 >
                   <div className="flex items-center gap-4">
                     <div className="w-16 h-16 rounded-lg overflow-hidden bg-white shadow-sm">
@@ -150,18 +176,18 @@ const ReviewStep = ({ address, onBack, onOrderComplete }: ReviewStepProps) => {
                       />
                     </div>
                     <div>
-                      <h4 className="font-medium text-gray-900">{item.name}</h4>
+                      <h4 className="font-medium text-gray-900">
+                        {item.name}
+                      </h4>
                       <p className="text-sm text-gray-500">
                         Quantity: {item.quantity}
                       </p>
                     </div>
                   </div>
+
                   <div className="text-right">
                     <p className="font-semibold text-gray-900">
                       ₹{(item.price * item.quantity).toFixed(2)}
-                    </p>
-                    <p className="text-xs text-gray-500">
-                      ₹{item.price.toFixed(2)} each
                     </p>
                   </div>
                 </div>
@@ -170,95 +196,87 @@ const ReviewStep = ({ address, onBack, onOrderComplete }: ReviewStepProps) => {
           </div>
         </div>
 
-        {/* Right Column - Order Summary */}
+        {/* RIGHT COLUMN */}
         <div className="lg:col-span-1">
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 sticky top-4">
-            <div className="flex items-center gap-3 mb-6">
-              <div className="p-2 bg-purple-100 rounded-lg">
-                <CreditCard className="w-5 h-5 text-purple-600" />
-              </div>
-              <h3 className="text-lg font-semibold text-gray-900">
-                Order Summary
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 sticky top-4 space-y-6">
+            {/* Payment Method */}
+            <div>
+              <h3 className="text-lg font-semibold mb-3">
+                Payment Method
               </h3>
+
+              <label className="flex items-center gap-3 mb-2">
+                <input
+                  type="radio"
+                  value="COD"
+                  checked={paymentMethod === "COD"}
+                  onChange={() => setPaymentMethod("COD")}
+                />
+                <span>Cash on Delivery</span>
+              </label>
+
+              <label className="flex items-center gap-3">
+                <input
+                  type="radio"
+                  value="STRIPE"
+                  checked={paymentMethod === "STRIPE"}
+                  onChange={() => setPaymentMethod("STRIPE")}
+                />
+                <span>Online Payment (Card / UPI)</span>
+              </label>
             </div>
 
-            <div className="space-y-3 mb-6">
-              <div className="flex justify-between text-sm">
-                <span className="text-gray-600">Subtotal</span>
-                <span className="font-medium text-gray-900">
-                  ₹{total.toFixed(2)}
-                </span>
+            {/* Summary */}
+            <div className="border-t pt-4 space-y-3">
+              <div className="flex justify-between">
+                <span>Subtotal</span>
+                <span>₹{total.toFixed(2)}</span>
               </div>
 
-              <div className="flex justify-between text-sm">
-                <span className="text-gray-600">Shipping</span>
-                <span className="font-medium text-green-600">Free</span>
-              </div>
-
-              {/* <div className="flex justify-between text-sm">
-                <span className="text-gray-600">Tax (estimated)</span>
-                <span className="font-medium text-gray-900">
-                  ₹{(total * 0.1).toFixed(2)}
-                </span>
-              </div> */}
-
-              <div className="border-t border-gray-200 pt-3 mt-3">
-                <div className="flex justify-between">
-                  <span className="text-base font-semibold text-gray-900">
-                    Total
-                  </span>
-                  <span className="text-xl font-bold text-green-600">
-                    ₹{total.toFixed(2)}
-                  </span>
-                </div>
+              <div className="flex justify-between font-bold text-green-600">
+                <span>Total</span>
+                <span>₹{total.toFixed(2)}</span>
               </div>
             </div>
 
-            <div className="space-y-3">
-              <button
-                onClick={handlePlaceOrder}
-                className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-4 px-6 rounded-lg transition-colors duration-200 shadow-md hover:shadow-lg flex items-center justify-center gap-2 group"
-              >
-                <CreditCard className="w-5 h-5" />
-                {loading
-                  ? "Placing Order..."
-                  : "Place Order (Cash on Delivery)"}
-              </button>
+            {/* Place Order Button */}
+            <button
+  onClick={handlePlaceOrder}
+  disabled={isProcessing}
+  className={`w-full py-4 px-6 rounded-lg font-semibold transition-colors
+    ${
+      isProcessing
+        ? "bg-gray-400 cursor-not-allowed"
+        : "bg-green-600 hover:bg-green-700 text-white"
+    }`}
+>
+  {isProcessing
+    ? paymentMethod === "COD"
+      ? "Placing Order..."
+      : "Redirecting to Payment..."
+    : paymentMethod === "COD"
+    ? "Place Order (Cash on Delivery)"
+    : "Pay Now"}
+</button>
 
-              <button
-                onClick={onBack}
-                className="w-full bg-white border-2 border-gray-300 hover:border-gray-400 text-gray-700 font-semibold py-3 px-6 rounded-lg transition-colors duration-200 flex items-center justify-center gap-2"
-              >
-                <ChevronLeft className="w-5 h-5" />
-                Back to Address
-              </button>
-            </div>
 
-            <div className="mt-6 pt-6 border-t border-gray-200">
-              <div className="flex items-start gap-2 text-xs text-gray-500">
-                <svg
-                  className="w-4 h-4 text-green-600 mt-0.5 flex-shrink-0"
-                  fill="currentColor"
-                  viewBox="0 0 20 20"
-                >
-                  <path
-                    fillRule="evenodd"
-                    d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z"
-                    clipRule="evenodd"
-                  />
-                </svg>
-                <p>
-                  Your payment information is secured with 256-bit SSL
-                  encryption
-                </p>
-              </div>
-            </div>
+            <button
+              onClick={onBack}
+              className="w-full border border-gray-300 py-3 rounded-lg"
+            >
+              <ChevronLeft className="w-5 h-5 inline mr-2" />
+              Back to Address
+            </button>
           </div>
         </div>
       </div>
-      {/* Sucess Modal */}
+
+      {/* Success Modal (Only for COD) */}
       {orderId && (
-        <OrderSuccessModal orderId={orderId} onClose={handleSuccessClose} />
+        <OrderSuccessModal
+          orderId={orderId}
+          onClose={handleSuccessClose}
+        />
       )}
     </div>
   );

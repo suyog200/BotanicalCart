@@ -16,7 +16,7 @@ const ORDER_STATUSES = [
   "CANCELLED",
 ];
 
-const PAYMENT_STATUSES = ["PENDING", "PAID"];
+const PAYMENT_STATUSES = ["PENDING", "PAID", "REFUNDED"];
 
 const getStatusStyle = (status: string) => {
   const styles: { [key: string]: string } = {
@@ -30,9 +30,12 @@ const getStatusStyle = (status: string) => {
 };
 
 const getPaymentStyle = (status: string) => {
-  return status === "PAID"
-    ? "bg-emerald-50 text-emerald-700 border-emerald-200"
-    : "bg-orange-50 text-orange-700 border-orange-200";
+  const styles: { [key: string]: string } = {
+    PAID: "bg-emerald-50 text-emerald-700 border-emerald-200",
+    PENDING: "bg-orange-50 text-orange-700 border-orange-200",
+    REFUNDED: "bg-purple-50 text-purple-700 border-purple-200",
+  };
+  return styles[status] || "bg-gray-50 text-gray-700 border-gray-200";
 };
 
 const OrderDetails = ({ orderId, onClose }: Props) => {
@@ -209,6 +212,35 @@ const OrderDetails = ({ orderId, onClose }: Props) => {
             </div>
           </div>
 
+          {/* Payment Method */}
+          {order.paymentMethod && (
+            <div className="bg-white border border-gray-200 rounded-xl p-5">
+              <div className="flex items-center gap-2 mb-3">
+                <svg
+                  className="w-5 h-5 text-gray-500"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M3 10h18M7 15h10m4 0a1 1 0 11-2 0m2 0a1 1 0 10-2 0m-4-6h.01M7 1h10a2 2 0 012 2v4a2 2 0 01-2 2H7a2 2 0 01-2-2V3a2 2 0 012-2z"
+                  />
+                </svg>
+                <h3 className="text-sm font-semibold text-gray-900">
+                  Payment Method
+                </h3>
+              </div>
+              <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg p-4 border border-blue-100">
+                <p className="text-sm font-medium text-gray-800">
+                  {order.paymentMethod}
+                </p>
+              </div>
+            </div>
+          )}
+
           {/* Order Items */}
           <div className="bg-white border border-gray-200 rounded-xl p-5">
             <h3 className="text-sm font-semibold text-gray-900 mb-4 flex items-center gap-2">
@@ -350,7 +382,8 @@ const OrderDetails = ({ orderId, onClose }: Props) => {
                 <select
                   value={paymentStatus}
                   onChange={(e) => setPaymentStatus(e.target.value)}
-                  className="w-full border-2 border-gray-200 rounded-lg px-4 py-2.5 text-sm focus:border-green-500 focus:outline-none transition-colors"
+                  disabled={order.paymentMethod === "STRIPE"} // add this
+                  className="w-full border-2 border-gray-200 rounded-lg px-4 py-2.5 text-sm focus:border-green-500 focus:outline-none transition-colors disabled:bg-gray-100 disabled:cursor-not-allowed disabled:text-gray-400"
                 >
                   {PAYMENT_STATUSES.map((status) => (
                     <option key={status} value={status}>
@@ -358,6 +391,11 @@ const OrderDetails = ({ orderId, onClose }: Props) => {
                     </option>
                   ))}
                 </select>
+                {order.paymentMethod === "STRIPE" && (
+                  <p className="text-xs text-gray-400 mt-1">
+                    Payment status is managed automatically for Stripe orders.
+                  </p>
+                )}
               </div>
             </div>
           </div>

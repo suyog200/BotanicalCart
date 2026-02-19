@@ -20,6 +20,8 @@ import CheckoutPage from "./pages/customer/CheckoutPage";
 import OrdersPage from "./pages/customer/OrdersPage";
 import OrderEnquiryPage from "./pages/customer/OrderEnquiryPage";
 import ProductsPage from "./pages/customer/ProductsPage";
+import PaymentSuccess from "./pages/customer/PaymentSucess";
+import PaymentCancel from "./pages/customer/PaymentCancel";
 import ProtectedRoute from "./auth/ProtectedRoute";
 import { lazy, Suspense } from "react";
 const WishlistPage = lazy(() => import("./pages/customer/WishlistPage"));
@@ -47,6 +49,8 @@ const App = () => {
           <Route path="/checkout" element={<CheckoutPage />} />
           <Route path="/orders" element={<OrdersPage />} />
           <Route path="/products" element={<ProductsPage />} />
+          <Route path="/payment-success" element={<PaymentSuccess />} />
+          <Route path="/payment-cancel" element={<PaymentCancel />} />
           <Route
             path="/orders/:orderId/enquire"
             element={<OrderEnquiryPage />}
