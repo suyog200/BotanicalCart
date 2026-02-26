@@ -7,7 +7,7 @@ import { useAppContext } from "@/context/AppContext";
 import { useUser } from "@clerk/clerk-react";
 import Badges from "@/components/Badges";
 import SimilarPlants from "@/components/SimilarPlants";
-import PlantReviews from "@/components/PlantReviews";
+import ProductReviews from "@/components/ProductReviews";
 import { useFetchSingleProduct } from "@/hooks/useFetchSingleProduct";
 import { useSimilarProducts } from "@/hooks/useFetchSimilarProduct";
 import { useWishlist } from "@/hooks/useWishlist";
@@ -21,9 +21,14 @@ export default function ProductDetails() {
   const { id } = useParams<{ id: string }>();
   const { user } = useUser();
   const { addToCart, updateQuantity, items } = useAppContext();
-
-  const { product: plant, isLoading, error, refetch } = useFetchSingleProduct(id);
-  const { similarProducts, isLoading: loadingSimilar } = useSimilarProducts(plant);
+  const {
+    product: plant,
+    isLoading,
+    error,
+    refetch,
+  } = useFetchSingleProduct(id);
+  const { similarProducts, isLoading: loadingSimilar } =
+    useSimilarProducts(plant);
   const wishlist = useWishlist(1, 20);
   const wishlisted = wishlist.isWishlisted(id ?? "");
 
@@ -63,7 +68,11 @@ export default function ProductDetails() {
 
     try {
       await wishlist.toggle({ id });
-      toast.success(wishlist.isWishlisted(id) ? "Added to wishlist" : "Removed from wishlist");
+      toast.success(
+        wishlist.isWishlisted(id)
+          ? "Added to wishlist"
+          : "Removed from wishlist",
+      );
     } catch (err) {
       console.error("Wishlist toggle error:", err);
       toast.error("Could not update wishlist. Try again.");
@@ -80,7 +89,9 @@ export default function ProductDetails() {
               <h3 className="text-xl font-semibold text-foreground mb-2">
                 Loading Product...
               </h3>
-              <p className="text-muted-foreground">Fetching product details for you</p>
+              <p className="text-muted-foreground">
+                Fetching product details for you
+              </p>
             </div>
           </div>
         </div>
@@ -105,12 +116,15 @@ export default function ProductDetails() {
           <div className="flex flex-col items-center justify-center py-16 text-center">
             <AlertCircle className="h-16 w-16 text-red-400 mb-4" />
             <h1 className="text-2xl font-bold text-foreground mb-4">
-              {error === "Product not found" ? "Plant Not Found" : "Failed to Load Plant"}
+              {error === "Product not found"
+                ? "Plant Not Found"
+                : "Failed to Load Plant"}
             </h1>
             <p className="text-muted-foreground mb-6">
               {error === "Product not found"
                 ? "The plant you are looking for does not exist or may have been removed."
-                : error || "Something went wrong while loading the plant details."}
+                : error ||
+                  "Something went wrong while loading the plant details."}
             </p>
             <div className="flex gap-4">
               <Link to="/">
@@ -154,9 +168,13 @@ export default function ProductDetails() {
               className="absolute top-2 right-2 bg-white/80 hover:bg-white text-muted-foreground hover:text-accent transition-all duration-200"
               onClick={handleToggleWishlist}
               aria-pressed={wishlisted}
-              aria-label={wishlisted ? "Remove from wishlist" : "Add to wishlist"}
+              aria-label={
+                wishlisted ? "Remove from wishlist" : "Add to wishlist"
+              }
             >
-              <Heart className={`h-5 w-5 ${wishlisted ? "fill-red-500 text-red-500" : "text-gray-700"}`} />
+              <Heart
+                className={`h-5 w-5 ${wishlisted ? "fill-red-500 text-red-500" : "text-gray-700"}`}
+              />
             </Button>
           </div>
 
@@ -164,7 +182,6 @@ export default function ProductDetails() {
             <ProductHeader
               plant={plant}
               averageRating={averageRating}
-              reviewCount={plantReviews.length}
             />
             <p className="text-lg text-muted-foreground">{plant.description}</p>
             {/* Care Instructions */}
@@ -188,10 +205,13 @@ export default function ProductDetails() {
         </div>
 
         {/* Reviews Section */}
-        <PlantReviews />
+        <ProductReviews productId={plant.id} />
 
         {/* Similar Products */}
-        <SimilarPlants similarPlants={similarProducts} isLoading={loadingSimilar} />
+        <SimilarPlants
+          similarPlants={similarProducts}
+          isLoading={loadingSimilar}
+        />
       </div>
     </div>
   );

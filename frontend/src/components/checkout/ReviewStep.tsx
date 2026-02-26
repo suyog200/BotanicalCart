@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import type { Address } from "@/api/addresses";
 import { useAppContext } from "@/context/AppContext";
 import {
@@ -29,53 +29,47 @@ const ReviewStep = ({ address, onBack, onOrderComplete }: ReviewStepProps) => {
   const [paymentMethod, setPaymentMethod] = useState<"COD" | "STRIPE">("COD");
   const isProcessing = loading || stripeMutation.isPending;
 
+  const handlePlaceOrder = async () => {
+    try {
+      if (!items.length) {
+        toast.error("Your cart is empty");
+        return;
+      }
 
-  useEffect(() => {
-    console.log("OrderId state changed:", orderId);
-  }, [orderId]);
+      if (paymentMethod === "COD") {
+        setLoading(true);
 
-const handlePlaceOrder = async () => {
-  try {
-    if (!items.length) {
-      toast.error("Your cart is empty");
-      return;
+        const payload = {
+          items: items.map((item) => ({
+            productId: item.id,
+            quantity: item.quantity,
+          })),
+          ...address,
+          paymentMethod: "COD",
+        };
+
+        const res = await createOrder(payload);
+        setOrderId(res.id);
+        return;
+      }
+
+      if (paymentMethod === "STRIPE") {
+        const stripeData = await stripeMutation.mutateAsync({
+          items: items.map((item) => ({
+            productId: item.id,
+            quantity: item.quantity,
+          })),
+          addressId: address.id,
+        });
+
+        window.location.href = stripeData.url;
+      }
+    } catch (error: any) {
+      toast.error(error?.response?.data?.message || "Failed to place order");
+    } finally {
+      setLoading(false);
     }
-
-    if (paymentMethod === "COD") {
-      setLoading(true);
-
-      const payload = {
-        items: items.map((item) => ({
-          productId: item.id,
-          quantity: item.quantity,
-        })),
-        ...address,
-        paymentMethod: "COD",
-      };
-
-      const res = await createOrder(payload);
-      setOrderId(res.id);
-      return;
-    }
-
-    if (paymentMethod === "STRIPE") {
-      const stripeData = await stripeMutation.mutateAsync({
-        items: items.map((item) => ({
-          productId: item.id,
-          quantity: item.quantity,
-        })),
-        addressId: address.id,
-      });
-
-      window.location.href = stripeData.url;
-    }
-  } catch (error: any) {
-    toast.error(error?.response?.data?.message || "Failed to place order");
-  } finally {
-    setLoading(false);
-  }
-};
-
+  };
 
   const handleSuccessClose = () => {
     onOrderComplete();
@@ -176,9 +170,7 @@ const handlePlaceOrder = async () => {
                       />
                     </div>
                     <div>
-                      <h4 className="font-medium text-gray-900">
-                        {item.name}
-                      </h4>
+                      <h4 className="font-medium text-gray-900">{item.name}</h4>
                       <p className="text-sm text-gray-500">
                         Quantity: {item.quantity}
                       </p>
@@ -201,9 +193,7 @@ const handlePlaceOrder = async () => {
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 sticky top-4 space-y-6">
             {/* Payment Method */}
             <div>
-              <h3 className="text-lg font-semibold mb-3">
-                Payment Method
-              </h3>
+              <h3 className="text-lg font-semibold mb-3">Payment Method</h3>
 
               <label className="flex items-center gap-3 mb-2">
                 <input
@@ -241,24 +231,23 @@ const handlePlaceOrder = async () => {
 
             {/* Place Order Button */}
             <button
-  onClick={handlePlaceOrder}
-  disabled={isProcessing}
-  className={`w-full py-4 px-6 rounded-lg font-semibold transition-colors
+              onClick={handlePlaceOrder}
+              disabled={isProcessing}
+              className={`w-full py-4 px-6 rounded-lg font-semibold transition-colors
     ${
       isProcessing
         ? "bg-gray-400 cursor-not-allowed"
         : "bg-green-600 hover:bg-green-700 text-white"
     }`}
->
-  {isProcessing
-    ? paymentMethod === "COD"
-      ? "Placing Order..."
-      : "Redirecting to Payment..."
-    : paymentMethod === "COD"
-    ? "Place Order (Cash on Delivery)"
-    : "Pay Now"}
-</button>
-
+            >
+              {isProcessing
+                ? paymentMethod === "COD"
+                  ? "Placing Order..."
+                  : "Redirecting to Payment..."
+                : paymentMethod === "COD"
+                  ? "Place Order (Cash on Delivery)"
+                  : "Pay Now"}
+            </button>
 
             <button
               onClick={onBack}
@@ -273,10 +262,7 @@ const handlePlaceOrder = async () => {
 
       {/* Success Modal (Only for COD) */}
       {orderId && (
-        <OrderSuccessModal
-          orderId={orderId}
-          onClose={handleSuccessClose}
-        />
+        <OrderSuccessModal orderId={orderId} onClose={handleSuccessClose} />
       )}
     </div>
   );

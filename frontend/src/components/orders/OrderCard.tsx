@@ -1,5 +1,10 @@
 import { useState } from "react";
-import { Calendar, ChevronDown, ChevronUp, MessageSquare } from "lucide-react";
+import {
+  Calendar,
+  ChevronDown,
+  ChevronUp,
+  MessageSquare,
+} from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import type { Order } from "@/types/order";
 import { getStatusConfig } from "@/utils/orderUtils";
@@ -8,6 +13,8 @@ import ShippingAddress from "./ShippingAddress";
 import PaymentInfo from "./PaymentInfo";
 import CancelOrderButton from "./CancelOrderButton";
 import OrderEnquiries from "./OrderEnquiries";
+import ReviewModal from "../modals/ReviewModal";
+import { useReviewEligibility } from "@/hooks/useReviewElgibility";
 
 interface OrderCardProps {
   order: Order;
@@ -17,6 +24,10 @@ const OrderCard = ({ order }: OrderCardProps) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const navigate = useNavigate();
   const statusConfig = getStatusConfig(order.status);
+  const [showReviewModal, setShowReviewModal] = useState(false);
+  const { data: eligibility } = useReviewEligibility(
+    order.items && order.items.length > 0 ? order.items[0].productId : "",
+  );
 
   return (
     <div className="bg-white rounded-lg shadow-md border border-gray-200 overflow-hidden hover:shadow-lg transition-shadow">
@@ -112,8 +123,33 @@ const OrderCard = ({ order }: OrderCardProps) => {
               </button>
             </div>
 
-            {/* Order Enquiries */}
-            <OrderEnquiries orderId={order.id} />
+            {/* Order Enquiries & Reviews Section */}
+            <div className="border-t border-gray-200 pt-4 mt-4">
+              <div className="mb-4">
+                <OrderEnquiries orderId={order.id} />
+              </div>
+              {order.status === "DELIVERED" && eligibility?.eligible && (
+                <button
+                  onClick={() => setShowReviewModal(true)}
+                  className="mt-3 px-3 py-1 text-sm bg-green-600 text-white rounded-lg"
+                >
+                  Write Review
+                </button>
+              )}
+
+              {order.status === "DELIVERED" && eligibility?.alreadyReviewed && (
+                <p className="mt-3 text-sm text-gray-500">
+                  You already reviewed this product.
+                </p>
+              )}
+
+              {showReviewModal && (
+                <ReviewModal
+                  productId={order.items[0].productId}
+                  onClose={() => setShowReviewModal(false)}
+                />
+              )}
+            </div>
           </div>
         )}
       </div>
