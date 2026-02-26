@@ -1,6 +1,5 @@
 import React from "react";
 import { Badge } from "@/components/ui/badge";
-import { Star } from "lucide-react";
 import { getCategoryColor } from "@/lib/colorCategories";
 import type { Category } from "@/types/types";
 
@@ -15,7 +14,6 @@ interface ProductHeaderProps {
 
 const ProductHeader: React.FC<ProductHeaderProps> = ({
   plant,
-  averageRating
 }) => {
   return (
     <div>

@@ -8,6 +8,7 @@ import { Button } from "./ui/button";
 import { Heart } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { getCategoryColor } from "@/lib/colorCategories";
+import { useProductReviews } from "@/hooks/useProductReviews";
 import toast from "react-hot-toast";
 
 interface PlantCardProps {
@@ -16,12 +17,16 @@ interface PlantCardProps {
 
 const PlantCard = ({ plant }: PlantCardProps) => {
   const { addToCart } = useAppContext();
+  const { data: reviewsData } = useProductReviews(plant.id);
 
   const wishlist = useWishlist(1, 20);
   const wishlisted = wishlist.isWishlisted(plant.id);
 
   // Primary category for badge
   const primaryCategory = plant.categories?.[0]?.name || "Unknown";
+
+  const reviews = reviewsData?.reviews || [];
+  const avgRating = reviewsData?.averageRating || null;
 
   const handleToggle = async (e: React.MouseEvent) => {
     // prevent card click (navigation) when toggling wishlist
@@ -116,25 +121,39 @@ const PlantCard = ({ plant }: PlantCardProps) => {
           {/* Rating Stars */}
           <div className="flex items-center mt-2.5 mb-5">
             <div className="flex items-center space-x-1 rtl:space-x-reverse">
-              {[...Array(5)].map((_, index) => (
-                <svg
-                  key={index}
-                  className={`w-4 h-4 ${
-                    index < 4
-                      ? "text-yellow-300"
-                      : "text-gray-200 dark:text-gray-600"
-                  }`}
-                  aria-hidden="true"
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="currentColor"
-                  viewBox="0 0 22 20"
-                >
-                  <path d="M20.924 7.625a1.523 1.523 0 0 0-1.238-1.044l-5.051-.734-2.259-4.577a1.534 1.534 0 0 0-2.752 0L7.365 5.847l-5.051.734A1.535 1.535 0 0 0 1.463 9.2l3.656 3.563-.863 5.031a1.532 1.532 0 0 0 2.226 1.616L11 17.033l4.518 2.375a1.534 1.534 0 0 0 2.226-1.617l-.863-5.03L20.537 9.2a1.523 1.523 0 0 0 .387-1.575Z" />
-                </svg>
-              ))}
+              {reviews && reviews.length > 0 && avgRating ? (
+                <>
+                  {[...Array(5)].map((_, i) => {
+                    const ratingValue = i + 1;
+                    return (
+                      <svg
+                        key={i}
+                        width="14"
+                        height="14"
+                        viewBox="0 0 14 14"
+                        fill={
+                          ratingValue <= Math.round(avgRating)
+                            ? "#FBBF24"
+                            : "none"
+                        }
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path
+                          d="M7 0L8.66 4.47H13.66L9.5 7.24L11.16 11.71L7 8.94L2.84 11.71L4.5 7.24L0.34 4.47H5.34L7 0Z"
+                          stroke="#FBBF24"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        />
+                      </svg>
+                    );
+                  })}
+                </>
+              ) : (
+                <span className="text-gray-400 text-sm">No reviews</span>
+              )}
             </div>
-            <span className="bg-blue-100 text-blue-800 text-xs font-semibold px-2.5 py-0.5 rounded-sm dark:bg-blue-200 dark:text-blue-800 ms-3">
-              4.0
+            <span className="bg-blue-100 text-blue-800 mt-0.5 ml-2 px-1.5 py-0.5 rounded text-xs font-medium">
+              {avgRating ?? "N/A"}
             </span>
           </div>
         </div>

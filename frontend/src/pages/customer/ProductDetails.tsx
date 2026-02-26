@@ -2,7 +2,6 @@ import { useParams, Link } from "react-router-dom";
 import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Heart, ArrowLeft, Loader, AlertCircle } from "lucide-react";
-import { reviews } from "@/data/plantReviews";
 import { useAppContext } from "@/context/AppContext";
 import { useUser } from "@clerk/clerk-react";
 import Badges from "@/components/Badges";
@@ -11,6 +10,7 @@ import ProductReviews from "@/components/ProductReviews";
 import { useFetchSingleProduct } from "@/hooks/useFetchSingleProduct";
 import { useSimilarProducts } from "@/hooks/useFetchSimilarProduct";
 import { useWishlist } from "@/hooks/useWishlist";
+import { useProductReviews } from "@/hooks/useProductReviews";
 import toast from "react-hot-toast";
 import CareInstructions from "@/components/CareInstructions";
 import StockInfo from "@/components/StockInfo";
@@ -29,8 +29,11 @@ export default function ProductDetails() {
   } = useFetchSingleProduct(id);
   const { similarProducts, isLoading: loadingSimilar } =
     useSimilarProducts(plant);
+  const { data: reviewsData } = useProductReviews(id ?? "");
   const wishlist = useWishlist(1, 20);
   const wishlisted = wishlist.isWishlisted(id ?? "");
+
+  const averageRating = reviewsData?.averageRating ?? 0;
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -38,12 +41,6 @@ export default function ProductDetails() {
 
   const cartItem = items.find((item) => item.id === plant?.id);
   const quantity = cartItem?.quantity ?? 0;
-
-  const plantReviews = reviews.filter((r) => r.plantId === id);
-  const averageRating =
-    plantReviews.length > 0
-      ? plantReviews.reduce((sum, r) => sum + r.rating, 0) / plantReviews.length
-      : 0;
 
   const handleAddToCart = () => {
     if (!plant) return;
@@ -179,10 +176,7 @@ export default function ProductDetails() {
           </div>
 
           <div className="space-y-6">
-            <ProductHeader
-              plant={plant}
-              averageRating={averageRating}
-            />
+            <ProductHeader plant={plant} averageRating={averageRating} />
             <p className="text-lg text-muted-foreground">{plant.description}</p>
             {/* Care Instructions */}
             {plant.careInstructions && plant.careInstructions.length > 0 && (
