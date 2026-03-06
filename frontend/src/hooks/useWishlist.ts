@@ -67,7 +67,7 @@ export function useWishlist(page = 1, limit = 50) {
 
       return { previous };
     },
-    onError: (err, variables, context) => {
+    onError: (_err, _variables, context) => {
       if (context?.previous) {
         queryClient.setQueryData(
           [...WISHLIST_QUERY_KEY, { page, limit }],
@@ -116,7 +116,7 @@ export function useWishlist(page = 1, limit = 50) {
 
       return { previous };
     },
-    onError: (err, variables, context) => {
+    onError: (_err, _variables, context) => {
       if (context?.previous) {
         queryClient.setQueryData(
           [...WISHLIST_QUERY_KEY, { page, limit }],

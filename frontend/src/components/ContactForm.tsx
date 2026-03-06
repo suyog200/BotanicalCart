@@ -6,20 +6,14 @@ import { ContactFormSchema } from "@/lib/validation";
 const ContactForm = () => {
   const form = useForm<z.infer<typeof ContactFormSchema>>({
     resolver: zodResolver(ContactFormSchema),
-    defaultValues: {
-      email: "",
-      subject: "",
-      message: "",
-    },
+    defaultValues: { email: "", subject: "", message: "" },
   });
 
+  const { isSubmitting, errors } = form.formState;
+
   async function handleSubmit(values: z.infer<typeof ContactFormSchema>) {
-    // Handle form submission
     console.log(values);
   }
-
-  // Use isSubmitting from react-hook-form
-  const isSubmitting = form.formState.isSubmitting;
 
   return (
     <section className="rounded-2xl bg-[var(--newsletter-background)]">
@@ -31,12 +25,11 @@ const ContactForm = () => {
           Got a technical issue? Want to send feedback about a beta feature?
           Need details about our Business plan? Let us know.
         </p>
+
         <form className="space-y-8" onSubmit={form.handleSubmit(handleSubmit)}>
+          {/* Email */}
           <div>
-            <label
-              htmlFor="email"
-              className="block mb-2 text-sm font-medium text-gray-900"
-            >
+            <label htmlFor="email" className="block mb-2 text-sm font-medium text-gray-900">
               Your email
             </label>
             <input
@@ -44,19 +37,16 @@ const ContactForm = () => {
               id="email"
               {...form.register("email")}
               className="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-green-500 focus:border-primary-500 block w-full p-2.5"
-              placeholder="name@flowbite.com"
+              placeholder="name@example.com"
             />
+            {errors.email && (
+              <p className="mt-1 text-sm text-red-600">{errors.email.message}</p>
+            )}
           </div>
-          {form.formState.errors.email && (
-            <p className="text-sm text-red-600">
-              {form.formState.errors.email.message}
-            </p>
-          )}
+
+          {/* Subject */}
           <div>
-            <label
-              htmlFor="subject"
-              className="block mb-2 text-sm font-medium text-gray-900"
-            >
+            <label htmlFor="subject" className="block mb-2 text-sm font-medium text-gray-900">
               Subject
             </label>
             <input
@@ -66,17 +56,14 @@ const ContactForm = () => {
               className="block p-3 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 shadow-sm focus:ring-green-500 focus:border-primary-500"
               placeholder="Let us know how we can help you"
             />
-            {form.formState.errors.subject && (
-              <p className="text-sm text-red-600">
-                {form.formState.errors.subject.message}
-              </p>
+            {errors.subject && (
+              <p className="mt-1 text-sm text-red-600">{errors.subject.message}</p>
             )}
           </div>
-          <div className="sm:col-span-2">
-            <label
-              htmlFor="message"
-              className="block mb-2 text-sm font-medium text-gray-900"
-            >
+
+          {/* Message */}
+          <div>
+            <label htmlFor="message" className="block mb-2 text-sm font-medium text-gray-900">
               Your message
             </label>
             <textarea
@@ -85,25 +72,21 @@ const ContactForm = () => {
               {...form.register("message")}
               className="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg shadow-sm border border-gray-300 focus:ring-green-500 focus:border-primary-500"
               placeholder="Leave a comment..."
-            ></textarea>
-            {form.formState.errors.message && (
-              <p className="text-sm text-red-600">
-                {form.formState.errors.message.message}
-              </p>
+            />
+            {errors.message && (
+              <p className="mt-1 text-sm text-red-600">{errors.message.message}</p>
             )}
           </div>
+
           <button
             type="submit"
-            className={`py-3 px-5 text-sm font-medium text-center text-white rounded-lg sm:w-fit focus:ring-4 focus:outline-none focus:ring-primary-300 cursor-pointer transition-colors duration-200 ${
-              isSubmitting
-                ? "bg-gray-400 cursor-not-allowed"
-                : "bg-primary hover:bg-primary-800"
-            }`}
             disabled={isSubmitting}
             aria-busy={isSubmitting}
-            aria-disabled={isSubmitting}
+            className={`py-3 px-5 text-sm font-medium text-white rounded-lg sm:w-fit focus:ring-4 focus:outline-none focus:ring-primary-300 transition-colors duration-200 ${
+              isSubmitting ? "bg-gray-400 cursor-not-allowed" : "bg-primary hover:bg-primary-800 cursor-pointer"
+            }`}
           >
-            {isSubmitting ? <span>Sending…</span> : <span>Send message</span>}
+            {isSubmitting ? "Sending…" : "Send message"}
           </button>
         </form>
       </div>

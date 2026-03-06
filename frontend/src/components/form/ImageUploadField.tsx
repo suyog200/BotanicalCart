@@ -1,4 +1,3 @@
-import { useId } from "react";
 import { Upload, X } from "lucide-react";
 import { Button } from "../ui/button";
 import { Card, CardContent } from "../ui/card";
@@ -51,6 +50,7 @@ export const ImageUploadField = ({
               src={imagePreview}
               alt={`${label} preview`}
               className="w-full h-48 object-cover rounded-lg"
+              loading="lazy"
             />
             <Button
               type="button"

@@ -1,12 +1,28 @@
-import React from "react";
+import React, { useCallback } from "react";
 import { NavLink, Link } from "react-router-dom";
 import { Search, X } from "lucide-react";
 import { useAppContext } from "../context/AppContext";
-import { useUser } from "@clerk/clerk-react";
-import { UserButton } from "@clerk/clerk-react";
+import { useUser, UserButton } from "@clerk/clerk-react";
 import ShinyButton from "./ui/shinyButton";
 import SearchBar from "./SearchBar";
 import { ColorfulTextHeader } from "./ColorfulTextHeader";
+
+// Extracted once — used in both desktop and mobile
+const CartIcon = ({ itemCount }: { itemCount: number }) => (
+  <Link to="/cart" className="relative flex-shrink-0" aria-label={`Cart, ${itemCount} items`}>
+    <svg width="18" height="18" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path
+        d="M.583.583h2.333l1.564 7.81a1.17 1.17 0 0 0 1.166.94h5.67a1.17 1.17 0 0 0 1.167-.94l.933-4.893H3.5m2.333 8.75a.583.583 0 1 1-1.167 0 .583.583 0 0 1 1.167 0m6.417 0a.583.583 0 1 1-1.167 0 .583.583 0 0 1 1.167 0"
+        stroke="#1f9350"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+    <span className="absolute -top-2 -right-3 text-xs text-white bg-[var(--color-primary)] w-[18px] h-[18px] rounded-full flex items-center justify-center">
+      {itemCount}
+    </span>
+  </Link>
+);
 
 const Navbar = () => {
   const { user, isSignedIn } = useUser();
@@ -14,23 +30,16 @@ const Navbar = () => {
   const [searchOpen, setSearchOpen] = React.useState(false);
   const { navigate, itemCount } = useAppContext();
 
-  const role = user?.publicMetadata.role;
+  const isAdmin = user?.publicMetadata.role === "admin";
 
-  const isAdmin = role === "admin";
-  const isSeller = role === "seller" || role === "admin";
-
-  const closeAll = () => {
+  const closeAll = useCallback(() => {
     setOpen(false);
     setSearchOpen(false);
-  };
+  }, []);
 
   return (
     <nav className="z-40 flex items-center justify-between px-4 sm:px-6 md:px-12 lg:px-16 xl:px-24 py-3 bg-white/70 transition-all sticky top-0 backdrop-blur-sm">
-      <NavLink
-        to="/"
-        className="text-lg font-semibold flex-shrink-0"
-        onClick={closeAll}
-      >
+      <NavLink to="/" className="text-lg font-semibold flex-shrink-0" onClick={closeAll}>
         <ColorfulTextHeader
           text1=""
           featuredText="Botanical Cart"
@@ -41,80 +50,37 @@ const Navbar = () => {
 
       {/* Desktop Menu */}
       <div className="hidden lg:flex items-center gap-3 xl:gap-5 2xl:gap-6">
-        <NavLink
-          to="/"
-          className="hover:text-primary-dull transition-colors text-sm xl:text-base whitespace-nowrap font-medium"
-        >
+        <NavLink to="/" className="hover:text-primary-dull transition-colors text-sm xl:text-base whitespace-nowrap font-medium">
           Home
         </NavLink>
-        <NavLink
-          to="/about"
-          className="hover:text-primary-dull transition-colors text-sm xl:text-base whitespace-nowrap font-medium"
-        >
+        <NavLink to="/about" className="hover:text-primary-dull transition-colors text-sm xl:text-base whitespace-nowrap font-medium">
           About
         </NavLink>
         {isSignedIn && (
           <>
-            <NavLink
-              to="/orders"
-              className="hover:text-primary-dull transition-colors text-sm xl:text-base whitespace-nowrap font-medium"
-            >
+            <NavLink to="/orders" className="hover:text-primary-dull transition-colors text-sm xl:text-base whitespace-nowrap font-medium">
               Orders
             </NavLink>
-            <NavLink
-              to="/wishlist"
-              className="hover:text-primary-dull transition-colors text-sm xl:text-base whitespace-nowrap font-medium"
-            >
+            <NavLink to="/wishlist" className="hover:text-primary-dull transition-colors text-sm xl:text-base whitespace-nowrap font-medium">
               Wishlist
             </NavLink>
           </>
         )}
         {isAdmin && isSignedIn && (
-          <Link
-            to="/admin/dashboard"
-            className="hover:text-primary-dull transition-colors text-sm xl:text-base whitespace-nowrap font-medium"
-            target="_blank"
-          >
+          <Link to="/admin/dashboard" className="hover:text-primary-dull transition-colors text-sm xl:text-base whitespace-nowrap font-medium" target="_blank">
             Dashboard
           </Link>
         )}
-        <div className="flex-shrink-0">
-          <SearchBar />
-        </div>
-        <div
-          className="relative cursor-pointer flex-shrink-0"
-          onClick={() => navigate?.("/cart")}
-        >
-          <svg
-            width="18"
-            height="18"
-            viewBox="0 0 14 14"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              d="M.583.583h2.333l1.564 7.81a1.17 1.17 0 0 0 1.166.94h5.67a1.17 1.17 0 0 0 1.167-.94l.933-4.893H3.5m2.333 8.75a.583.583 0 1 1-1.167 0 .583.583 0 0 1 1.167 0m6.417 0a.583.583 0 1 1-1.167 0 .583.583 0 0 1 1.167 0"
-              stroke="#1f9350"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
-          <button className="absolute -top-2 -right-3 text-xs text-white bg-[var(--color-primary)] w-[18px] h-[18px] rounded-full">
-            {itemCount}
-          </button>
-        </div>
+
+        <div className="flex-shrink-0"><SearchBar /></div>
+        <CartIcon itemCount={itemCount} />
 
         {!user ? (
           <div className="flex-shrink-0">
-            <ShinyButton
-              text="Login"
-              onClick={() => {
-                navigate?.("/sign-in");
-              }}
-            />
+            <ShinyButton text="Login" onClick={() => navigate?.("/sign-in")} />
           </div>
         ) : (
-          <div className="relative group flex-shrink-0">
+          <div className="flex-shrink-0">
             <UserButton />
           </div>
         )}
@@ -122,135 +88,52 @@ const Navbar = () => {
 
       {/* Mobile/Tablet Actions */}
       <div className="flex items-center gap-3 sm:gap-4 lg:hidden">
-        {/* Search Button */}
-        <button
-          onClick={() => setSearchOpen(!searchOpen)}
-          aria-label="Search"
-          className="p-1"
-        >
-          {searchOpen ? (
-            <X size={20} className="text-gray-600" />
-          ) : (
-            <Search size={20} className="text-gray-600" />
-          )}
+        <button onClick={() => setSearchOpen((prev) => !prev)} aria-label="Search" className="p-1">
+          {searchOpen ? <X size={20} className="text-gray-600" /> : <Search size={20} className="text-gray-600" />}
         </button>
 
-        {/* Cart */}
-        <div
-          className="relative cursor-pointer"
-          onClick={() => navigate?.("/cart")}
-        >
-          <svg
-            width="18"
-            height="18"
-            viewBox="0 0 14 14"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              d="M.583.583h2.333l1.564 7.81a1.17 1.17 0 0 0 1.166.94h5.67a1.17 1.17 0 0 0 1.167-.94l.933-4.893H3.5m2.333 8.75a.583.583 0 1 1-1.167 0 .583.583 0 0 1 1.167 0m6.417 0a.583.583 0 1 1-1.167 0 .583.583 0 0 1 1.167 0"
-              stroke="#1f9350"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
-          <button className="absolute -top-2 -right-3 text-xs text-white bg-[var(--color-primary)] w-[18px] h-[18px] rounded-full">
-            {itemCount}
-          </button>
-        </div>
+        <CartIcon itemCount={itemCount} />
 
-        {/* Menu Button */}
-        <button onClick={() => setOpen(!open)} aria-label="Menu">
-          <svg
-            width="21"
-            height="15"
-            viewBox="0 0 21 15"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-          >
+        <button onClick={() => setOpen((prev) => !prev)} aria-label="Menu">
+          <svg width="21" height="15" viewBox="0 0 21 15" fill="none" xmlns="http://www.w3.org/2000/svg">
             <rect width="21" height="1.5" rx=".75" fill="#426287" />
             <rect x="8" y="6" width="13" height="1.5" rx=".75" fill="#426287" />
-            <rect
-              x="6"
-              y="13"
-              width="15"
-              height="1.5"
-              rx=".75"
-              fill="#426287"
-            />
+            <rect x="6" y="13" width="15" height="1.5" rx=".75" fill="#426287" />
           </svg>
         </button>
       </div>
 
-      {/* Mobile/Tablet Search Bar - Expandable */}
+      {/* Mobile Search Dropdown */}
       {searchOpen && (
         <div className="absolute top-full left-0 w-full bg-white/95 backdrop-blur-sm shadow-md p-4 lg:hidden z-50 border-t">
           <SearchBar />
         </div>
       )}
 
-      {/* Mobile/Tablet Menu */}
+      {/* Mobile Menu */}
       {open && (
-        <div
-          className={`${
-            open ? "flex" : "hidden"
-          } absolute top-full left-0 w-full bg-white/95 shadow-md py-4 flex-col items-start gap-2 px-5 text-sm lg:hidden backdrop-blur-sm transition-all border-t z-40`}
-        >
-          <NavLink
-            to="/"
-            className="block py-2 hover:text-primary-dull w-full"
-            onClick={closeAll}
-          >
-            Home
-          </NavLink>
-          <NavLink
-            to="/about"
-            className="block py-2 hover:text-primary-dull w-full"
-            onClick={closeAll}
-          >
-            About
-          </NavLink>
-          {user && (
+        <div className="absolute top-full left-0 w-full bg-white/95 shadow-md py-4 flex flex-col items-start gap-2 px-5 text-sm lg:hidden backdrop-blur-sm border-t z-40">
+          <NavLink to="/" className="block py-2 hover:text-primary-dull w-full" onClick={closeAll}>Home</NavLink>
+          <NavLink to="/about" className="block py-2 hover:text-primary-dull w-full" onClick={closeAll}>About</NavLink>
+          {isSignedIn && (
             <>
-              <NavLink
-                to="/orders"
-                className="block py-2 hover:text-primary-dull w-full"
-                onClick={closeAll}
-              >
-                Orders
-              </NavLink>
-              <NavLink
-                to="/wishlist"
-                className="block py-2 hover:text-primary-dull w-full"
-                onClick={closeAll}
-              >
-                Wishlist
-              </NavLink>
+              <NavLink to="/orders" className="block py-2 hover:text-primary-dull w-full" onClick={closeAll}>Orders</NavLink>
+              <NavLink to="/wishlist" className="block py-2 hover:text-primary-dull w-full" onClick={closeAll}>Wishlist</NavLink>
             </>
           )}
 
-          {/* Divider */}
-          <div className="w-full h-px bg-gray-200 my-2"></div>
+          <div className="w-full h-px bg-gray-200 my-2" />
 
           {!user ? (
             <button
               className="cursor-pointer px-6 py-2 bg-primary hover:bg-primary-dull transition text-white rounded-full text-sm"
-              onClick={() => {
-                closeAll();
-                navigate?.("/sign-in");
-              }}
+              onClick={() => { closeAll(); navigate?.("/sign-in"); }}
             >
               Login
             </button>
           ) : (
             <div className="py-2">
-              <UserButton
-                appearance={{
-                  elements: {
-                    userButtonBox: "ring-1 ring-gray-300 rounded-full",
-                  },
-                }}
-              />
+              <UserButton appearance={{ elements: { userButtonBox: "ring-1 ring-gray-300 rounded-full" } }} />
             </div>
           )}
         </div>

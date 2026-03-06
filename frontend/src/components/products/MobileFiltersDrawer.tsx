@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { CategoryFilter } from "./CategoryFilter";
 import { PriceFilter, type SortOption } from "./PriceFilter";
 import { PriceRangeFilter } from "./PriceRangeFilter";
+import { X } from "lucide-react";
 
 interface MobileFiltersDrawerProps {
   isOpen: boolean;
@@ -24,15 +25,10 @@ export const MobileFiltersDrawer: React.FC<MobileFiltersDrawerProps> = ({
   sortBy,
   onSortChange,
 }) => {
-  // Prevent body scroll when drawer is open
   useEffect(() => {
-    if (isOpen) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "unset";
-    }
+    document.body.style.overflow = isOpen ? "hidden" : "";
     return () => {
-      document.body.style.overflow = "unset";
+      document.body.style.overflow = ""; // "" removes inline style, restores stylesheet
     };
   }, [isOpen]);
 
@@ -42,19 +38,33 @@ export const MobileFiltersDrawer: React.FC<MobileFiltersDrawerProps> = ({
     onSortChange("default");
   };
 
-  if (!isOpen) return null;
+  // Don't unmount — use visibility so slide-out animation plays
+  if (!isOpen && typeof window !== "undefined") {
+    const drawerVisible = document.querySelector("[data-drawer]");
+    if (!drawerVisible) return null; // first render, never opened
+  }
 
   return (
     <>
       {/* Backdrop */}
       <div
-        className="fixed inset-0 bg-black/50 z-40 lg:hidden animate-fade-in"
+        className={`fixed inset-0 bg-black/50 z-40 lg:hidden transition-opacity duration-300 ${
+          isOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
+        }`}
         onClick={onClose}
         aria-hidden="true"
       />
 
       {/* Drawer */}
-      <div className="fixed inset-y-0 left-0 w-full max-w-sm bg-white z-50 overflow-y-auto lg:hidden animate-slide-in-left shadow-2xl">
+      <div
+        data-drawer
+        className={`fixed inset-y-0 left-0 w-full max-w-sm bg-white z-50 overflow-y-auto lg:hidden shadow-2xl transition-transform duration-300 ease-in-out ${
+          isOpen ? "translate-x-0" : "-translate-x-full"
+        }`}
+        role="dialog"
+        aria-modal="true"
+        aria-label="Filters"
+      >
         {/* Header */}
         <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between z-10">
           <h2 className="text-xl font-bold text-gray-800">Filters</h2>
@@ -63,44 +73,26 @@ export const MobileFiltersDrawer: React.FC<MobileFiltersDrawerProps> = ({
             className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
             aria-label="Close filters"
           >
-            <svg
-              className="w-6 h-6 text-gray-600"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M6 18L18 6M6 6l12 12"
-              />
-            </svg>
+            <X className="w-6 h-6 text-gray-600" />
           </button>
         </div>
 
         {/* Content */}
         <div className="p-6 space-y-6">
           <div className="pb-6 border-b border-gray-100">
-            <CategoryFilter
-              selected={categoryIds}
-              onChange={onCategoryChange}
-            />
+            <CategoryFilter selected={categoryIds} onChange={onCategoryChange} />
           </div>
-
           <div className="pb-6 border-b border-gray-100">
             <PriceRangeFilter value={priceRange} onChange={onPriceChange} />
           </div>
-
           <div className="pb-6 border-b border-gray-100">
             <PriceFilter value={sortBy} onChange={onSortChange} />
           </div>
 
-          {/* Action Buttons */}
           <div className="flex gap-3 pt-2">
             <button
               onClick={handleClearAll}
-              className="flex-1 px-4 py-3 border-2 border-gray-200 rounded-lg font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+              className="flex-1 px-4 py-3 border-2 border-gray-200 rounded-lg font-medium text-gray-700 hover:bg-gray.50 transition-colors"
             >
               Clear All
             </button>

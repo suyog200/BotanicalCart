@@ -189,6 +189,7 @@ export default function SearchResults(): JSX.Element {
                   src={product.imageUrl ?? "/placeholder.png"}
                   alt={product.name}
                   className="w-full h-full object-cover"
+                  loading="lazy"
                   onError={(e) => {
                     const target = e.target as HTMLImageElement;
                     target.src = "/placeholder.png";

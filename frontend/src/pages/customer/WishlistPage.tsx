@@ -3,14 +3,19 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { useAppContext } from "@/context/AppContext";
 import WishlistItemCard from "@/components/WishlistItemCard";
-import { useWishlist } from "@/hooks/useWishlist"; 
+import { useWishlist } from "@/hooks/useWishlist";
 
 const WishlistPage: React.FC = () => {
-  const { addToCart } = useAppContext(); 
+  const { addToCart } = useAppContext();
   const page = 1;
   const limit = 20;
 
-  const { data: wishlistResponse, isLoading, isError, add, remove, toggle, isWishlisted } = useWishlist(page, limit);
+  const {
+    data: wishlistResponse,
+    isLoading,
+    isError,
+    remove,
+  } = useWishlist(page, limit);
 
   const items = wishlistResponse?.data ?? [];
   const total = wishlistResponse?.total ?? 0;
@@ -33,7 +38,10 @@ const WishlistPage: React.FC = () => {
       <div className="py-16 text-center">
         <h2 className="text-2xl font-semibold">Your wishlist is empty</h2>
         <p className="text-gray-500 mt-2">Start adding your favorite plants!</p>
-        <Link to="/" className="inline-block mt-6 bg-[var(--color-primary)] text-white px-6 py-2 rounded-full">
+        <Link
+          to="/"
+          className="inline-block mt-6 bg-[var(--color-primary)] text-white px-6 py-2 rounded-full"
+        >
           Browse plants
         </Link>
       </div>

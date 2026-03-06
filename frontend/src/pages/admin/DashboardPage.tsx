@@ -1,17 +1,32 @@
-import {
-  Clock,
-  Package,
-  TrendingUp,
-  User,
-  Star,
-} from "lucide-react";
+import { Clock, Package, TrendingUp, User, Star } from "lucide-react";
+import { Suspense, lazy } from "react";
 import OverviewCards from "@/components/adminComponents/OverviewCards";
 import { useDashboardStats } from "@/hooks/useDashboardStats";
-import MonthlyRevenueChart from "@/components/adminComponents/charts/MontlyRevenueChart";
-import OrderStatusChart from "@/components/adminComponents/charts/OrderStatusChart";
-import PaymentRevenueChart from "@/components/adminComponents/charts/PaymentRevenueChart";
-import LowStockWidget from "@/components/adminComponents/charts/LowStockWidget";
-import TopProductsChart from "@/components/adminComponents/charts/TopProductsChart";
+
+// Lazy load chart components
+const MonthlyRevenueChart = lazy(
+  () => import("@/components/adminComponents/charts/MontlyRevenueChart"),
+);
+const OrderStatusChart = lazy(
+  () => import("@/components/adminComponents/charts/OrderStatusChart"),
+);
+const PaymentRevenueChart = lazy(
+  () => import("@/components/adminComponents/charts/PaymentRevenueChart"),
+);
+const TopProductsChart = lazy(
+  () => import("@/components/adminComponents/charts/TopProductsChart"),
+);
+const LowStockWidget = lazy(
+  () => import("@/components/adminComponents/charts/LowStockWidget"),
+);
+
+// Loading skeleton component
+const ChartLoadingSkeleton = () => (
+  <div className="bg-white rounded-lg shadow p-6 animate-pulse">
+    <div className="h-8 bg-gray-200 rounded mb-4 w-1/3"></div>
+    <div className="h-64 bg-gray-100 rounded"></div>
+  </div>
+);
 
 const DashboardPage = () => {
   const { data: stats, isLoading, error } = useDashboardStats();
@@ -91,11 +106,21 @@ const DashboardPage = () => {
       {/* Stats Cards Container */}
       <OverviewCards cards={overviewCards} />
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-8">
-        <MonthlyRevenueChart />
-        <OrderStatusChart />
-        <PaymentRevenueChart />
-        <TopProductsChart />
-        <LowStockWidget />
+        <Suspense fallback={<ChartLoadingSkeleton />}>
+          <MonthlyRevenueChart />
+        </Suspense>
+        <Suspense fallback={<ChartLoadingSkeleton />}>
+          <OrderStatusChart />
+        </Suspense>
+        <Suspense fallback={<ChartLoadingSkeleton />}>
+          <PaymentRevenueChart />
+        </Suspense>
+        <Suspense fallback={<ChartLoadingSkeleton />}>
+          <TopProductsChart />
+        </Suspense>
+        <Suspense fallback={<ChartLoadingSkeleton />}>
+          <LowStockWidget />
+        </Suspense>
       </div>
     </div>
   );
