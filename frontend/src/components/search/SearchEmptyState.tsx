@@ -4,7 +4,7 @@ interface SearchEmptyStateProps {
   query: string;
 }
 
-const SearchEmptyState: React.FC<SearchEmptyStateProps> = ({ query }) => {
+const SearchEmptyState: React.FC<SearchEmptyStateProps> = () => {
   return (
     <div className="p-6 text-center">
       <div className="w-12 h-12 mx-auto mb-3 bg-gray-100 rounded-full flex items-center justify-center">

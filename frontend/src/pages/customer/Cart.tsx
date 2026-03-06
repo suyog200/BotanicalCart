@@ -44,6 +44,7 @@ const Cart = () => {
                   className="max-w-full h-full object-cover"
                   src={product.imageUrl}
                   alt={product.name}
+                  loading="lazy"
                 />
               </div>
               <div className="flex-1">

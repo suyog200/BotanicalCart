@@ -132,6 +132,7 @@ const CategoryPage = () => {
               src={category.imageUrl}
               alt={category.name}
               className="w-full h-full object-cover"
+              loading="lazy"
             />
           ) : (
             <div className="text-gray-400 text-xs">No image</div>

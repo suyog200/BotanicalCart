@@ -19,14 +19,16 @@ type ServerResponsePage = {
 interface UseProductsParams {
   categoryIds?: string[];
   priceRange?: [number, number];
+  sortBy?: string;
 }
 
 export const useProducts = ({
   categoryIds = [],
   priceRange,
+  sortBy = "default",
 }: UseProductsParams = {}) => {
   return useInfiniteQuery({
-    queryKey: ["products", categoryIds, priceRange],
+    queryKey: ["products", categoryIds, priceRange, sortBy],
     queryFn: async ({ pageParam = 1 }) => {
       const res = await api.get("/api/v1/products", {
         params: {
@@ -38,6 +40,9 @@ export const useProducts = ({
           ...(priceRange && {
             minPrice: priceRange[0],
             maxPrice: priceRange[1],
+          }),
+          ...(sortBy !== "default" && {
+            sortBy,
           }),
         },
       });

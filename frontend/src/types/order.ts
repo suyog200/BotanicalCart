@@ -1,5 +1,6 @@
 export interface OrderItem {
   id: string;
+  productId: string;
   productName: string;
   quantity: number;
   subtotal: number;

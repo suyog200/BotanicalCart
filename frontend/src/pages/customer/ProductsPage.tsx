@@ -7,37 +7,35 @@ import { useProducts } from "@/hooks/useProducts";
 import { useActiveFiltersCount } from "@/hooks/useActiveFiltersCount";
 import { type SortOption } from "@/components/products/PriceFilter";
 
+const Spinner = ({ className = "h-5 w-5" }: { className?: string }) => (
+  <svg className={`animate-spin ${className}`} fill="none" viewBox="0 0 24 24">
+    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+  </svg>
+);
+
 const ProductsPage = () => {
   const [categoryIds, setCategoryIds] = useState<string[]>([]);
   const [priceRange, setPriceRange] = useState<[number, number] | null>(null);
   const [sortBy, setSortBy] = useState<SortOption>("default");
   const [isMobileFiltersOpen, setIsMobileFiltersOpen] = useState(false);
 
-  const activeFiltersCount = useActiveFiltersCount({
+  const activeFiltersCount = useActiveFiltersCount({ categoryIds, priceRange, sortBy });
+
+  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } = useProducts({
     categoryIds,
-    priceRange,
-    sortBy,
+    priceRange: priceRange || undefined,
+    sortBy, // pass to backend — don't sort client-side on paginated data
   });
 
-  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } =
-    useProducts({
-      categoryIds,
-      priceRange: priceRange || undefined,
-    });
+  // Memoized to avoid flatMap on every render
+  const products = useMemo(
+    () => data?.pages.flatMap((page) => page.items) ?? [],
+    [data]
+  );
 
-  const allProducts = data?.pages.flatMap((page) => page.items) ?? [];
-
-  // Sort products based on selected option (client-side sorting)
-  const products = useMemo(() => {
-    if (sortBy === "default") return allProducts;
-    const sorted = [...allProducts];
-    if (sortBy === "price-low") {
-      return sorted.sort((a, b) => a.price - b.price);
-    } else if (sortBy === "price-high") {
-      return sorted.sort((a, b) => b.price - a.price);
-    }
-    return sorted;
-  }, [allProducts, sortBy]);
+  // Use total from API if available, fall back to loaded count
+  const totalCount = products.length;
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -46,8 +44,7 @@ const ProductsPage = () => {
         <div className="lg:hidden mb-6">
           <h1 className="text-2xl font-bold text-gray-800">All Products</h1>
           <p className="text-sm text-gray-600 mt-1">
-            {products.length} {products.length === 1 ? "product" : "products"}{" "}
-            found
+            {totalCount} {totalCount === 1 ? "product" : "products"} found
           </p>
         </div>
 
@@ -69,7 +66,7 @@ const ProductsPage = () => {
             {isLoading ? (
               <div className="flex items-center justify-center py-20">
                 <div className="text-center">
-                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+                  <Spinner className="h-12 w-12 border-b-2 border-primary mx-auto mb-4" />
                   <p className="text-gray-600">Loading products...</p>
                 </div>
               </div>
@@ -86,25 +83,7 @@ const ProductsPage = () => {
                     >
                       {isFetchingNextPage ? (
                         <span className="flex items-center gap-2">
-                          <svg
-                            className="animate-spin h-5 w-5"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                          >
-                            <circle
-                              className="opacity-25"
-                              cx="12"
-                              cy="12"
-                              r="10"
-                              stroke="currentColor"
-                              strokeWidth="4"
-                            />
-                            <path
-                              className="opacity-75"
-                              fill="currentColor"
-                              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                            />
-                          </svg>
+                          <Spinner />
                           Loading...
                         </span>
                       ) : (
@@ -119,7 +98,6 @@ const ProductsPage = () => {
         </div>
       </div>
 
-      {/* Mobile Filters Drawer */}
       <MobileFiltersDrawer
         isOpen={isMobileFiltersOpen}
         onClose={() => setIsMobileFiltersOpen(false)}
@@ -131,7 +109,6 @@ const ProductsPage = () => {
         onSortChange={setSortBy}
       />
 
-      {/* Mobile Filters Toggle Button */}
       <FilterToggleButton
         onClick={() => setIsMobileFiltersOpen(true)}
         activeFiltersCount={activeFiltersCount}

@@ -17,7 +17,7 @@ const Badges = () => {
       </div>
       <div className="flex items-center gap-2 text-sm text-muted-foreground">
         <RefreshCw className="h-4 w-4 text-primary" />
-        30-Day Returns
+        10-Day Returns
       </div>
     </div>
   );

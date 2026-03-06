@@ -18,6 +18,7 @@ const MarqueeRow = ({ reverse = false }: { reverse?: boolean }) => {
                 className="w-11 h-11 rounded-full object-cover"
                 src={review.image}
                 alt={review.name}
+                loading="lazy"
               />
               <div>
                 <div className="flex items-center gap-1 font-semibold text-gray-800">

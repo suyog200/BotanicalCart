@@ -11,7 +11,7 @@ export const BentoGrid = ({
     <div
       className={cn(
         "mx-auto grid max-w-full grid-cols-1 gap-4 md:auto-rows-[18rem] md:grid-cols-3",
-        className
+        className,
       )}
     >
       {children}
@@ -24,9 +24,7 @@ export const BentoGridItem = ({
   title,
   description,
   image,
-  tags,
   category,
-  featured,
 }: {
   className?: string;
   title?: string | React.ReactNode;
@@ -40,7 +38,7 @@ export const BentoGridItem = ({
     <div
       className={cn(
         "group relative w-full h-70 rounded-xl overflow-hidden shadow-md transition duration-300 hover:shadow-xl",
-        className
+        className,
       )}
     >
       {/* Background Image */}
@@ -48,6 +46,7 @@ export const BentoGridItem = ({
         src={image}
         alt=""
         className="absolute inset-0 w-full h-full object-cover transition-transform duration-300 scale-100 group-hover:scale-105"
+        loading="lazy"
       />
 
       {/* Black Overlay on Hover */}
