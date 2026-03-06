@@ -8,9 +8,10 @@ import { ColorfulTextHeader } from "./ColorfulTextHeader";
 import { Leaf } from "lucide-react";
 import PlantCard from "./PlantCard";
 import { Button } from "./ui/button";
+import ProductGridSkeleton from "./skeleton/ProductGridSkeleton";
 
 const MainContent: React.FC = () => {
-  const { data: products } = useHomepageProducts();
+  const { data: products, isLoading } = useHomepageProducts();
   const navigate = useNavigate();
 
   const displayedProducts: Plant[] = products?.slice(0, 50) || [];
@@ -33,6 +34,7 @@ const MainContent: React.FC = () => {
   );
 
   // ... loading/error states unchanged ...
+  if (isLoading) return <ProductGridSkeleton />;
 
   return (
     <main className="container mx-auto px-4 py-12">

@@ -3,13 +3,20 @@ import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import { QuantitySelector } from "@/components/cart/QuantitySelector";
 import toast from "react-hot-toast";
+import { useAuth } from "@clerk/clerk-react";
 
 const Cart = () => {
   const { items, updateQuantity, removeFromCart, itemCount, total } =
     useAppContext();
   const navigate = useNavigate();
+  const { isSignedIn } = useAuth();
 
   const handleCheckout = () => {
+    if (!isSignedIn) {
+      toast.error("Please log in to proceed to checkout");
+      navigate("/sign-in");
+      return;
+    }
     if (items.length === 0) {
       toast("Please add products to cart and continue", {
         icon: "🛒",
