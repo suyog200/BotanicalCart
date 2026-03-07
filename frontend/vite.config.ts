@@ -28,11 +28,10 @@ export default defineConfig({
             if (id.includes("@clerk")) return "vendor-clerk";
             if (id.includes("motion")) return "vendor-motion";
             if (id.includes("@tanstack")) return "vendor-query";
-            if (id.includes("react-router")) return "vendor-router";
-            if (id.includes("react-dom") || id.includes("react/")) return "vendor-react";
             if (id.includes("lucide-react")) return "vendor-lucide";
             if (id.includes("zod")) return "vendor-zod";
             if (id.includes("react-hook-form") || id.includes("@hookform")) return "vendor-forms";
+            if (/\/react(@|-dom|-router)/.test(id)) return "vendor-react";
             return "vendor-misc";
           }
         },
