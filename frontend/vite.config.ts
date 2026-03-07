@@ -31,7 +31,8 @@ export default defineConfig({
             if (id.includes("lucide-react")) return "vendor-lucide";
             if (id.includes("zod")) return "vendor-zod";
             if (id.includes("react-hook-form") || id.includes("@hookform")) return "vendor-forms";
-            if (/\/react(@|-dom|-router)/.test(id)) return "vendor-react";
+            // ✅ scheduler must be bundled with React
+            if (/\/react(@|-dom|-router)/.test(id) || id.includes("scheduler")) return "vendor-react";
             return "vendor-misc";
           }
         },
