@@ -31,9 +31,8 @@ export default defineConfig({
             if (id.includes("lucide-react")) return "vendor-lucide";
             if (id.includes("zod")) return "vendor-zod";
             if (id.includes("react-hook-form") || id.includes("@hookform")) return "vendor-forms";
-            // ✅ scheduler must be bundled with React
-            if (/\/react(@|-dom|-router)/.test(id) || id.includes("scheduler")) return "vendor-react";
-            return "vendor-misc";
+            // ✅ Let Vite auto-chunk ALL React-related packages
+            // Don't manually assign react, react-dom, react-router, scheduler, etc.
           }
         },
       },
