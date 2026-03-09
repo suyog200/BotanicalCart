@@ -4,6 +4,7 @@ import { Toaster } from "react-hot-toast";
 import { Footer } from "./components/Footer";
 import ProtectedRoute from "./auth/ProtectedRoute";
 import { lazy, Suspense } from "react";
+import { useApiWithAuth } from "./hooks/useApiWithAuth";
 
 // Always loaded (critical path)
 import Home from "./pages/customer/Home";
@@ -40,6 +41,7 @@ const PageLoader = () => (
 
 const App = () => {
   const isSellerPath = useLocation().pathname.includes("/admin");
+  useApiWithAuth();
 
   return (
     <div className="bg-(--background) flex flex-col min-h-screen">

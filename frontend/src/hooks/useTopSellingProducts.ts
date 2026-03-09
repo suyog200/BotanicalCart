@@ -6,7 +6,7 @@ export const useTopProducts = () => {
     queryKey: ["top-products"],
     queryFn: async () => {
       const res = await api.get("/api/v1/admin/analytics/top-products");
-      return res.data.data;
+      return res.data.data ?? [];
     },
   });
 };

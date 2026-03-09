@@ -160,7 +160,12 @@ const ProductTable = ({
       render: (product: Product) => (
         <div className="md:px-4 pl-2 md:pl-4 py-3 flex items-center space-x-3 truncate">
           <div className="border border-gray-300 rounded overflow-hidden">
-            <img src={product.imageUrl} alt="Product" className="w-16" loading="lazy"/>
+            <img
+              src={product.imageUrl}
+              alt="Product"
+              className="w-16"
+              loading="lazy"
+            />
           </div>
           <span className="truncate max-sm:hidden w-full">{product.name}</span>
           <span className="truncate max-md:hidden w-full flex gap-2">
@@ -187,7 +192,7 @@ const ProductTable = ({
     {
       key: "price",
       header: "Selling Price",
-      render: (product: Product) => `Rs ${product.price.toFixed(2)}`,
+      render: (product: Product) => `Rs ${(product.price ?? 0).toFixed(2)}`,
       hideOnMobile: true,
     },
     {

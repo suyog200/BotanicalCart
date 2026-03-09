@@ -6,7 +6,7 @@ export const useOrderStatusDistribution = () => {
     queryKey: ["order-status"],
     queryFn: async () => {
       const res = await api.get("/api/v1/admin/analytics/order-status");
-      return res.data.data;
+      return res.data.data ?? [];
     },
   });
 };

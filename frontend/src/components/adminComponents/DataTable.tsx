@@ -35,7 +35,7 @@ interface DataTableProps<T> {
 }
 
 const DataTable = <T,>({
-  data,
+  data = [],
   columns,
   actions = [],
   isLoading,
@@ -132,12 +132,12 @@ const DataTable = <T,>({
                   </th>
                 ))}
                 {actions.length > 0 && (
-                  <th className="px-4 py-3 font-semibold truncate">Actions</th>
+                  <th key="actions-header" className="px-4 py-3 font-semibold truncate">Actions</th>
                 )}
               </tr>
             </thead>
             <tbody className="text-sm text-gray-500">
-              {data.length === 0 && (
+              {data.length === 0 ? (
                 <tr>
                   <td
                     colSpan={columns.length + (actions.length > 0 ? 1 : 0)}
@@ -146,51 +146,54 @@ const DataTable = <T,>({
                     {emptyMessage}
                   </td>
                 </tr>
-              )}
-              {data.map((item, index) => {
-                const itemId = getItemId(item);
-                const isLastItem = index === data.length - 1;
-                const isItemLoading = loadingStates.get(itemId);
+              ) : (
+                data.map((item, index) => {
+                  const itemId = getItemId(item);
+                  const isLastItem = index === data.length - 1;
+                  const isItemLoading = loadingStates.get(itemId);
 
-                return (
-                  <tr
-                    key={itemId}
-                    ref={isLastItem ? lastItemElementRef : null}
-                    className={`border-t border-gray-500/20 ${
-                      isItemLoading ? "opacity-50 pointer-events-none" : ""
-                    }`}
-                  >
-                    {columns.map((column) => (
-                      <td
-                        key={column.key}
-                        className={`px-4 py-3 ${
-                          column.hideOnMobile ? "max-sm:hidden" : ""
-                        } ${column.className || ""}`}
-                      >
-                        {column.render
-                          ? column.render(item, index)
-                          : String((item as any)[column.key] || "")}
-                      </td>
-                    ))}
-                    {actions.length > 0 && (
-                      <td className="px-4 py-3">
-                        <div className="flex items-center justify-end space-x-2">
-                          <ProductTableAction
-                            onEdit={() => actions[0].onClick(item)}
-                            onToggleVisibility={() => actions[1].onClick(item)}
-                            isVisible={(item as any).isVisible ?? true}
-                            isToggling={
-                              actions[1].isLoading
-                                ? actions[1].isLoading(item)
-                                : false
-                            }
-                          />
-                        </div>
-                      </td>
-                    )}
-                  </tr>
-                );
-              })}
+                  return (
+                    <tr
+                      key={itemId}
+                      ref={isLastItem ? lastItemElementRef : null}
+                      className={`border-t border-gray-500/20 ${
+                        isItemLoading ? "opacity-50 pointer-events-none" : ""
+                      }`}
+                    >
+                      {columns.map((column) => (
+                        <td
+                          key={column.key}
+                          className={`px-4 py-3 ${
+                            column.hideOnMobile ? "max-sm:hidden" : ""
+                          } ${column.className || ""}`}
+                        >
+                          {column.render
+                            ? column.render(item, index)
+                            : String((item as any)[column.key] || "")}
+                        </td>
+                      ))}
+                      {actions.length > 0 && (
+                        <td key="actions-cell" className="px-4 py-3">
+                          <div className="flex items-center justify-end space-x-2">
+                            <ProductTableAction
+                              onEdit={() => actions[0].onClick(item)}
+                              onToggleVisibility={() =>
+                                actions[1].onClick(item)
+                              }
+                              isVisible={(item as any).isVisible ?? true}
+                              isToggling={
+                                actions[1].isLoading
+                                  ? actions[1].isLoading(item)
+                                  : false
+                              }
+                            />
+                          </div>
+                        </td>
+                      )}
+                    </tr>
+                  );
+                })
+              )}
             </tbody>
           </table>
 

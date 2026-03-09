@@ -6,7 +6,7 @@ export const usePaymentRevenue = () => {
     queryKey: ["payment-revenue"],
     queryFn: async () => {
       const res = await api.get("/api/v1/admin/analytics/payment-revenue");
-      return res.data.data;
+      return res.data.data ?? [];
     },
   });
 };

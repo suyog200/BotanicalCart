@@ -6,7 +6,7 @@ export const useMonthlyRevenue = () => {
     queryKey: ["monthly-revenue"],
     queryFn: async () => {
       const res = await api.get("/api/v1/admin/analytics/monthly-revenue");
-      return res.data.data;
+      return res.data.data ?? [];
     },
   });
 };

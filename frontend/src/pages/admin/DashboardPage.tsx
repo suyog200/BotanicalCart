@@ -35,11 +35,9 @@ const DashboardPage = () => {
     return <div className="p-8">Loading dashboard...</div>;
   }
 
-  if (error || !stats) {
-    return (
-      <div className="p-8 text-red-500">Error loading dashboard stats</div>
-    );
-  }
+  if (error) {
+  return <div className="p-8 text-red-500">Error loading dashboard stats</div>;
+}
 
   // Define cards data with custom icons and colors
   const overviewCards = [

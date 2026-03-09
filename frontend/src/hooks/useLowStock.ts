@@ -6,7 +6,7 @@ export const useLowStock = () => {
     queryKey: ["low-stock"],
     queryFn: async () => {
       const res = await api.get("/api/v1/admin/analytics/low-stock");
-      return res.data.data;
+      return res.data.data ?? [];
     },
   });
 };

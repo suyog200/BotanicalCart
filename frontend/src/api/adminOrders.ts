@@ -23,8 +23,7 @@ export const getAllAdminOrders = async (
   }
 
   const res = await api.get(`/api/v1/admin/orders?${params.toString()}`);
-  console.log("Fetched admin orders:", res.data);
-  return res.data;
+  return res.data.data;
 };
 
 export const getAdminOrderById = async (orderId: string) => {
