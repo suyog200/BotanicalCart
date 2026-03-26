@@ -23,7 +23,7 @@ export const getAllAdminOrders = async (
   }
 
   const res = await api.get(`/api/v1/admin/orders?${params.toString()}`);
-  return res.data.data;
+  return res.data;
 };
 
 export const getAdminOrderById = async (orderId: string) => {
